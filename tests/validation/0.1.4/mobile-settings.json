@@ -1,0 +1,157 @@
+{
+  "passed": true,
+  "checks": 25,
+  "results": [
+    {
+      "test": "single-column category/detail 320x640",
+      "passed": true,
+      "geometry": {
+        "x": 8,
+        "y": 8,
+        "w": 304,
+        "h": 624,
+        "scroll": 304,
+        "client": 304,
+        "width": 320,
+        "height": 640
+      }
+    },
+    {
+      "test": "single-column category/detail 360x320",
+      "passed": true,
+      "geometry": {
+        "x": 8,
+        "y": 8,
+        "w": 344,
+        "h": 304,
+        "scroll": 344,
+        "client": 344,
+        "width": 360,
+        "height": 320
+      }
+    },
+    {
+      "test": "single-column category/detail 360x240",
+      "passed": true,
+      "geometry": {
+        "x": 8,
+        "y": 8,
+        "w": 344,
+        "h": 224,
+        "scroll": 344,
+        "client": 344,
+        "width": 360,
+        "height": 240
+      }
+    },
+    {
+      "test": "single-column category/detail 393x700",
+      "passed": true,
+      "geometry": {
+        "x": 8,
+        "y": 8,
+        "w": 377,
+        "h": 684,
+        "scroll": 377,
+        "client": 377,
+        "width": 393,
+        "height": 700
+      }
+    },
+    {
+      "test": "single-column category/detail 600x800",
+      "passed": true,
+      "geometry": {
+        "x": 8,
+        "y": 8,
+        "w": 584,
+        "h": 784,
+        "scroll": 584,
+        "client": 584,
+        "width": 600,
+        "height": 800
+      }
+    },
+    {
+      "test": "category return preserves original provider editor and unsaved draft",
+      "passed": true
+    },
+    {
+      "test": "official add-provider mode switch preserves hidden custom draft",
+      "passed": true
+    },
+    {
+      "test": "official editable model row uses a single grid column",
+      "passed": true
+    },
+    {
+      "test": "custom model actions reachable 320x640",
+      "passed": true
+    },
+    {
+      "test": "custom model actions reachable 360x320",
+      "passed": true
+    },
+    {
+      "test": "custom model actions reachable 360x240",
+      "passed": true
+    },
+    {
+      "test": "custom model actions reachable 393x700",
+      "passed": true
+    },
+    {
+      "test": "custom model actions reachable 600x800",
+      "passed": true
+    },
+    {
+      "test": "disabling/re-enabling presentation keeps official model fields and drafts",
+      "passed": true
+    },
+    {
+      "test": "official plugin inventory loaded",
+      "passed": true
+    },
+    {
+      "test": "plugin inventory local search and empty results",
+      "passed": true
+    },
+    {
+      "test": "official plugin metadata disclosure (no toggle/install)",
+      "passed": true
+    },
+    {
+      "test": "plugin single-column fit 320x640",
+      "passed": true
+    },
+    {
+      "test": "plugin single-column fit 360x320",
+      "passed": true
+    },
+    {
+      "test": "plugin single-column fit 360x240",
+      "passed": true
+    },
+    {
+      "test": "plugin single-column fit 393x700",
+      "passed": true
+    },
+    {
+      "test": "plugin single-column fit 600x800",
+      "passed": true
+    },
+    {
+      "test": "1280px official desktop settings geometry unchanged",
+      "passed": true
+    },
+    {
+      "test": "official modal Escape closes settings without intercepted key handling",
+      "passed": true
+    },
+    {
+      "test": "no uncaught page or slot errors",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

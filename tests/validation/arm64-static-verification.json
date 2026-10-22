@@ -1,0 +1,8 @@
+ZIP SHA256: 2706569fee0514dc2c51af2bf90e5847fc4846ba431a969b3c4dc78762bc27e4
+ELF files: 121; bundled DT_NEEDED: 19; system allowlist: ['libandroid.so', 'libc.so', 'libdl.so', 'libgcc.so', 'libjnigraphics.so', 'liblog.so', 'libm.so', 'libstdc++.so', 'libz.so']
+WARN: ignored host optional addon: lib/node_modules/@deepseek-ai/node-addon-system-linux-x64/bin/landlock-run
+WARN: ignored host optional addon: lib/node_modules/@deepseek-ai/node-addon-system-linux-x64/bin/glibc/system.node
+WARN: ignored host optional addon: lib/node_modules/@deepseek-ai/node-addon-system-linux-x64/bin/musl/system.node
+WARN: ignored host optional addon: lib/node_modules/@koromix/koffi-linux-x64/linux_x64/koffi.node
+WARN: ignored host optional addon: lib/node_modules/@koromix/koffi-linux-x64/musl_x64/koffi.node
+PASS: 45220 ZIP entries, paths/symlinks safe, ELF closure resolved

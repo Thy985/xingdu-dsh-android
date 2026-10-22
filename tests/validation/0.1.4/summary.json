@@ -1,0 +1,53 @@
+{
+  "version": "0.1.4-dev",
+  "unitTests": 23,
+  "unitFailures": 0,
+  "unitErrors": 0,
+  "unitSuites": [
+    {
+      "name": "io.github.zhanxing.dshandroid.ConnectionAttemptTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "io.github.zhanxing.dshandroid.LogParserTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "io.github.zhanxing.dshandroid.RuntimeCommitTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "io.github.zhanxing.dshandroid.SecurityHelpersTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "io.github.zhanxing.dshandroid.ServiceLifecycleTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "lint": {
+    "Warning": 8
+  },
+  "hostChromiumChecks": 57,
+  "androidInstrumentationCompiled": 5,
+  "androidInstrumentationExecuted": 0,
+  "arm64DeviceValidated": false,
+  "runtimeUnchanged": true,
+  "officialUpstreamUnchanged": true,
+  "thirdPartyUnchanged": true
+}

@@ -1,0 +1,20 @@
+{
+  "version": "0.1.6-dev",
+  "versionCode": 7,
+  "jvm": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "instrumentation_compiled": 14,
+  "instrumentation_executed": 0,
+  "android_device_available": false,
+  "lint": "0 errors, 7 warnings",
+  "runtime_static": "passed",
+  "apk_signature": "verified; same certificate as 0.1.5-dev",
+  "system_picker_ui_tested": false,
+  "external_folder_workspace_mode": "one-time SAF snapshot import, not live filesystem mount",
+  "build": "testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest successful",
+  "screenshots": "none; no device UI operated"
+}

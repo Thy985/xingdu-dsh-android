@@ -1,0 +1,8 @@
+PASS native-flock-contention-rejected
+PASS native-flock-invalid-descriptor-rejected
+PASS native-flock-released-on-close
+PASS bionic-bash-subprocess
+PASS bionic-ripgrep-subprocess
+PASS native-pty-roundtrip
+PASS official-dsh-version-pinned
+{"success":true,"platform":"android","arch":"x64","node":"v24.18.0","checks":["native-flock-contention-rejected","native-flock-invalid-descriptor-rejected","native-flock-released-on-close","bionic-bash-subprocess","bionic-ripgrep-subprocess","native-pty-roundtrip","official-dsh-version-pinned"]}

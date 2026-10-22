@@ -1,0 +1,38 @@
+{
+  "version": "0.1.5-dev",
+  "versionCode": 6,
+  "officialDshVersion": "0.2.1-rc.2",
+  "jvm": {
+    "tests": 25,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "hostChromium": {
+    "suites": {
+      "mobile-feedback": 11,
+      "mobile-composition": 17,
+      "mobile-settings": 25,
+      "mobile-web": 15
+    },
+    "totalChecks": 68,
+    "modelRequestsSent": 0,
+    "terminalCommandsSent": 0,
+    "realAndroidWebView": false
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 7
+  },
+  "android": {
+    "availableAdbDevices": 0,
+    "instrumentationTestsCompiled": 6,
+    "instrumentationTestsExecuted": 0,
+    "arm64DeviceEndToEnd": "not run",
+    "androidImeAndWebView": "not run"
+  },
+  "apkSignature": "verified; same debug signer as 0.1.4-dev",
+  "runtime": "unchanged; ARM64 static ZIP/ELF validation passed",
+  "officialUpstream": "unchanged; working tree clean",
+  "releasePublished": false
+}

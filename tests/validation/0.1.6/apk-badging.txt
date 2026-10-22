@@ -1,0 +1,18 @@
+package: name='io.github.zhanxing.dshandroid' versionCode='7' versionName='0.1.6-dev' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'
+sdkVersion:'26'
+targetSdkVersion:'28'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
+application-label:'DSH Android · 本机版'
+application: label='DSH Android · 本机版' icon=''
+application-debuggable
+launchable-activity: name='io.github.zhanxing.dshandroid.MainActivity'  label='' icon=''
+feature-group: label=''
+  uses-feature: name='android.hardware.faketouch'
+  uses-implied-feature: name='android.hardware.faketouch' reason='default feature for all apps'
+main
+other-services
+supports-screens: 'small' 'normal' 'large' 'xlarge'
+supports-any-density: 'true'
+locales: '--_--'
+densities: '160'

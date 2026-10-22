@@ -1,0 +1,27 @@
+{
+  "unchangedComparedWith": "0.1.4-dev-source.zip",
+  "runtimeAndSecurityFilesUnchanged": [
+    "app/src/main/assets/runtime.zip",
+    "app/src/main/assets/runtime-manifest.json",
+    "UPSTREAM.json",
+    "app/src/main/AndroidManifest.xml",
+    "app/src/main/res/xml/network_security_config.xml",
+    "app/src/main/java/io/github/zhanxing/dshandroid/DshService.java",
+    "app/src/main/java/io/github/zhanxing/dshandroid/LocalOriginPolicy.java",
+    "app/src/main/java/io/github/zhanxing/dshandroid/UrlPolicy.java",
+    "app/src/main/java/io/github/zhanxing/dshandroid/MobileWebAdapter.java",
+    "third_party/runtime/dsh_pty_exec.c",
+    "third_party/runtime/flock.c",
+    "third_party/runtime/LICENSE",
+    "third_party/runtime/LICENSE-Soodok",
+    "third_party/runtime/node-api-headers/LICENSE",
+    "third_party/runtime/node-api-headers/include/js_native_api.h",
+    "third_party/runtime/node-api-headers/include/js_native_api_types.h",
+    "third_party/runtime/node-api-headers/include/node_api.h",
+    "third_party/runtime/node-api-headers/include/node_api_types.h"
+  ],
+  "officialUpstreamWorkingTreeClean": true,
+  "officialDshVersion": "0.2.1-rc.2",
+  "localOnlyOrigin": "http://127.0.0.1:3080",
+  "noReleasePublished": true
+}

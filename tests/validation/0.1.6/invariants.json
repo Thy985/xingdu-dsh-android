@@ -1,0 +1,14 @@
+{
+  "app/src/main/AndroidManifest.xml": true,
+  "app/src/main/java/io/github/zhanxing/dshandroid/DshService.java": true,
+  "app/src/main/java/io/github/zhanxing/dshandroid/UrlPolicy.java": true,
+  "app/src/main/java/io/github/zhanxing/dshandroid/LocalOriginPolicy.java": true,
+  "app/src/main/assets/runtime-manifest.json": true,
+  "app/src/main/assets/mobile/mobile.js": true,
+  "app/src/main/assets/mobile/mobile.css": true,
+  "mobile-shell/src/client.js": true,
+  "mobile-shell/src/mobile.css": true,
+  "runtime_zip_unchanged": true,
+  "webview_file_and_content_access_still_disabled": true,
+  "same_debug_signing_certificate": true
+}

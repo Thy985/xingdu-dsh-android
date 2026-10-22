@@ -1,0 +1,13 @@
+.gradle/
+**/build/
+local.properties
+runtime-build/
+__pycache__/
+*.pyc
+*.jks
+*.keystore
+
+# Large artifacts are distributed as GitHub Release assets.
+dist/
+app/src/main/assets/runtime.zip
+*.apk

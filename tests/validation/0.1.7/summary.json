@@ -1,0 +1,41 @@
+{
+  "version": "0.1.7-dev",
+  "versionCode": 8,
+  "applicationLabel": "星渡",
+  "build": "testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest: PASS",
+  "jvm": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 19
+  },
+  "instrumentation": {
+    "compiled": 17,
+    "executed": 0,
+    "reason": "adb device list empty",
+    "byFile": {
+      "app/src/androidTest/java/io/github/zhanxing/dshandroid/MobileLayoutTest.java": 7,
+      "app/src/androidTest/java/io/github/zhanxing/dshandroid/SafTransferTest.java": 10
+    }
+  },
+  "arm64RuntimeStatic": "PASS",
+  "immutableFiles": {
+    "immutableFilesChanged": [],
+    "checkedFiles": 16,
+    "upstreamBefore": "",
+    "upstreamAfter": "",
+    "upstreamUnchanged": true
+  },
+  "sameDebugSigningCertificateAs": "0.1.6-dev",
+  "remoteMinimumApi": 28,
+  "localMinimumApi": 26,
+  "targetSdk": 28,
+  "actualPhoneValidation": false,
+  "lanOrTailscaleLiveValidation": false,
+  "safProviderWriteBackLiveValidation": false,
+  "releasePublished": false
+}

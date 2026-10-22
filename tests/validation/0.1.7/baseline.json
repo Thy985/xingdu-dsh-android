@@ -1,0 +1,21 @@
+{
+  "sha256": {
+    "app/src/main/assets/runtime.zip": "2706569fee0514dc2c51af2bf90e5847fc4846ba431a969b3c4dc78762bc27e4",
+    "app/src/main/assets/runtime-manifest.json": "a73920ce202a654fe912bad99127cf59a7d080c3fa4b7ba752b301495f8078fa",
+    "app/src/main/java/io/github/zhanxing/dshandroid/DshService.java": "ad7afcd14e6b3132fc5c7f127f176ea8b5b792289db2ebff6a21b4cb4e2d6699",
+    "app/src/main/java/io/github/zhanxing/dshandroid/UrlPolicy.java": "e6ce0fd2f9f44891c4c33419eb335e06eec17ce17efea1ec582ead26907813fe",
+    "app/src/main/java/io/github/zhanxing/dshandroid/LocalOriginPolicy.java": "3174a85544023dd91008d126c461f4c4d7f942a45b6fdb517f5693660c2fdad2",
+    "mobile-shell/src/client.js": "66dcd186509df903e611b5e94914ef0ae96d6450feaf5ab3fab4ad65bd4d5f02",
+    "mobile-shell/src/mobile.css": "21d4a13536b36615d60f56091f4b8a1484d342ce06343b1b3f5fa14192b2a389",
+    "third_party/runtime/LICENSE": "ebb4f09972aee8608be255debaf78451a68e95c290f55c240dec2ecfa16ea6be",
+    "third_party/runtime/LICENSE-Soodok": "c573a4642c52750dcbb16b57520a092d11af61035cdd7f0adeef89593df227fb",
+    "third_party/runtime/dsh_pty_exec.c": "6f2b6264bb44a4476d7433ff3e21b7b1fbb67f43385fae72d061c9b0feb295ff",
+    "third_party/runtime/flock.c": "c1aa773c7a62b03ce3973156b928f41773fef9407afd79d71b2f625b5616421f",
+    "third_party/runtime/node-api-headers/LICENSE": "199cdbd54d651051de7be56f998f38e54bc3a14feff53b149fc91c313ebff611",
+    "third_party/runtime/node-api-headers/include/js_native_api.h": "0953395662ea63697cd7a77a9320d94aa2829f9c9569abf3a74272b7a2923ce8",
+    "third_party/runtime/node-api-headers/include/js_native_api_types.h": "e785c16a9ce200e801242275cfd59090b029b5dae309a1a258f48d1570bf35ab",
+    "third_party/runtime/node-api-headers/include/node_api.h": "2d4560831e525b47b060ec8a0864ab73993df9e20215ce9f0fe7b24cd31af32a",
+    "third_party/runtime/node-api-headers/include/node_api_types.h": "a25356630d3058f0a0c8937d9f297e9471e037fda58c2696d8a505c2bd99cb00"
+  },
+  "upstreamStatus": ""
+}

@@ -1,0 +1,63 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'io.github.zhanxing.dshandroid'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'io.github.zhanxing.dshandroid'
+        minSdk 26
+        // Sideload-only developer runtime: modern targets prohibit exec from app data.
+        targetSdk 28
+        versionCode 8
+        versionName '0.1.7-dev'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildTypes {
+        release { minifyEnabled false }
+    }
+    androidResources { noCompress += ['zip'] }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+}
+
+def verifyRuntime = tasks.register('verifyBundledRuntime') {
+    def zipFile = file('src/main/assets/runtime.zip')
+    def manifestFile = file('src/main/assets/runtime-manifest.json')
+    inputs.files(zipFile, manifestFile)
+    doLast {
+        if (!zipFile.isFile() || !manifestFile.isFile()) {
+            throw new GradleException('Missing runtime.zip/runtime-manifest.json; refusing to build a remote-only shell.')
+        }
+        def metadata = new groovy.json.JsonSlurper().parse(manifestFile)
+        if (metadata.dshVersion != '0.2.1-rc.2') throw new GradleException('Unexpected DSH version')
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        zipFile.withInputStream { stream ->
+            byte[] buffer = new byte[65536]
+            int count
+            while ((count = stream.read(buffer)) != -1) digest.update(buffer, 0, count)
+        }
+        def actual = digest.digest().encodeHex().toString()
+        if (actual != metadata.sha256) throw new GradleException('Bundled runtime SHA-256 mismatch')
+    }
+}
+tasks.named('preBuild').configure { dependsOn verifyRuntime }
+
+// Our addon is separate from the immutable official runtime and shares its React instance.
+tasks.register('prepareMobileShell', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', 'scripts/build-mobile-shell.py'
+    inputs.files(rootProject.fileTree('mobile-shell/src'),
+            rootProject.file('mobile-shell/package.json'), rootProject.file('mobile-shell/lib/index.js'),
+            rootProject.file('scripts/build-mobile-shell.py'))
+    outputs.dir file('src/main/assets/addons/mobile-shell')
+    outputs.file rootProject.file('mobile-shell/lib/client.js')
+}
+tasks.named('preBuild').configure { dependsOn 'prepareMobileShell' }

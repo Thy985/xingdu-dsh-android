@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-22T22:33:23" hostname="55d52da071bf" time="0.006">
+  <properties/>
+  <testcase name="sameOriginIncludesSchemeAndEffectivePort" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.001"/>
+  <testcase name="fullHttpIpv6UrlsAreClassifiedWithoutLosingCredentials" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.001"/>
+  <testcase name="invalidPortsAndNonWebSchemesAreRejected" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.001"/>
+  <testcase name="tailscaleAndPrivateIpv4BoundariesAreExact" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.001"/>
+  <testcase name="ipv4IsStrictAndJvmIpv6AuthorityIsNotDoubleBracketed" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.0"/>
+  <testcase name="resourcesMustRemainSameOriginAndHttpMustBeTrusted" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.001"/>
+  <testcase name="httpsDropsQueryAndFragmentOnlyForDisplayPersistence" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.0"/>
+  <testcase name="cleartextNeedsConfirmationAndPrivateAddress" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.001"/>
+  <testcase name="credentialsAreRejectedButFragmentsAreAccepted" classname="io.github.zhanxing.dshandroid.RemoteUrlPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

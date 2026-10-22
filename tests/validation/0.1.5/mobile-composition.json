@@ -1,0 +1,390 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "test": "full-width conversation and additive official slot",
+      "geometry": {
+        "width": 360,
+        "height": 640,
+        "scroll": 360,
+        "center": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 588
+        },
+        "composer": {
+          "x": 8,
+          "y": 278,
+          "w": 337,
+          "h": 124
+        },
+        "hero": {
+          "x": 0,
+          "y": 186,
+          "w": 353,
+          "h": 216
+        },
+        "conversationScroll": {
+          "x": 0,
+          "y": 0,
+          "w": 358,
+          "h": 588
+        },
+        "nav": {
+          "x": 0,
+          "y": 588,
+          "w": 360,
+          "h": 52
+        },
+        "panel": null
+      }
+    },
+    {
+      "test": "official drawer actions and outside dismiss",
+      "passed": true
+    },
+    {
+      "test": "centered empty conversation 320x640",
+      "geometry": {
+        "width": 320,
+        "height": 640,
+        "scroll": 320,
+        "center": {
+          "x": 0,
+          "y": 0,
+          "w": 320,
+          "h": 588
+        },
+        "composer": {
+          "x": 8,
+          "y": 298,
+          "w": 297,
+          "h": 124
+        },
+        "hero": {
+          "x": 0,
+          "y": 206,
+          "w": 313,
+          "h": 216
+        },
+        "conversationScroll": {
+          "x": 0,
+          "y": 40,
+          "w": 318,
+          "h": 548
+        },
+        "nav": {
+          "x": 0,
+          "y": 588,
+          "w": 320,
+          "h": 52
+        },
+        "panel": null
+      }
+    },
+    {
+      "test": "centered empty conversation 360x320",
+      "geometry": {
+        "width": 360,
+        "height": 320,
+        "scroll": 360,
+        "center": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 268
+        },
+        "composer": {
+          "x": 8,
+          "y": 124,
+          "w": 337,
+          "h": 100
+        },
+        "hero": {
+          "x": 0,
+          "y": 84,
+          "w": 353,
+          "h": 140
+        },
+        "conversationScroll": {
+          "x": 0,
+          "y": 40,
+          "w": 358,
+          "h": 228
+        },
+        "nav": {
+          "x": 0,
+          "y": 268,
+          "w": 360,
+          "h": 52
+        },
+        "panel": null
+      }
+    },
+    {
+      "test": "centered empty conversation 393x640",
+      "geometry": {
+        "width": 393,
+        "height": 640,
+        "scroll": 393,
+        "center": {
+          "x": 0,
+          "y": 0,
+          "w": 393,
+          "h": 588
+        },
+        "composer": {
+          "x": 8,
+          "y": 298,
+          "w": 370,
+          "h": 124
+        },
+        "hero": {
+          "x": 0,
+          "y": 206,
+          "w": 386,
+          "h": 216
+        },
+        "conversationScroll": {
+          "x": 0,
+          "y": 40,
+          "w": 391,
+          "h": 548
+        },
+        "nav": {
+          "x": 0,
+          "y": 588,
+          "w": 393,
+          "h": 52
+        },
+        "panel": null
+      }
+    },
+    {
+      "test": "centered empty conversation 600x800",
+      "geometry": {
+        "width": 600,
+        "height": 800,
+        "scroll": 600,
+        "center": {
+          "x": 0,
+          "y": 0,
+          "w": 600,
+          "h": 748
+        },
+        "composer": {
+          "x": 8,
+          "y": 378,
+          "w": 577,
+          "h": 124
+        },
+        "hero": {
+          "x": 0,
+          "y": 286,
+          "w": 593,
+          "h": 216
+        },
+        "conversationScroll": {
+          "x": 0,
+          "y": 40,
+          "w": 598,
+          "h": 708
+        },
+        "nav": {
+          "x": 0,
+          "y": 748,
+          "w": 600,
+          "h": 52
+        },
+        "panel": null
+      }
+    },
+    {
+      "test": "long draft in reduced-height mobile composition",
+      "geometry": {
+        "width": 360,
+        "height": 320,
+        "scroll": 360,
+        "center": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 268
+        },
+        "composer": {
+          "x": 8,
+          "y": 93.203125,
+          "w": 337,
+          "h": 161.59375
+        },
+        "hero": {
+          "x": 0,
+          "y": 53.203125,
+          "w": 353,
+          "h": 201.59375
+        },
+        "conversationScroll": {
+          "x": 0,
+          "y": 40,
+          "w": 358,
+          "h": 228
+        },
+        "nav": {
+          "x": 0,
+          "y": 268,
+          "w": 360,
+          "h": 52
+        },
+        "panel": null
+      },
+      "scroll": {
+        "client": 90,
+        "scroll": 580
+      }
+    },
+    {
+      "test": "official fullscreen tool surface",
+      "geometry": {
+        "width": 393,
+        "height": 700,
+        "scroll": 393,
+        "center": {
+          "x": 0,
+          "y": 0,
+          "w": 393,
+          "h": 648
+        },
+        "composer": {
+          "x": 8,
+          "y": 328,
+          "w": 370,
+          "h": 124
+        },
+        "hero": {
+          "x": 0,
+          "y": 236,
+          "w": 386,
+          "h": 216
+        },
+        "conversationScroll": {
+          "x": 0,
+          "y": 40,
+          "w": 391,
+          "h": 608
+        },
+        "nav": {
+          "x": 0,
+          "y": 648,
+          "w": 393,
+          "h": 52
+        },
+        "panel": {
+          "x": 0,
+          "y": 44,
+          "w": 393,
+          "h": 552
+        }
+      }
+    },
+    {
+      "test": "files and real file preview via official controllers",
+      "passed": true
+    },
+    {
+      "test": "terminal via official openTab; no command sent",
+      "passed": true
+    },
+    {
+      "test": "return to chat preserves official editor and draft",
+      "passed": true
+    },
+    {
+      "test": "settings in mobile composition 320",
+      "dialog": {
+        "x": 8,
+        "y": 8,
+        "width": 304,
+        "height": 624
+      },
+      "navigation": {
+        "x": 8,
+        "y": 8,
+        "width": 304,
+        "height": 624
+      }
+    },
+    {
+      "test": "settings in mobile composition 393",
+      "dialog": {
+        "x": 8,
+        "y": 8,
+        "width": 377,
+        "height": 624
+      },
+      "navigation": {
+        "x": 8,
+        "y": 8,
+        "width": 377,
+        "height": 624
+      }
+    },
+    {
+      "test": "settings in mobile composition 600",
+      "dialog": {
+        "x": 8,
+        "y": 8,
+        "width": 584,
+        "height": 624
+      },
+      "navigation": {
+        "x": 8,
+        "y": 8,
+        "width": 584,
+        "height": 624
+      }
+    },
+    {
+      "test": "composition can be disabled without remounting editor",
+      "passed": true
+    },
+    {
+      "test": "desktop geometry unchanged with mobile addon loaded",
+      "geometry": {
+        "width": 1280,
+        "height": 800,
+        "scroll": 1280,
+        "center": {
+          "x": 280,
+          "y": 0,
+          "w": 1000,
+          "h": 800
+        },
+        "composer": {
+          "x": 420.5,
+          "y": 393,
+          "w": 712,
+          "h": 114
+        },
+        "hero": {
+          "x": 404.5,
+          "y": 301,
+          "w": 744,
+          "h": 238
+        },
+        "conversationScroll": {
+          "x": 280,
+          "y": 40,
+          "w": 998,
+          "h": 760
+        },
+        "nav": null,
+        "panel": null
+      }
+    },
+    {
+      "test": "uncaught page errors",
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+/* Scoped to a mounted additive mobile component and the native presentation flag. */
+@media (max-width:600px) {
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-dsh-mobile-frame] {
+    grid-template-columns: 0 minmax(0,1fr) 0 !important;
+    padding-bottom:52px;
+    box-sizing:border-box;
+  }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-shell-overlay] { z-index:70; }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-dsh-mobile-frame] > [data-dsh-mobile-sidebar] {
+    position:absolute; inset:0 auto 52px 0 !important;
+    width:min(320px,calc(100vw - 44px)) !important; max-width:100%;
+    z-index:30; overflow-y:auto; box-shadow:8px 0 24px #0002;
+  }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-sidebar-collapsed] > [data-dsh-mobile-sidebar] {
+    display:none !important; pointer-events:none;
+  }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-dsh-mobile-sidebar-root] {
+    width:100% !important; min-height:400px;
+  }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-conversation-content][data-content-phase='hero'] [data-conversation-scroll] {
+    justify-content:center;
+    /* Fall back to start when the IME leaves less room than the stack needs. */
+    justify-content:safe center;
+  }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-content-phase='hero'] [data-composer-seat] { margin-top:0; }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-dsh-mobile-hero-stack] { padding-bottom:0; }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-sidebar-right-expand] { display:none; }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-sidebar-right-panel='fullscreen'] { top:44px; bottom:52px; }
+  .dsh-mobile-navigation,.dsh-mobile-tool-actions {
+    position:absolute; display:flex; align-items:center; gap:4px;
+    padding:4px 8px; box-sizing:border-box;
+    color:var(--dsw-alias-label-primary,#111827); background:var(--dsw-alias-bg-base,#fff);
+    pointer-events:auto; border:0; border-top:1px solid var(--dsw-alias-border-l3,#ddd);
+  }
+  .dsh-mobile-navigation { left:0;right:0;bottom:0;height:52px;z-index:72; }
+  .dsh-mobile-navigation button { flex:1; }
+  .dsh-mobile-navigation button,.dsh-mobile-tool-actions button {
+    min-height:44px; min-width:44px; border:0; border-radius:8px;
+    padding:6px 10px; font:inherit; font-size:14px; line-height:1.2;
+    color:inherit; background:transparent; touch-action:manipulation;
+  }
+  .dsh-mobile-navigation button[aria-pressed='true'],.dsh-mobile-navigation button[aria-expanded='true'] {
+    background:var(--dsw-alias-bg-l2,#eef1f8); font-weight:600;
+  }
+  .dsh-mobile-navigation button:disabled,.dsh-mobile-tool-actions button:disabled { opacity:.45; }
+  .dsh-mobile-tool-actions { left:0;right:0;top:0;height:44px;padding-block:0;border-top:0;z-index:71; }
+  .dsh-mobile-tool-actions button { flex:1; padding-block:4px; }
+  .dsh-mobile-backdrop {
+    position:absolute; inset:0 0 52px min(320px,calc(100vw - 44px));
+    padding:0;border:0;border-radius:0;background:#0005;pointer-events:auto;z-index:70;
+  }
+  .dsh-mobile-tools-empty {
+    position:absolute;inset:0 0 52px;overflow-y:auto;box-sizing:border-box;
+    padding:24px 20px;z-index:71;pointer-events:auto;
+    color:var(--dsw-alias-label-primary,#111827);background:var(--dsw-alias-bg-base,#fff);
+  }
+  .dsh-mobile-tools-empty h2 { font-size:20px;margin:0 0 12px; }
+  .dsh-mobile-tools-empty h3 { font-size:16px;margin-top:28px; }
+  .dsh-mobile-tools-empty p { font-size:14px;line-height:1.7; }
+  .dsh-mobile-tools-empty button {
+    min-height:44px;min-width:44px;padding:8px 14px;border-radius:8px;
+    border:1px solid var(--dsw-alias-border-l3,#ddd);font:inherit;color:inherit;
+    background:var(--dsw-alias-bg-l2,#eef1f8);touch-action:manipulation;
+  }
+  .dsh-mobile-error {
+    position:absolute;left:8px;right:8px;bottom:56px;padding:10px;
+    z-index:73;color:#8b1111;background:#fff0ed;border:1px solid #d66;border-radius:8px;pointer-events:auto;
+  }
+}
+@media (max-width:600px) and (max-height:420px) {
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-dsh-mobile-hero-brand] { display:none; }
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-content-phase='hero'] [data-composer-input] { min-height:28px; }
+}
+@media (max-width:600px) and (max-height:300px) {
+  html[data-dsh-android-mobile][data-dsh-mobile-compose] [data-composer-seat] {
+    --dsh-composer-text-max-height:max(24px,calc(var(--dsh-mobile-height,100vh) - 216px));
+  }
+}
+
+/* Settings is an index/detail presentation over the unchanged official modal.
+ * No child slot takeover: hidden forms keep their official React draft state. */
+@media (max-width:600px) {
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-flow] { overflow:hidden; }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-flow] > nav {
+    padding:60px 12px 12px; min-height:0; flex:1; gap:12px;
+  }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-flow] > nav > div:last-child {
+    flex-direction:column; overflow-x:hidden; overflow-y:auto; min-height:0;
+  }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-flow] > nav button {
+    width:100%; min-height:48px; white-space:normal; flex-shrink:0;
+  }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-flow][data-dsh-mobile-settings-view='index'] > div {
+    flex:0; min-height:0;
+  }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-view='index'] > div > div:last-child { display:none; }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-view='detail'] > nav { display:none; }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-flow] > div > div:first-child {
+    position:absolute; top:0; left:0; right:0; height:56px; padding:6px 8px;
+    align-items:center; background:var(--dsw-alias-bg-layer-2,#fff); z-index:1;
+  }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-view='detail'] > div { padding-top:56px; }
+  html[data-dsh-android-mobile] [data-dsh-mobile-settings-flow] > div > div:first-child > div {
+    margin-left:0; flex:1; justify-content:flex-start; min-width:0;
+  }
+  .dsh-mobile-settings-flow { display:flex; align-items:center; gap:8px; min-width:0; }
+  .dsh-mobile-settings-flow button {
+    color:inherit; background:transparent; border:0; font:inherit; min-height:44px;
+    padding:6px; border-radius:8px; flex:none;
+  }
+  .dsh-mobile-settings-location { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-rowHead],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-editorHeader],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-modelListHead],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-modelReasoningHead],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-groupTitleRow] {
+    flex-direction:column; align-items:stretch; gap:8px;
+  }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-rowIdentity],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-fieldLabel] { flex-wrap:wrap; }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-rowActions],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-editorActions] {
+    margin-left:0; display:flex; flex-wrap:wrap; justify-content:flex-start;
+  }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-rowActions] > *,
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-editorActions] > * { flex:1 1 auto; }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-modelRow],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-modelAdvanced],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-modelReasoningRow],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-cards],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-details] {
+    grid-template-columns:minmax(0,1fr);
+  }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-editor],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-addCard],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-setupCard] {
+    padding:12px; min-width:0;
+  }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-tabs] { flex-wrap:wrap; }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-rowName],
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-cardTitle] {
+    overflow-wrap:anywhere; white-space:normal;
+  }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] [data-dsh-mobile-setting-keyInputFilled] { padding-right:48px; }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] input,
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] select { box-sizing:border-box; }
+  html[data-dsh-android-mobile] [data-shortcut-modal='settings'] summary {
+    min-height:44px; display:flex; align-items:center; box-sizing:border-box;
+  }
+}

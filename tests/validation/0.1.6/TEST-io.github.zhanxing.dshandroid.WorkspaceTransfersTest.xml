@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-22T22:00:55" hostname="55d52da071bf" time="0.103">
+  <properties/>
+  <testcase name="publishDoesNotOverwriteAnExistingDestination" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.025"/>
+  <testcase name="importBudgetEnforcesDepthCountAndFileTotalLimits" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.002"/>
+  <testcase name="streamCopyHonorsExactByteLimitsAndCancellationDuringRead" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.004"/>
+  <testcase name="safeNameAcceptsChineseEmojiAndNfcNormalizes" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.003"/>
+  <testcase name="exportRejectsOrdinaryDirectoryFileLinkAndOversizedFile" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.002"/>
+  <testcase name="listReturnsSortedFilesAndDirectoriesAndCountsSymlinkIn200Limit" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.038"/>
+  <testcase name="confinedRejectsOutsideAndSymlinkAncestor" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.003"/>
+  <testcase name="exportRejectsDirectorySymlinkAndOutsideAndReadsBytes" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.002"/>
+  <testcase name="safeNameRejectsPathsControlsNulFormatDotsAndSurrogates" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.002"/>
+  <testcase name="duplicateNfcNamesFailAndBatchIsCleaned" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.002"/>
+  <testcase name="batchPublishesNormallyAndUsesUniqueNonOverwritingDirectories" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.004"/>
+  <testcase name="workspaceRejectsSymlinkedWorkspaceDirectories" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.001"/>
+  <testcase name="publishRechecksWorkspaceAncestorAndCancelledBatchNeverAppears" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.009"/>
+  <testcase name="cancelledAndFailingStreamsCleanStaging" classname="io.github.zhanxing.dshandroid.WorkspaceTransfersTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

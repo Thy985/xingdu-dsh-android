@@ -1,0 +1,52 @@
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:491: Warning: Using setJavaScriptEnabled can introduce XSS vulnerabilities into your application, review carefully [SetJavaScriptEnabled]
+    settings.setJavaScriptEnabled(true);
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SetJavaScriptEnabled":
+   Your code should not invoke setJavaScriptEnabled if you are not sure that
+   your app really requires JavaScript support.
+
+   https://goo.gle/SetJavaScriptEnabled
+   https://developer.android.com/training/articles/security-tips
+
+/workspace/dsh-android-native/app/src/main/AndroidManifest.xml:4: Warning: Should explicitly set android:icon, there is no default [MissingApplicationIcon]
+  <application android:theme="@style/AppTheme" android:label="DSH Android · 本机版" android:allowBackup="false" android:fullBackupContent="false" android:dataExtractionRules="@xml/backup_rules" android:usesCleartextTraffic="false" android:networkSecurityConfig="@xml/network_security_config">
+   ~~~~~~~~~~~
+
+   Explanation for issues of type "MissingApplicationIcon":
+   You should set an icon for the application as whole because there is no
+   default. This attribute must be set as a reference to a drawable resource
+   containing the image (for example @drawable/icon).
+
+   https://developer.android.com/studio/publish/preparing#publishing-configure
+
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:393: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+      status.setText("本机页面已加载 · 127.0.0.1:3080");
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:440: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    status.setText("正在验证本机 Web 服务…");
+                   ~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:512: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        status.setText("正在加载本机 DSH 页面…");
+                       ~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:552: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        status.setText("本机页面已加载 · 127.0.0.1:3080");
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:560: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    status.setText("正在加载本机 DSH 页面…");
+                   ~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SetTextI18n":
+   When calling TextView#setText
+   * Never call Number#toString() to format numbers; it will not handle
+   fraction separators and locale-specific digits properly. Consider using
+   String#format with proper format specifications (%d or %f) instead.
+   * Do not pass a string literal (e.g. "Hello") to display text. Hardcoded
+   text can not be properly translated to other languages. Consider using
+   Android resource strings instead.
+   * Do not build messages by concatenating text chunks. Such messages can not
+   be properly translated.
+
+   https://developer.android.com/guide/topics/resources/localization.html
+
+0 errors, 7 warnings

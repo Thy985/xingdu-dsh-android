@@ -1,0 +1,7 @@
+{
+  "adb": "List of devices attached",
+  "instrumentationExecuted": false,
+  "physicalArm64Executed": false,
+  "reason": "No connected adb device. No new emulator/device run in this iteration.",
+  "androidInstrumentationTestsPlanned": 5
+}

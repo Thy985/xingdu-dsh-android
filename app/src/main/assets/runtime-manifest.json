@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0-dev",
+  "dshVersion": "0.2.1-rc.2",
+  "abi": "arm64-v8a",
+  "runtimeZip": "runtime.zip",
+  "sha256": "2706569fee0514dc2c51af2bf90e5847fc4846ba431a969b3c4dc78762bc27e4",
+  "node": "24.18.0",
+  "build": "Termux aarch64 Bionic; Android NDK 27.2.12479018; API 26",
+  "flock": "Real asynchronous upstream flock.c N-API addon; errno/syscall contract retained",
+  "pty": "Native dsh_pty_exec helper",
+  "publicationLimit": "COPYFILE_EXCL preserves source and no-clobber, but is not atomic crash-safe publication"
+}

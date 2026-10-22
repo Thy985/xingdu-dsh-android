@@ -1,0 +1,26 @@
+{
+  "project": "DeepSeek Harness",
+  "repository": "https://github.com/deepseek-ai/deepseek-harness",
+  "tag": "dsh-v0.2.1-rc.2",
+  "commit": "687f282e86",
+  "npmPackage": "@deepseek-ai/dsh",
+  "version": "0.2.1-rc.2",
+  "license": "MIT",
+  "androidCarrier": "Independent experimental community adaptation; not an official DeepSeek Android release",
+  "runtimeReference": {
+    "repository": "https://github.com/Soodok/Deepseek-Harness-Local-Android",
+    "license": "MIT",
+    "use": "Bionic dependency collection, compatibility patches, and PTY helper; see third-party notices"
+  },
+  "notBasedOn": "/workspace/dsh-android-client",
+  "architecture": {
+    "engine": "Android Bionic Node.js subprocess owned by a foreground service",
+    "profile": "Official dsh web profile",
+    "ui": "Android controls plus official Web UI served on loopback",
+    "data": "App-private home and workspace on the Android device",
+    "remoteHostRequired": false,
+    "rootRequired": false,
+    "separateTermuxAppRequired": false,
+    "localModelBundled": false
+  }
+}

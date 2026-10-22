@@ -1,0 +1,7 @@
+{
+  "availableAdbDevices": 0,
+  "instrumentationTestsCompiled": 6,
+  "instrumentationTestsExecuted": 0,
+  "arm64DeviceEndToEnd": "not run",
+  "androidImeAndWebView": "not run"
+}

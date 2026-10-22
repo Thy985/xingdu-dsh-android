@@ -1,0 +1,110 @@
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:520: Warning: Using setJavaScriptEnabled can introduce XSS vulnerabilities into your application, review carefully [SetJavaScriptEnabled]
+    settings.setJavaScriptEnabled(true);
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/RemoteActivity.java:218: Warning: Using setJavaScriptEnabled can introduce XSS vulnerabilities into your application, review carefully [SetJavaScriptEnabled]
+        s.setJavaScriptEnabled(true);
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SetJavaScriptEnabled":
+   Your code should not invoke setJavaScriptEnabled if you are not sure that
+   your app really requires JavaScript support.
+
+   https://goo.gle/SetJavaScriptEnabled
+   https://developer.android.com/training/articles/security-tips
+
+/workspace/dsh-android-native/app/src/main/res/xml/network_security_config.xml:6: Warning: Insecure Base Configuration [InsecureBaseConfiguration]
+    <base-config cleartextTrafficPermitted="true" />
+                                            ~~~~
+
+   Explanation for issues of type "InsecureBaseConfiguration":
+   Permitting cleartext traffic could allow eavesdroppers to intercept data
+   sent by your app, which impacts the privacy of your users. Consider only
+   allowing encrypted traffic by setting the cleartextTrafficPermitted tag to
+   "false".
+
+   https://goo.gle/InsecureBaseConfiguration
+   https://developer.android.com/preview/features/security-config.html
+
+/workspace/dsh-android-native/app/src/main/res/mipmap-anydpi-v26: Warning: This folder configuration (v26) is unnecessary; minSdkVersion is 26. Merge all the resources in this folder into mipmap-anydpi. [ObsoleteSdkInt]
+
+   Explanation for issues of type "ObsoleteSdkInt":
+   This check flags version checks that are not necessary, because the
+   minSdkVersion (or surrounding known API level) is already at least as high
+   as the version checked for.
+
+   Similarly, it also looks for resources in -vNN folders, such as values-v14
+   where the version qualifier is less than or equal to the minSdkVersion,
+   where the contents should be merged into the best folder.
+
+/workspace/dsh-android-native/app/src/main/res/mipmap-hdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/workspace/dsh-android-native/app/src/main/res/mipmap-mdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/workspace/dsh-android-native/app/src/main/res/mipmap-xhdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/workspace/dsh-android-native/app/src/main/res/mipmap-xxhdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/workspace/dsh-android-native/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/workspace/dsh-android-native/app/src/main/res/drawable-nodpi/ic_launcher_art.png: Warning: Launcher icons should not fill every pixel of their square region; see the design guide for details [IconLauncherShape]
+
+   Explanation for issues of type "IconLauncherShape":
+   According to the Android Design Guide
+   (https://d.android.com/r/studio-ui/designer/material/iconography) your
+   launcher icons should "use a distinct silhouette", a "three-dimensional,
+   front view, with a slight perspective as if viewed from above, so that
+   users perceive some depth."
+
+   The unique silhouette implies that your launcher icon should not be a
+   filled square.
+
+/workspace/dsh-android-native/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml:2: Warning: The application adaptive icon is missing a monochrome tag [MonochromeLauncherIcon]
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+^
+
+   Explanation for issues of type "MonochromeLauncherIcon":
+   If android:roundIcon and android:icon are both in your manifest, you must
+   either remove the reference to android:roundIcon if it is not needed; or,
+   supply the monochrome icon in the drawable defined by the android:roundIcon
+   and android:icon attribute.
+
+   For example, if android:roundIcon and android:icon are both in the
+   manifest, a launcher might choose to use android:roundIcon over
+   android:icon to display the adaptive app icon. Therefore, your themed
+   application iconwill not show if your monochrome attribute is not also
+   specified in android:roundIcon.
+
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:422: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+      status.setText("本机页面已加载 · 127.0.0.1:3080");
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:469: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    status.setText("正在验证本机 Web 服务…");
+                   ~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:546: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        status.setText("正在加载本机 DSH 页面…");
+                       ~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:597: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        status.setText("本机页面已加载 · 127.0.0.1:3080");
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/MainActivity.java:605: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+    status.setText("正在加载本机 DSH 页面…");
+                   ~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/RemoteActivity.java:168: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        http.setText("允许 HTTP（仅可信 LAN / 已建立 VPN/Tailscale）");
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/RemoteActivity.java:261: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+                state.setText("正在载入 · " + RemoteUrlPolicy.displayOrigin(selectedOrigin));
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/dsh-android-native/app/src/main/java/io/github/zhanxing/dshandroid/RemoteActivity.java:266: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+                if (!pageFailed) state.setText((http ? "HTTP 未加密" : "HTTPS") + " · 页面已载入（不代表已认证）");
+                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SetTextI18n":
+   When calling TextView#setText
+   * Never call Number#toString() to format numbers; it will not handle
+   fraction separators and locale-specific digits properly. Consider using
+   String#format with proper format specifications (%d or %f) instead.
+   * Do not pass a string literal (e.g. "Hello") to display text. Hardcoded
+   text can not be properly translated to other languages. Consider using
+   Android resource strings instead.
+   * Do not build messages by concatenating text chunks. Such messages can not
+   be properly translated.
+
+   https://developer.android.com/guide/topics/resources/localization.html
+
+0 errors, 19 warnings

@@ -1,0 +1,3 @@
+PASS: mobile adapter tolerates pre-body injection and cleans up lifecycle listeners
+PASS: hero/brand annotations support both official CSS-module naming formats
+PASS: independent module identity, shared React, service injections, inject factory, additive slot ownership, disposal, 3 asset matches, no DOM reparenting/native bridge

@@ -1,0 +1,25 @@
+Mobile client assets ready: /workspace/dsh-android-native/app/src/main/assets/addons/mobile-shell
+RUN mobile-feedback (fresh loopback instance)
+{"passed":true,"checks":11,"out":"/workspace/dsh-android-native/runtime-build/feedback-validation"}
+PASS mobile-feedback
+RUN mobile-composition (fresh loopback instance)
+{
+  "passed": true,
+  "checks": 17,
+  "out": "/workspace/dsh-android-native/runtime-build/mobile-composition"
+}
+PASS mobile-composition
+RUN mobile-settings (fresh loopback instance)
+{
+  "passed": true,
+  "checks": 25,
+  "out": "/workspace/dsh-android-native/runtime-build/settings-validation"
+}
+PASS mobile-settings
+RUN mobile-web (fresh loopback instance)
+{
+  "passed": true,
+  "checks": 15,
+  "out": "/workspace/dsh-android-native/runtime-build/mobile-web"
+}
+PASS mobile-web

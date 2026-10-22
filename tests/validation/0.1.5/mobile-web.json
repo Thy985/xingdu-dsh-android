@@ -1,0 +1,451 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "test": "360px actual official UI",
+      "before": {
+        "width": 360,
+        "height": 640,
+        "scroll": 360,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 304,
+          "h": 640
+        },
+        "composer": {
+          "x": 72,
+          "y": 311.5,
+          "w": 265,
+          "h": 114
+        },
+        "dialog": null
+      },
+      "after": {
+        "width": 360,
+        "height": 640,
+        "scroll": 360,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 304,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 306.5,
+          "w": 281,
+          "h": 124
+        },
+        "dialog": null
+      }
+    },
+    {
+      "test": "sidebar overlay, official toggle",
+      "expanded": {
+        "width": 360,
+        "height": 640,
+        "scroll": 360,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 301,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 304,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 306.5,
+          "w": 281,
+          "h": 124
+        },
+        "dialog": null
+      }
+    },
+    {
+      "test": "settings 320",
+      "geometry": {
+        "width": 320,
+        "height": 640,
+        "scroll": 320,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 320,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 264,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 320,
+          "w": 241,
+          "h": 124
+        },
+        "dialog": {
+          "x": 8,
+          "y": 8,
+          "w": 304,
+          "h": 624
+        }
+      }
+    },
+    {
+      "test": "settings 360",
+      "geometry": {
+        "width": 360,
+        "height": 640,
+        "scroll": 360,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 304,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 306.5,
+          "w": 281,
+          "h": 124
+        },
+        "dialog": {
+          "x": 8,
+          "y": 8,
+          "w": 344,
+          "h": 624
+        }
+      }
+    },
+    {
+      "test": "settings 393",
+      "geometry": {
+        "width": 393,
+        "height": 640,
+        "scroll": 393,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 393,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 337,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 288,
+          "w": 314,
+          "h": 124
+        },
+        "dialog": {
+          "x": 8,
+          "y": 8,
+          "w": 377,
+          "h": 624
+        }
+      }
+    },
+    {
+      "test": "settings 600",
+      "geometry": {
+        "width": 600,
+        "height": 640,
+        "scroll": 600,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 600,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 544,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 288,
+          "w": 521,
+          "h": 124
+        },
+        "dialog": {
+          "x": 8,
+          "y": 8,
+          "w": 584,
+          "h": 624
+        }
+      }
+    },
+    {
+      "test": "reduced-height geometry (not real IME)",
+      "geometry": {
+        "width": 360,
+        "height": 320,
+        "scroll": 360,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 320
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 320
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 304,
+          "h": 320
+        },
+        "composer": {
+          "x": 64,
+          "y": 146.5,
+          "w": 281,
+          "h": 124
+        },
+        "dialog": {
+          "x": 8,
+          "y": 8,
+          "w": 344,
+          "h": 304
+        }
+      }
+    },
+    {
+      "test": "desktop unchanged at 1280px",
+      "geometry": {
+        "width": 1280,
+        "height": 800,
+        "scroll": 1280,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 1280,
+          "h": 800
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 280,
+          "h": 800
+        },
+        "center": {
+          "x": 280,
+          "y": 0,
+          "w": 1000,
+          "h": 800
+        },
+        "composer": {
+          "x": 420.5,
+          "y": 373,
+          "w": 712,
+          "h": 114
+        },
+        "dialog": null
+      }
+    },
+    {
+      "test": "adapter toggle without reload",
+      "passed": true
+    },
+    {
+      "test": "multiline draft 320x640",
+      "geometry": {
+        "width": 320,
+        "height": 640,
+        "scroll": 320,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 320,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 264,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 282,
+          "w": 241,
+          "h": 240
+        },
+        "dialog": null
+      },
+      "draftMetrics": {
+        "client": 168,
+        "scroll": 1156
+      }
+    },
+    {
+      "test": "multiline draft 360x320",
+      "geometry": {
+        "width": 360,
+        "height": 320,
+        "scroll": 360,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 320
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 320
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 304,
+          "h": 320
+        },
+        "composer": {
+          "x": 64,
+          "y": 147.703125,
+          "w": 281,
+          "h": 161.59375
+        },
+        "dialog": null
+      },
+      "draftMetrics": {
+        "client": 90,
+        "scroll": 1156
+      }
+    },
+    {
+      "test": "multiline draft 393x640",
+      "geometry": {
+        "width": 393,
+        "height": 640,
+        "scroll": 393,
+        "frame": {
+          "x": 0,
+          "y": 0,
+          "w": 393,
+          "h": 640
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "w": 56,
+          "h": 640
+        },
+        "center": {
+          "x": 56,
+          "y": 0,
+          "w": 337,
+          "h": 640
+        },
+        "composer": {
+          "x": 64,
+          "y": 250,
+          "w": 314,
+          "h": 240
+        },
+        "dialog": null
+      },
+      "draftMetrics": {
+        "client": 168,
+        "scroll": 1156
+      }
+    },
+    {
+      "test": "real editor identity, draft, composition Enter, plus-menu",
+      "passed": true
+    },
+    {
+      "test": "viewport exact restoration",
+      "passed": true
+    },
+    {
+      "test": "uncaught page errors",
+      "errors": []
+    }
+  ]
+}

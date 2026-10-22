@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Android cannot express private-IP CIDRs here. Explicit in-app consent and
+         RemoteUrlPolicy constrain remote HTTP; the local WebView gates other HTTP origins.
+         This config is NOT a network sandbox for arbitrary code in the application UID. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

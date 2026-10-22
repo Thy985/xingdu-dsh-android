@@ -1,0 +1,25 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: Tools must explain prerequisites instead of silently disabling before a session exists\n    at /workspace/dsh-android-native/tests/mobile-feedback.cjs:26:2",
+  "results": [
+    {
+      "test": "initial state",
+      "initial": {
+        "toolsDisabled": true,
+        "hero": {
+          "x": 0,
+          "y": 424,
+          "w": 386,
+          "h": 224
+        },
+        "scroll": {
+          "x": 0,
+          "y": 0,
+          "w": 391,
+          "h": 648
+        }
+      }
+    }
+  ],
+  "errors": []
+}

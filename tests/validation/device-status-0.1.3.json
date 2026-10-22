@@ -1,0 +1,10 @@
+{
+  "androidInstrumentedTests": "not_run",
+  "count": 4,
+  "reason": "No adb device available in this task",
+  "arm64PhysicalDevice": "not_validated",
+  "realIme": "not_validated",
+  "realModelConversation": "not_attempted",
+  "upstreamWorktree": "clean_before_and_after",
+  "runtimeZipUnchanged": true
+}

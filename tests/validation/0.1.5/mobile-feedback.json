@@ -1,0 +1,232 @@
+{
+  "passed": true,
+  "checks": 11,
+  "results": [
+    {
+      "test": "initial state",
+      "initial": {
+        "toolsDisabled": false,
+        "hero": {
+          "x": 0,
+          "y": 216,
+          "w": 386,
+          "h": 216
+        },
+        "scroll": {
+          "x": 0,
+          "y": 0,
+          "w": 391,
+          "h": 648
+        }
+      }
+    },
+    {
+      "test": "no-session tools tap opens actionable official-workspace guidance",
+      "passed": true
+    },
+    {
+      "test": "official workspace dialog centered at height 700",
+      "box": {
+        "x": 24,
+        "y": 100,
+        "width": 345,
+        "height": 500
+      },
+      "passed": true
+    },
+    {
+      "test": "official workspace dialog centered at height 320",
+      "box": {
+        "x": 24,
+        "y": 16,
+        "width": 345,
+        "height": 288
+      },
+      "passed": true
+    },
+    {
+      "test": "center and real touch navigation 320x640",
+      "geometry": {
+        "hero": {
+          "x": 0,
+          "y": 206,
+          "w": 313,
+          "h": 216
+        },
+        "scroll": {
+          "x": 0,
+          "y": 40,
+          "w": 318,
+          "h": 548
+        },
+        "nav": {
+          "x": 0,
+          "y": 588,
+          "w": 320,
+          "h": 52
+        },
+        "card": {
+          "x": 8,
+          "y": 298,
+          "w": 297,
+          "h": 124
+        }
+      },
+      "passed": true
+    },
+    {
+      "test": "center and real touch navigation 360x640",
+      "geometry": {
+        "hero": {
+          "x": 0,
+          "y": 206,
+          "w": 353,
+          "h": 216
+        },
+        "scroll": {
+          "x": 0,
+          "y": 40,
+          "w": 358,
+          "h": 548
+        },
+        "nav": {
+          "x": 0,
+          "y": 588,
+          "w": 360,
+          "h": 52
+        },
+        "card": {
+          "x": 8,
+          "y": 298,
+          "w": 337,
+          "h": 124
+        }
+      },
+      "passed": true
+    },
+    {
+      "test": "center and real touch navigation 393x700",
+      "geometry": {
+        "hero": {
+          "x": 0,
+          "y": 236,
+          "w": 386,
+          "h": 216
+        },
+        "scroll": {
+          "x": 0,
+          "y": 40,
+          "w": 391,
+          "h": 608
+        },
+        "nav": {
+          "x": 0,
+          "y": 648,
+          "w": 393,
+          "h": 52
+        },
+        "card": {
+          "x": 8,
+          "y": 328,
+          "w": 370,
+          "h": 124
+        }
+      },
+      "passed": true
+    },
+    {
+      "test": "center and real touch navigation 600x800",
+      "geometry": {
+        "hero": {
+          "x": 0,
+          "y": 286,
+          "w": 593,
+          "h": 216
+        },
+        "scroll": {
+          "x": 0,
+          "y": 40,
+          "w": 598,
+          "h": 708
+        },
+        "nav": {
+          "x": 0,
+          "y": 748,
+          "w": 600,
+          "h": 52
+        },
+        "card": {
+          "x": 8,
+          "y": 378,
+          "w": 577,
+          "h": 124
+        }
+      },
+      "passed": true
+    },
+    {
+      "test": "center and real touch navigation 360x320",
+      "geometry": {
+        "hero": {
+          "x": 0,
+          "y": 84,
+          "w": 353,
+          "h": 140
+        },
+        "scroll": {
+          "x": 0,
+          "y": 40,
+          "w": 358,
+          "h": 228
+        },
+        "nav": {
+          "x": 0,
+          "y": 268,
+          "w": 360,
+          "h": 52
+        },
+        "card": {
+          "x": 8,
+          "y": 124,
+          "w": 337,
+          "h": 100
+        }
+      },
+      "passed": true
+    },
+    {
+      "test": "center and real touch navigation 360x240",
+      "geometry": {
+        "hero": {
+          "x": 0,
+          "y": 46,
+          "w": 353,
+          "h": 136
+        },
+        "scroll": {
+          "x": 0,
+          "y": 40,
+          "w": 358,
+          "h": 148
+        },
+        "nav": {
+          "x": 0,
+          "y": 188,
+          "w": 360,
+          "h": 52
+        },
+        "card": {
+          "x": 8,
+          "y": 86,
+          "w": 337,
+          "h": 96
+        }
+      },
+      "passed": true
+    },
+    {
+      "test": "uncaught errors",
+      "errors": []
+    }
+  ]
+}
