@@ -1,0 +1,28 @@
+{
+  "version": "0.1.8-dev",
+  "versionCode": 9,
+  "build": "Debug ARM64 bundled runtime; application and instrumentation APKs assembled",
+  "junit": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "mobileAdapterRegression": "PASS (2 assertions groups)",
+  "screenPrivacyInstrumentation": {
+    "added": 9,
+    "compiled": true,
+    "executed": 0,
+    "reason": "No connected Android device; existing x86_64 emulator cannot start without /dev/kvm hardware acceleration"
+  },
+  "deviceAcceptance": "NOT RUN: real screenshots, recording, recents privacy, live remote-process synchronization and ARM64 engine remain unverified",
+  "unchangedFromPreviousApk": [
+    "runtime.zip",
+    "runtime-manifest.json",
+    "mobile.js",
+    "mobile.css",
+    "mobile-shell client.js"
+  ],
+  "sourceReview": "Existing file-transfer and network policy implementation unchanged; activities only gain privacy controls/lifecycle hooks; manifest only adds private Provider.",
+  "publication": "Local artifacts only; no GitHub push or release"
+}

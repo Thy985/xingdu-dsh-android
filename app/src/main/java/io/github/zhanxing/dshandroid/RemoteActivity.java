@@ -50,6 +50,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 /** Remote-only WebView, declared in the private :remote process. No local service binding. */
 public final class RemoteActivity extends Activity {
+    private ScreenPrivacy screenPrivacy;
     private static final int BLUE = 0xff3268d9, INK = 0xff18243a;
     private static final int MUTED = 0xff65738a, BG = 0xfff4f6fa;
     private static final int MAX_FILES = 16;
@@ -80,7 +81,7 @@ public final class RemoteActivity extends Activity {
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        screenPrivacy = new ScreenPrivacy(this);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         if (!DATA_DIRECTORY_READY) {
             new AlertDialog.Builder(this).setTitle("星渡 · DSH")
@@ -181,6 +182,7 @@ public final class RemoteActivity extends Activity {
         }));
         page.addView(text("安全边界\n拒绝证书错误及跨主机页面/HTTP(S)资源；这不是网页或同 UID 插件的完整网络沙箱。请只连接你自己的可信主机。", 14, MUTED));
         page.addView(text("官方页面上传：最多16个文件，按已知大小预检100 MiB；未知大小并非硬限。远程下载尚未实现。", 13, MUTED));
+        page.addView(button(ScreenPrivacy.TITLE, () -> screenPrivacy.showSettings()));
         page.addView(button("返回本机工作台", this::finish));
         page.addView(text("非 DeepSeek 官方应用 · 星渡", 12, MUTED));
     }
@@ -203,6 +205,12 @@ public final class RemoteActivity extends Activity {
         bar.addView(button("断开", this::confirmDisconnect));
         bar.addView(text("星渡 · DSH", 17, INK), new LinearLayout.LayoutParams(0, -2, 1));
         bar.addView(button("刷新", () -> { if (web != null) web.reload(); }));
+        Button privacy = button("隐私", () -> screenPrivacy.showSettings());
+        privacy.setContentDescription(ScreenPrivacy.TITLE);
+        privacy.setMinWidth(dp(48));
+        privacy.setMinimumWidth(dp(48));
+        privacy.setPadding(0, 0, 0, 0);
+        bar.addView(privacy, new LinearLayout.LayoutParams(dp(48), dp(48)));
         root.addView(bar);
         state = text((http ? "HTTP · " : "HTTPS · ") + RemoteUrlPolicy.displayOrigin(origin), 12, MUTED);
         state.setPadding(dp(16), 0, dp(16), dp(5));
@@ -423,7 +431,23 @@ public final class RemoteActivity extends Activity {
 
     @Override public void onBackPressed() { if (web != null) confirmDisconnect(); else super.onBackPressed(); }
 
+    @Override protected void onStart() {
+        super.onStart();
+        screenPrivacy.refresh();
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        screenPrivacy.refresh();
+    }
+
+    @Override public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && screenPrivacy != null) screenPrivacy.refresh();
+    }
+
     @Override protected void onDestroy() {
+        if (screenPrivacy != null) screenPrivacy.destroy();
         destroyed = true;
         destroyWeb();
         clearSession(false);

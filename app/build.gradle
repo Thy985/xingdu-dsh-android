@@ -8,8 +8,8 @@ android {
         minSdk 26
         // Sideload-only developer runtime: modern targets prohibit exec from app data.
         targetSdk 28
-        versionCode 8
-        versionName '0.1.7-dev'
+        versionCode 9
+        versionName '0.1.8-dev'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     compileOptions {

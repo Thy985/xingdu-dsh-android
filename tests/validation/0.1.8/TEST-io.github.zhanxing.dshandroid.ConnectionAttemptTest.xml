@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.zhanxing.dshandroid.ConnectionAttemptTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-22T23:46:38" hostname="55d52da071bf" time="0.007">
+  <properties/>
+  <testcase name="stopOrDestroyInvalidatesPendingProbe" classname="io.github.zhanxing.dshandroid.ConnectionAttemptTest" time="0.006"/>
+  <testcase name="readinessDoesNotRequireConsumingAuthenticationToken" classname="io.github.zhanxing.dshandroid.ConnectionAttemptTest" time="0.001"/>
+  <testcase name="retryWithSameUrlInvalidatesOldCallback" classname="io.github.zhanxing.dshandroid.ConnectionAttemptTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

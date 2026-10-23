@@ -23,6 +23,10 @@ required = [
     'tests/validation/0.1.7/summary.json',
     'app/src/main/java/io/github/zhanxing/dshandroid/RemoteActivity.java',
     'app/src/main/java/io/github/zhanxing/dshandroid/RemoteUrlPolicy.java',
+    'app/src/main/java/io/github/zhanxing/dshandroid/ScreenPrivacy.java',
+    'app/src/main/java/io/github/zhanxing/dshandroid/ScreenPrivacyProvider.java',
+    'app/src/androidTest/java/io/github/zhanxing/dshandroid/ScreenPrivacyTest.java',
+    'tests/validation/0.1.8/summary.json',
     'branding/xingdu-icon.png',
     'app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml',
     'app/src/test/java/io/github/zhanxing/dshandroid/RemoteUrlPolicyTest.java',
@@ -40,6 +44,8 @@ with zipfile.ZipFile(apk) as archive:
     assert b'SafFixtureProvider' not in dex, 'Test provider leaked into product APK'
     assert b'SafTransferController' in dex, 'Native transfer controller missing from product APK'
     assert b'RemoteActivity' in dex and b'RemoteUrlPolicy' in dex, 'Remote mode missing from product APK'
+    assert b'ScreenPrivacyProvider' in dex and b'ScreenPrivacy;' in dex, 'Screen privacy setting missing'
+    assert b'ScreenPrivacyTest' not in dex, 'Privacy instrumentation tests leaked into product APK'
     assert b'exportSnapshot' in dex, 'Original-folder export missing from product APK'
     assert any(n.startswith('res/mipmap') and 'ic_launcher' in n for n in archive.namelist()), 'Launcher icon missing'
 assert apk.read_bytes() == (root / 'app/build/outputs/apk/debug/app-debug.apk').read_bytes(), 'APK differs from latest build'

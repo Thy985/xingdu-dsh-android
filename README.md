@@ -1,30 +1,54 @@
 # 星渡 · DSH Android
 
-> **非官方 · Debug / 开发预览 · 非稳定版。** 17 项 Android 设备仪器测试只编译、未执行；局域网 / Tailscale 远程连接、真实系统文件提供器及导出回原文件夹均未在真机验收。请先备份数据，只用非敏感文件试用。
+> **非官方 · Debug / 开发预览 · 非稳定版。** Android 设备仪器测试只编译、未执行；局域网 / Tailscale 远程连接、真实系统文件提供器及导出回原文件夹均未在真机验收。请先备份数据，只用非敏感文件试用。
 
 <img src="branding/xingdu-icon.png" alt="星渡图标" width="128">
 
 ## 下载与构建入口
 
-- [0.1.7-dev 开发预览与下载附件](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.1.7-dev-preview)：`Xingdu-DSH-0.1.7-dev-arm64.apk`、含完整内嵌运行时的 `Xingdu-DSH-0.1.7-dev-source.zip`、`SHA256SUMS.txt`。
+- [0.1.8-dev 开发预览与下载附件](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.1.8-dev-preview)：`Xingdu-DSH-0.1.8-dev-arm64.apk`、含完整内嵌运行时的 `Xingdu-DSH-0.1.8-dev-source.zip`、`SHA256SUMS.txt`。
 - APK 是 ARM64 Debug 侧载构建，不是正式签名的稳定发行版。本机模式要求 **Android 8.0+**，远程模式要求 **Android 9+**。
 - “导出回原文件夹”会创建新的 **`xingdu-export-*` 子文件夹**保存副本；不会覆盖原文件，不是实时同步或双向同步。
-- Git 仓库及 GitHub 自动生成的 Source code 归档不含约 211 MiB 的 `app/src/main/assets/runtime.zip`。请下载本项目明确上传的 **`Xingdu-DSH-0.1.7-dev-source.zip`** 获得可构建的完整工程，勿把 GitHub 自动归档当成含运行时的完整源码包。
+- Git 仓库及 GitHub 自动生成的 Source code 归档不含约 211 MiB 的 `app/src/main/assets/runtime.zip`。请下载本项目明确上传的 **`Xingdu-DSH-0.1.8-dev-source.zip`** 获得可构建的完整工程，勿把 GitHub 自动归档当成含运行时的完整源码包。
 
 在同一目录下载两个附件和校验文件后，可运行 `sha256sum -c SHA256SUMS.txt` 校验。直接解压完整源码包，按下文 Android SDK / JDK 构建说明执行即可。如果已 clone 仓库，只需从校验通过的源码包取回运行时（以下命令在仓库根目录执行，并按实际下载位置调整 ZIP 路径）：
 
 ```sh
-unzip -p ../Xingdu-DSH-0.1.7-dev-source.zip \
+unzip -p ../Xingdu-DSH-0.1.8-dev-source.zip \
   dsh-android-native/app/src/main/assets/runtime.zip \
   > app/src/main/assets/runtime.zip
 python3 scripts/runtime/verify-runtime.py app/src/main/assets/runtime.zip --arch aarch64
 ./gradlew assembleDebug
 ```
 
-发布时未修改应用源码、官方上游源码或内嵌运行时；本节是仓库发布与下载说明。下方“没有发布 release”等描述是各轮开发时的历史记录，本次仅发布 **Prerelease 开发预览**。
+本次同步本地已构建的 0.1.8 应用源码和验证记录；官方上游与内嵌运行时未更换。下方“没有发布 release”等描述是各轮开发时的历史记录，本次仅发布 **Prerelease 开发预览**。
 
 
-**本机运行，也能渡向远程。** 应用名称为“星渡”，应用 ID 保持 `io.github.zhanxing.dshandroid`，版本 `0.1.7-dev`（versionCode 8）。这是独立的非官方开发测试版，不是 DeepSeek 官方安卓客户端，尚未完成 ARM64 真机端到端验收，不是正式发行版。
+**本机运行，也能渡向远程。** 应用名称为“星渡”，应用 ID 保持 `io.github.zhanxing.dshandroid`，版本 `0.1.8-dev`（versionCode 9）。这是独立的非官方开发测试版，不是 DeepSeek 官方安卓客户端，用户已反馈真机本地验证，并提供本机 DSH、内置插件、工具/文件及终端页面的人工界面证据；这不是完整端到端验收，亦不是正式发行版。
+
+## 0.1.8-dev：截图与录屏（默认保护）
+
+**默认不允许截图、录屏及不安全投屏。** 本机与远程 Activity 均在显示内容前设置 `FLAG_SECURE`；新装、清除应用数据后默认保护，不根据网页、Intent 或页面切换自动放开。
+
+**入口：** 本机顶部 `⋮ → 截图与录屏`，或首页「安全快捷入口 → 截图与录屏」；远程连接页「截图与录屏」，已连接远程页面顶部「隐私」。打开「允许截图与录屏」后还需点击「理解风险并开启」。关闭无需二次确认，立即恢复保护，不重载 WebView、不停止引擎、不清理远程会话。
+
+**共用且保留：** 本机与局域网 / Tailscale 远程模式使用同一选择；退出、重建和重启应用后保留。`exported=false` 的内部 Provider 在主进程同步提交这一布尔偏好，独立 `:remote` 进程通过 IPC 读取并监听变更，而不是依赖不可靠的跨进程 SharedPreferences 缓存。两个 Activity 在创建、启动、恢复和重新获得焦点时重新应用，观察者同步已存在的窗口。Provider 不可用、缺失选择或保存失败时不主动放开屏幕保护。设置与风险确认对话框也显式设置窗口安全标志。
+
+**最近任务隐私：** 开启后，截图、录像、投屏和最近任务卡片可能包含会话、文件、启动 URL 或密钥；最近任务预览没有独立开关。结束后建议关闭。关闭不会删除已经保存的截图、录像或系统已有的预览；此设置只取消本应用窗口的限制，不能保证系统/厂商一定允许录制，也不提供对 Root、同 UID 插件或恶意系统的隔离保证。没有新增文件、网络权限，没有改变 WebView 源站、HTTP/TLS、远程会话清理或 SAF 文件策略。
+
+**开发验证：** 新增 `ScreenPrivacyTest` Android 仪器测试，测试代码设计覆盖默认保护、显式开关、无关窗口标志保留、Activity 重建、前后台恢复、Provider 私有性及观察者同步；包含针对 `:remote` 窗口跨进程同步的测试代码，但未在设备执行。构建环境无已连接 Android 设备，已有 x86_64 模拟器因缺少 `/dev/kvm` 不能启动，因此仪器测试只编译、没有执行；不能据此宣称实际截图、系统录屏、最近任务卡片、远程进程同步或 ARM64 引擎完整流程已通过真机验收。请在非敏感内容下按关闭→开启→关闭顺序，在两个模式测试截图、系统录屏、最近任务、旋转、前后台和强制停止后重启。
+
+构建：`./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon`。设备定向验证：`./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=io.github.zhanxing.dshandroid.ScreenPrivacyTest`。证据见 `tests/validation/0.1.8/`。本次按用户授权同步公开仓库，并发布 `v0.1.8-dev-preview` 开发预发布；APK、含运行时源码 ZIP 与 SHA-256 校验文件作为 Release 附件，不将大二进制提交到 Git。
+
+## 本次真机反馈与验证边界
+
+用户报告已在真机完成本地验证；提供的界面证据显示本机 DSH、内置插件、工具/文件和终端视图可见。此记录是用户人工反馈，不等同于自动化设备测试或全功能验收。**不上传用户截图，也不将截图内容、启动凭证或用户配置纳入仓库及发布附件。**
+
+- 现有构建记录：Debug 应用与 AndroidTest APK 构建成功，58 项 JVM 单测通过（0 失败、0 错误、0 跳过），移动适配回归 2 组通过；APK v2 签名验证通过。
+- 本次不重跑或冒充已执行的仪器测试：新增屏幕隐私测试 9 项仅编译，执行 0 项。用户能展示页面不代表默认阻止截图、系统录屏、最近任务隐私或跨进程同步已完整验证。
+- 未有明确验证证据：LAN/Tailscale 远程连接、SAF 系统选择器及持久授权/撤销、导出回原文件夹、覆盖升级、模型对话和完整 ARM64 引擎端到端流程。功能实现与设备实测状态分开陈述。
+
+构建时自动化记录保留在 [0.1.8 验证摘要](tests/validation/0.1.8/summary.json)；其中“本地交付/设备未验证”描述为构建当时状态。后续人工反馈和本次公开发布说明见 [发布验证记录](tests/validation/0.1.8/release-validation.md)。下方旧版本的“未发布”等文字同样只代表各轮历史状态。
 
 ## 本机与远程，两种独立模式
 
@@ -58,7 +82,7 @@ Android 网络安全配置无法按任意私网 CIDR 放行 HTTP，因此本版�
 
 ## 历史功能与验证基线
 
-下方 0.1.6-dev 及更早小节保留当时行为和验证记录；与当前版本冲突时以上方 0.1.7 功能说明及末尾本次验证为准。
+下方 0.1.6-dev 及更早小节保留当时行为和验证记录；与当前版本冲突时以上方 0.1.8 功能说明及下方本次验证为准。
 
 ## 0.1.6-dev：系统授权导入与另存为，无需 Root
 
@@ -174,7 +198,7 @@ SAF 原生边界只约束本次传输入口，不是同一 App UID 下恶意插�
 ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
 ```
 
-输出为 `app/build/outputs/apk/debug/app-debug.apk`。已附带运行时资产，不需要为了重新编译 Android 应用再次下载整棵依赖。
+输出为 `app/build/outputs/apk/debug/app-debug.apk`。明确上传的完整源码 ZIP 已附运行时资产，不需要为了重新编译 Android 应用再次下载整棵依赖；Git checkout 或 GitHub 自动源码归档需先按上方步骤恢复 `runtime.zip`。
 
 重新制作运行时需要 Linux、Node/npm、Android NDK 27.2.12479018、dpkg-deb、apt、zip 与 Python；入口 `scripts/runtime/build-runtime.sh <输出zip> aarch64`。依赖来源和许可见 [第三方声明](scripts/runtime/THIRD_PARTY_NOTICES.md)。已附实际解析得到的 npm 隐式锁 `scripts/runtime/dsh-runtime-resolved-lock.json`，但它不等于完整可重放的顶层 npm lock；重新解析的间接依赖与 Termux 软件源可能变化，须重新验收，不能仅靠版本号认定二进制完全可复现。
 

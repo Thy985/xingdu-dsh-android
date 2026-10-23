@@ -1,0 +1,2 @@
+PASS: mobile adapter tolerates pre-body injection and cleans up lifecycle listeners
+PASS: hero/brand annotations support both official CSS-module naming formats

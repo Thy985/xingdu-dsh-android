@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-22T23:46:38" hostname="55d52da071bf" time="0.557">
+  <properties/>
+  <testcase name="nfcDuplicateNamesAreRejected" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.017"/>
+  <testcase name="deletionAndOversizeAfterPreflightStillFailReopen" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.004"/>
+  <testcase name="cancellationIsCheckedDuringTraversal" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.003"/>
+  <testcase name="symlinksAndEscapesAndInvalidRootsAreRejected" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.004"/>
+  <testcase name="totalBytesAndEntryLimitsAreEnforcedBeforeExport" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.376"/>
+  <testcase name="nestedEmptyDirectoriesAndFilesAreSafeSortedPreorder" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.003"/>
+  <testcase name="unsupportedTypeFileCountDepthAndSingleFileLimitsAreRejected" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.127"/>
+  <testcase name="traversalCancellationAndImmutablePlanAreReal" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.004"/>
+  <testcase name="deletionOrReplacementAfterPlanIsDetectedByNoFollowRevalidation" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.002"/>
+  <testcase name="actualFifoIsRejectedWithoutOpeningIt" classname="io.github.zhanxing.dshandroid.SnapshotExportPlanTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

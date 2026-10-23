@@ -1,0 +1,18 @@
+title = "Xingdu public-source secret scan"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "apksigner public-key fingerprints are public verification metadata, not private keys"
+condition = "AND"
+paths = ['''^tests/validation/0\.1\.[5-8]/apk-signature\.txt$''']
+regexTarget = "line"
+regexes = ['''^Signer #1 public key (SHA-256|SHA-1|MD5) digest: [0-9a-f]+$''']
+
+[[allowlists]]
+description = "Baseline SHA-256 values for public Node API header source files"
+condition = "AND"
+paths = ['''^tests/validation/0\.1\.7/baseline\.json$''']
+regexTarget = "line"
+regexes = ['''^\s*"third_party/runtime/node-api-headers/include/(js_native_api|js_native_api_types|node_api|node_api_types)\.h": "[0-9a-f]{64}",?$''']

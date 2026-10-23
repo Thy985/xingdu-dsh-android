@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 /** Local lifecycle controls; remote sessions use a separate activity and WebView process. */
 public final class MainActivity extends Activity {
+  private ScreenPrivacy screenPrivacy;
   private static final String PREF_MOBILE_LAYOUT = "mobile-layout-enabled";
   private LinearLayout root;
   private LinearLayout content;
@@ -82,8 +83,8 @@ public final class MainActivity extends Activity {
 
   @Override public void onCreate(Bundle saved) {
     super.onCreate(saved);
+    screenPrivacy = new ScreenPrivacy(this);
     fileTransfers = new SafTransferController(this, saved);
-    getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     if (android.os.Build.VERSION.SDK_INT >= 28) {
       WindowManager.LayoutParams attributes = getWindow().getAttributes();
@@ -214,13 +215,16 @@ public final class MainActivity extends Activity {
     page.addView(files);
 
     LinearLayout safe = card();
-    addCardTitle(safe, "安全快捷入口", "只读、脱敏");
+    addCardTitle(safe, "安全快捷入口", "脱敏诊断与屏幕隐私设置");
     Button logs = actionButton("查看脱敏日志");
     logs.setOnClickListener(view -> showLog());
     Button diagnostics = actionButton("只读诊断");
     diagnostics.setOnClickListener(view -> showDiagnostics());
     safe.addView(logs, new LinearLayout.LayoutParams(-1, dp(46)));
     safe.addView(diagnostics, new LinearLayout.LayoutParams(-1, dp(46)));
+    Button privacy = actionButton(ScreenPrivacy.TITLE);
+    privacy.setOnClickListener(view -> screenPrivacy.showSettings());
+    safe.addView(privacy, new LinearLayout.LayoutParams(-1, dp(46)));
     page.addView(safe);
 
     LinearLayout note = card();
@@ -340,7 +344,7 @@ public final class MainActivity extends Activity {
   private void showMenu() {
     boolean enabled = getPreferences(0).getBoolean(PREF_MOBILE_LAYOUT, true);
     String layoutAction = enabled ? "关闭手机布局" : "启用手机布局";
-    String[] actions = {"启动", "停止", "重试", "日志", "使用说明", layoutAction, "手机文件（导入 / 导出）", "连接远程主机"};
+    String[] actions = {"启动", "停止", "重试", "日志", "使用说明", layoutAction, "手机文件（导入 / 导出）", "连接远程主机", ScreenPrivacy.TITLE};
     new AlertDialog.Builder(this).setTitle("操作").setItems(actions, (dialog, which) -> {
       if (which == 0) start();
       else if (which == 1) stop();
@@ -349,7 +353,8 @@ public final class MainActivity extends Activity {
       else if (which == 4) showInstructions();
       else if (which == 5) toggleMobileLayout(!enabled);
       else if (which == 6) fileTransfers.showMenu();
-      else openRemote();
+      else if (which == 7) openRemote();
+      else screenPrivacy.showSettings();
     }).show();
   }
 
@@ -625,7 +630,23 @@ public final class MainActivity extends Activity {
     if (fileTransfers != null) fileTransfers.result(requestCode, resultCode, data);
   }
 
+  @Override protected void onStart() {
+    super.onStart();
+    screenPrivacy.refresh();
+  }
+
+  @Override protected void onResume() {
+    super.onResume();
+    screenPrivacy.refresh();
+  }
+
+  @Override public void onWindowFocusChanged(boolean hasFocus) {
+    super.onWindowFocusChanged(hasFocus);
+    if (hasFocus && screenPrivacy != null) screenPrivacy.refresh();
+  }
+
   @Override protected void onDestroy() {
+    if (screenPrivacy != null) screenPrivacy.destroy();
     destroyed = true;
     if (fileTransfers != null) fileTransfers.destroy();
     connectionAttempt.invalidate();
