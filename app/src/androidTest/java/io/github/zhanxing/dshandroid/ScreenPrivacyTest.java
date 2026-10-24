@@ -245,7 +245,11 @@ public final class ScreenPrivacyTest {
         .getUiAutomation().executeShellCommand("dumpsys window windows");
     try (ParcelFileDescriptor.AutoCloseInputStream stream =
         new ParcelFileDescriptor.AutoCloseInputStream(descriptor)) {
-      return new String(stream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+      // InputStream.readAllBytes requires API 33; the app's floor is API 26.
+      java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+      byte[] buffer = new byte[8192];
+      for (int count; (count = stream.read(buffer)) != -1; ) out.write(buffer, 0, count);
+      return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
   }
 
@@ -264,15 +268,18 @@ public final class ScreenPrivacyTest {
         remoteWindow = line.contains(packageName + "/.RemoteActivity")
             || line.contains(packageName + "/io.github.zhanxing.dshandroid.RemoteActivity");
       }
-      if (!remoteWindow || !line.contains("mAttrs=")) continue;
-      Matcher matcher = Pattern.compile("\\bfl=([^\\s,}]+(?:\\|[^\\s,}]+)*)").matcher(line);
+      if (!remoteWindow) continue;
+      // EMUI dumps put fl= on its own line below mAttrs=, so match anywhere in the section.
+      // \bfl= also refuses pfl=/hwFlags= (no word boundary before fl).
+      Matcher matcher = Pattern.compile("\\bfl=(.+)").matcher(line);
       if (matcher.find()) return hasSecureFlagValue(matcher.group(1));
     }
     return null;
   }
 
   private static boolean hasSecureFlagValue(String value) {
-    for (String token : value.split("\\|")) {
+    // Symbolic lists are space- or pipe-separated depending on the vendor dump format.
+    for (String token : value.split("[\\s\\|]+")) {
       if ("FLAG_SECURE".equals(token) || "SECURE".equals(token)) return true;
       try {
         if ((Long.decode(token) & WindowManager.LayoutParams.FLAG_SECURE) != 0) return true;

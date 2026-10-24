@@ -10,7 +10,7 @@
 - 建立 `tests/validation/0.1.9/device-verification-checklist.md` 真机补验清单骨架（仪器测试执行 + README 未验证项逐项补验）。
 - 新增 GitHub Actions CI：JVM 测试 + lint + 构建，从 GitHub Release 源码包按 SHA-256 恢复 `runtime.zip`；仪器测试以手动触发方式提供。首跑通过（Linux，JVM 测试全绿；修复 `setup-android` 默认安装已下架的 `tools` 包）。
 - 首次真机仪器测试尝试（Redmi，Android 17）：仅执行 1/26 即因 IME 用例失败与进程崩溃中断，不计入结论；MIUI「USB 安装」限制待放开后复测，记录见 [tests/validation/0.1.9/device-verification-checklist.md](tests/validation/0.1.9/device-verification-checklist.md)。
-- 真机仪器测试共三轮尝试均未完成全套，定性为设备环境问题（MIUI 进程清理、ActivityScenario 启动竞态、讯飞输入法不缩放窗口、竖屏锁定）；`MobileLayoutTest#nativeChromeAndWelcomeScreenAreRealAndTouchable` 通过（应用在 Android 17 真机正常安装启动）。`ScreenPrivacyTest`（9）与 `SafTransferTest`（10）保持"未验证"，待专用设备或 CI 模拟器执行；完整记录见 0.1.9 验证清单。
+- 真机仪器测试完成执行（华为 DBR-W00，Android 12）：26/26 全部执行，22 通过 / 4 失败。`SafTransferTest` 10/10、`ScreenPrivacyTest` 7/9（含跨进程 `FLAG_SECURE` 同步；2 项失败定性为 androidx `ActivityScenario` 生命周期机制在 EMUI 平板不可用）、`MobileLayoutTest` 5/7（IME 缩放与华为 WebView 错误呈现差异，记未验证/待查）。修复执行中发现的测试代码 bug：`readAllBytes()`（API 33+）改为 minSdk 26 兼容读取、`fl=` 旗标解析适配 EMUI 多行符号格式。MIUI 日常机三轮无法完成执行（进程被杀/场景挂起），已归档定性。详见 [0.1.9 仪器测试记录](tests/validation/0.1.9/instrumented-huawei-dbr-w00.md)。
 - 重构：`DshService` 快照携带类型化引擎状态（`EngineState`），`HomeStatePolicy` 改按状态判定，不再匹配中文日志字符串；状态与通知相关文案迁入 `strings.xml`。行为不变。Windows 本机 JVM 测试 57/58 通过，唯一失败为依赖 POSIX FIFO 的既有用例（重构前同样失败，非本次回归）；Linux/CI 复跑须确认 58/58。
 
 ## 0.1.8-dev（versionCode 9，2026-10-23，`v0.1.8-dev-preview`）

@@ -24,9 +24,9 @@
 
 | 套件 | 数量 | 结论 | 证据文件 |
 | --- | --- | --- | --- |
-| `ScreenPrivacyTest` | 9 | **无法在本设备完成**（见下方记录，待专用设备/CI 模拟器） | 无完成产物 |
-| `MobileLayoutTest` | 7 | 部分：1 通过、2 项因设备设置失败、其余未执行（见下方记录） | 首轮 XML（本地 `app/build/outputs/androidTest-results/`，未归档） |
-| `SafTransferTest` | 10 | **无法在本设备完成**（进程被系统杀死，见下方记录） | 无完成产物 |
+| `ScreenPrivacyTest` | 9 | **已执行（华为 DBR-W00，Android 12）：7 通过 / 2 失败**（失败定性为 androidx ActivityScenario 生命周期机制在 EMUI 平板不可用，非应用缺陷；含跨进程 FLAG_SECURE 同步在内的核心行为通过） | [instrumented-huawei-dbr-w00.md](instrumented-huawei-dbr-w00.md) |
+| `MobileLayoutTest` | 7 | **已执行：5 通过 / 2 失败**（IME 缩放两厂商输入法均不触发——用例为模拟器键盘设计，真机 IME 缩放仍记未验证；主文档 HTTP 错误呈现疑似华为 WebView 差异，记待查；旋转用例在开启旋转后通过） | [instrumented-huawei-dbr-w00.md](instrumented-huawei-dbr-w00.md) |
+| `SafTransferTest` | 10 | **已执行：10/10 通过** | [instrumented-huawei-dbr-w00.md](instrumented-huawei-dbr-w00.md) |
 
 **2026-10-24 真机三轮尝试记录（Redmi 24117RK2CC，HyperOS / Android 17，arm64-v8a；用户日常机）：**
 
