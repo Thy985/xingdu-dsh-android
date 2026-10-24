@@ -28,6 +28,9 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # 'tools' was delisted from the SDK repository; platform 35/build-tools come later.
+          packages: platform-tools
 
       - name: Install SDK components and accept licenses
         run: |
@@ -103,6 +106,8 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: Install SDK components and accept licenses
         run: |
