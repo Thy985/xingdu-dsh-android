@@ -2,7 +2,9 @@
 
 按版本记录功能与工程变更。验证证据以 [tests/validation/](tests/validation/) 各版本归档为准；"测试通过"仅指当轮实际执行的测试。0.1.7 之前的版本为本地交付，无发布日期归档，本节依据当版验证记录与 0.1.7 期 README 历史文档整理。
 
-## 0.1.9（开发中）
+## 0.1.9-dev（versionCode 10，2026-10-24，`v0.1.9-dev-preview`）
+
+工程与验证补全版：运行时与功能面与 0.1.8 相同，聚焦通往正式发布路线的 0.1.9 里程碑（验证补全、工程基础）。
 
 ### 工程与文档
 
@@ -13,6 +15,10 @@
 - 用户人工验收（2026-10-24，整体报告"未发现问题"）：远程局域网连通、SAF 实操、覆盖安装、中文 IME、真实 API 会话五项记录为用户验收通过；Tailscale 连通、屏幕隐私完整系统行为、字号/后台恢复等清单项仍待执行。口径沿用 0.1.8 惯例：用户反馈不折算为逐项自动化验证。
 - 真机仪器测试完成执行（华为 DBR-W00，Android 12）：26/26 全部执行，22 通过 / 4 失败。`SafTransferTest` 10/10、`ScreenPrivacyTest` 7/9（含跨进程 `FLAG_SECURE` 同步；2 项失败定性为 androidx `ActivityScenario` 生命周期机制在 EMUI 平板不可用）、`MobileLayoutTest` 5/7（IME 缩放与华为 WebView 错误呈现差异，记未验证/待查）。修复执行中发现的测试代码 bug：`readAllBytes()`（API 33+）改为 minSdk 26 兼容读取、`fl=` 旗标解析适配 EMUI 多行符号格式。MIUI 日常机三轮无法完成执行（进程被杀/场景挂起），已归档定性。详见 [0.1.9 仪器测试记录](tests/validation/0.1.9/instrumented-huawei-dbr-w00.md)。
 - 重构：`DshService` 快照携带类型化引擎状态（`EngineState`），`HomeStatePolicy` 改按状态判定，不再匹配中文日志字符串；状态与通知相关文案迁入 `strings.xml`。行为不变。Windows 本机 JVM 测试 57/58 通过，唯一失败为依赖 POSIX FIFO 的既有用例（重构前同样失败，非本次回归）；Linux/CI 复跑须确认 58/58。
+
+### 发布产物
+
+- `Xingdu-DSH-0.1.9-dev-arm64.apk`（221,028,258 字节，SHA-256 `45391a7617ba27988ebffa44d805ff649cc54dd5a8f712973ceb298c2539f862`，v2 签名验证通过）、`Xingdu-DSH-0.1.9-dev-source.zip` 与 `SHA256SUMS.txt`，见 `v0.1.9-dev-preview` 发布页。
 
 ## 0.1.8-dev（versionCode 9，2026-10-23，`v0.1.8-dev-preview`）
 

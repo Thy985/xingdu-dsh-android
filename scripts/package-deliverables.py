@@ -30,7 +30,7 @@ with zipfile.ZipFile(built) as candidate:
     for relative in ['package.json', 'lib/index.js', 'lib/client.js']:
         assert candidate.read('assets/addons/mobile-shell/' + relative) == (root / 'mobile-shell' / relative).read_bytes(), relative
 shutil.copyfile(built, apk)
-excluded = {'.git', '.gradle', 'build', 'runtime-build', 'dist', '__pycache__'}
+excluded = {'.git', '.gradle', '.zcode', 'build', 'runtime-build', 'dist', '__pycache__'}
 with zipfile.ZipFile(source, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
     for path in sorted(root.rglob('*')):
         relative = path.relative_to(root)

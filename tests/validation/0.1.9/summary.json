@@ -1,0 +1,47 @@
+{
+  "version": "0.1.9-dev",
+  "versionCode": 10,
+  "build": "Debug ARM64 bundled runtime; application and instrumentation APKs assembled locally (Windows); JVM suite re-run on Linux by GitHub Actions CI on the release commit",
+  "changes": [
+    "Typed EngineState replaces Chinese status-string matching between DshService and HomeStatePolicy; state/notification text moved to strings.xml (behavior-preserving refactor)",
+    "ScreenPrivacyTest fixes found by first-ever execution: API-33 readAllBytes replaced with minSdk-26 read; EMUI multi-line symbolic fl= dump parsing",
+    "GitHub Actions CI added (JVM tests + lint + build + contract test; runtime.zip restored from release source archive by SHA-256)",
+    "ROADMAP.md and CHANGELOG.md introduced; 0.1.9 device verification checklist with instrumented results and user acceptance"
+  ],
+  "jvm": {
+    "tests": 58,
+    "localWindows": "57/58: SnapshotExportPlanTest FIFO case requires a POSIX filesystem; pre-existing platform limitation, fails identically before this version's refactor",
+    "linuxCi": "testDebugUnitTest runs on ubuntu-latest via CI on this release commit; see Actions record"
+  },
+  "instrumentation": {
+    "executed": 26,
+    "passed": 22,
+    "failed": 4,
+    "device": "HUAWEI DBR-W00 tablet, Android 12 (API 31), arm64-v8a, EMUI WebView",
+    "suites": {
+      "SafTransferTest": "10/10 pass",
+      "ScreenPrivacyTest": "7/9 pass; failures are androidx ActivityScenario recreate/moveToState unable to reach RESUMED on EMUI tablet (deterministic across 3 runs, isolated rerun included); default protection, enable/disable, provider privacy, multi-controller sync and cross-process :remote FLAG_SECURE synchronization verified",
+      "MobileLayoutTest": "5/7 pass incl. orientation change with rotation unlocked and typed-state home controls; failures: IME resize not triggered by two vendor IMEs (iFlytek MIUI, Huawei LatinIME) via showSoftInput(SHOW_IMPLICIT) - test authored for emulator keyboards; main-frame HTTP error not surfaced on Huawei WebView within timeout - open question, not classified as an app defect"
+    },
+    "note": "A daily-driver MIUI phone (Redmi, Android 17) could not complete the suite: processes SIGKILLed by vendor power management and an ActivityScenario launch race hung the run; recorded in device-verification-checklist.md"
+  },
+  "deviceAcceptance": {
+    "user": "2026-10-24 user acceptance passed with no issues reported for: LAN remote connectivity, SAF hands-on operations, over-install upgrade, Chinese IME, real-API conversation. Recorded as user acceptance; not converted into per-step automated verification.",
+    "unexecuted": [
+      "Tailscale connectivity",
+      "system screenshot/recording/recents hands-on for FLAG_SECURE both states",
+      "large system font scale",
+      "background recovery incl. running engine",
+      "foreground-service survival across vendor policies",
+      "real soft-keyboard window resize (adjustResize) on device",
+      "SAF grant-revocation and quota-boundary details"
+    ]
+  },
+  "unchangedFromPreviousRelease": [
+    "runtime.zip (Node 24.18.0 / DSH 0.2.1-rc.2)",
+    "runtime-manifest.json",
+    "mobile.js / mobile.css / mobile-shell client.js",
+    "targetSdk 28 sideload trade-off and debug signing"
+  ],
+  "publication": "GitHub prerelease v0.1.9-dev-preview with Xingdu-DSH-0.1.9-dev-arm64.apk, Xingdu-DSH-0.1.9-dev-source.zip, SHA256SUMS.txt"
+}

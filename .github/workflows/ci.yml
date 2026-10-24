@@ -48,8 +48,8 @@ jobs:
         if: steps.runtime-cache.outputs.cache-hit != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v0.1.8-dev-preview
-          ASSET: Xingdu-DSH-0.1.8-dev-source.zip
+          RELEASE_TAG: v0.1.9-dev-preview
+          ASSET: Xingdu-DSH-0.1.9-dev-source.zip
         run: |
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
             --pattern "$ASSET" --output /tmp/source.zip
@@ -126,8 +126,8 @@ jobs:
         if: steps.runtime-cache.outputs.cache-hit != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v0.1.8-dev-preview
-          ASSET: Xingdu-DSH-0.1.8-dev-source.zip
+          RELEASE_TAG: v0.1.9-dev-preview
+          ASSET: Xingdu-DSH-0.1.9-dev-source.zip
         run: |
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
             --pattern "$ASSET" --output /tmp/source.zip
