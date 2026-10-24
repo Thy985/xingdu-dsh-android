@@ -41,7 +41,8 @@ public final class DshService extends Service {
   private volatile boolean starting;
   private volatile boolean stopRequested;
   private volatile String launchUrl;
-  private volatile String state = "未启动";
+  private volatile EngineState state = EngineState.NOT_STARTED;
+  private volatile String stateDetail;
   private FileChannel lockChannel;
   private FileLock instanceLock;
   private int latestStartId;
@@ -49,11 +50,13 @@ public final class DshService extends Service {
   public interface Listener { void onSnapshot(Snapshot snapshot); }
 
   public static final class Snapshot {
-    public final String state;
+    public final EngineState state;
+    public final String detail;
     public final String url;
     public final String logs;
-    Snapshot(String state, String url, String logs) {
+    Snapshot(EngineState state, String detail, String url, String logs) {
       this.state = state;
+      this.detail = detail;
       this.url = url;
       this.logs = logs;
     }
@@ -72,7 +75,7 @@ public final class DshService extends Service {
   @Override public void onCreate() {
     super.onCreate();
     getSystemService(NotificationManager.class).createNotificationChannel(
-        new NotificationChannel("dsh", "DSH 本机服务", NotificationManager.IMPORTANCE_LOW));
+        new NotificationChannel("dsh", getString(R.string.notification_channel), NotificationManager.IMPORTANCE_LOW));
   }
 
   @Override public synchronized int onStartCommand(Intent intent, int flags, int startId) {
@@ -82,7 +85,7 @@ public final class DshService extends Service {
       stopRequested = true;
       generation++;
       launchUrl = null;
-      state = "正在停止…";
+      setState(EngineState.STOPPING, null);
       publish();
       final long stopGeneration = generation;
       worker.execute(() -> stopInternal(stopGeneration, false));
@@ -98,7 +101,7 @@ public final class DshService extends Service {
       starting = true;
       launchUrl = null;
       long ownedGeneration = ++generation;
-      state = "正在校验与安装本机运行时…";
+      setState(EngineState.INSTALLING, null);
       publish();
       worker.execute(() -> startInternal(ownedGeneration));
     }
@@ -113,12 +116,12 @@ public final class DshService extends Service {
         new Intent(this, DshService.class).setAction(STOP),
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     startForeground(42, new Notification.Builder(this, "dsh")
-        .setContentTitle("DSH Android · 本机引擎")
-        .setContentText("仅监听 127.0.0.1 · 开发测试版")
+        .setContentTitle(getString(R.string.notification_title))
+        .setContentText(getString(R.string.notification_text))
         .setContentIntent(content)
         .setSmallIcon(android.R.drawable.stat_sys_upload)
         .setOngoing(true)
-        .addAction(new Notification.Action.Builder(null, "停止引擎", stop).build())
+        .addAction(new Notification.Action.Builder(null, getString(R.string.notification_stop_engine), stop).build())
         .build());
   }
 
@@ -171,7 +174,7 @@ public final class DshService extends Service {
         if (!rejected) {
           process = started;
           processGeneration = ownedGeneration;
-          state = "引擎已启动，等待官方 Web 服务…";
+          setState(EngineState.WAITING_WEB, null);
           publish();
         }
       }
@@ -180,7 +183,7 @@ public final class DshService extends Service {
     } catch (Exception error) {
       synchronized (this) {
         if (!cancelled(ownedGeneration)) {
-          state = "启动失败：" + LogParser.redact(String.valueOf(error.getMessage()));
+          setState(EngineState.FAILED, LogParser.redact(String.valueOf(error.getMessage())));
           closeLock();
           stopForeground(true);
           stopSelfResult(latestStartId);
@@ -204,7 +207,7 @@ public final class DshService extends Service {
           String candidate = LogParser.findLaunchUrl(line);
           if (candidate != null && UrlPolicy.allowed("http://127.0.0.1:3080/", candidate)) {
             launchUrl = candidate;
-            state = "本机 Web 服务已输出认证地址，等待连接验证…";
+            setState(EngineState.URL_READY, null);
           }
           appendLog(line);
           publish();
@@ -221,7 +224,7 @@ public final class DshService extends Service {
           if (generation == ownedGeneration && process == owned) {
             process = null;
             launchUrl = null;
-            state = "引擎已退出（" + code + "），可查看日志后重试";
+            setState(EngineState.EXITED, String.valueOf(code));
             closeLock();
             stopForeground(true);
             stopSelfResult(latestStartId);
@@ -253,7 +256,7 @@ public final class DshService extends Service {
       if (!destroying && requestedGeneration != generation) return;
       launchUrl = null;
       starting = false;
-      state = "已停止";
+      setState(EngineState.STOPPED, null);
       appendLog("Node 主进程已停止；当前开发版不保证回收自行脱离的插件子进程。");
       stopForeground(true);
       if (!destroying) stopSelfResult(latestStartId);
@@ -290,8 +293,13 @@ public final class DshService extends Service {
     }
   }
 
+  private void setState(EngineState next, String detail) {
+    state = next;
+    stateDetail = detail;
+  }
+
   private Snapshot snapshot() {
-    synchronized (logs) { return new Snapshot(state, launchUrl, logs.toString()); }
+    synchronized (logs) { return new Snapshot(state, stateDetail, launchUrl, logs.toString()); }
   }
 
   private void publish() {

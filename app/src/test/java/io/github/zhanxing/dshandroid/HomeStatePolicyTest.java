@@ -7,30 +7,31 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public final class HomeStatePolicyTest {
-  @Test public void classifiesKnownLifecycleStates() {
-    assertEquals(HomeStatePolicy.State.NOT_STARTED, HomeStatePolicy.classify("未启动"));
-    assertEquals(HomeStatePolicy.State.INSTALLING, HomeStatePolicy.classify("正在校验与安装本机运行时…"));
-    assertEquals(HomeStatePolicy.State.WAITING_WEB, HomeStatePolicy.classify("引擎已启动，等待官方 Web 服务…"));
-    assertEquals(HomeStatePolicy.State.STOPPING, HomeStatePolicy.classify("正在停止…"));
-    assertEquals(HomeStatePolicy.State.FAILED, HomeStatePolicy.classify("启动失败：校验失败"));
-    assertEquals(HomeStatePolicy.State.EXITED, HomeStatePolicy.classify("引擎已退出（1），可查看日志后重试"));
-    assertEquals(HomeStatePolicy.State.DISCONNECTED, HomeStatePolicy.classify("服务已断开"));
-    assertEquals(HomeStatePolicy.State.UNKNOWN, HomeStatePolicy.classify("运行中（未知来源）"));
+  @Test public void classifiesTypedEngineStates() {
+    assertEquals(HomeStatePolicy.State.NOT_STARTED, HomeStatePolicy.classify(EngineState.NOT_STARTED));
+    assertEquals(HomeStatePolicy.State.NOT_STARTED, HomeStatePolicy.classify(EngineState.STOPPED));
+    assertEquals(HomeStatePolicy.State.INSTALLING, HomeStatePolicy.classify(EngineState.INSTALLING));
+    assertEquals(HomeStatePolicy.State.WAITING_WEB, HomeStatePolicy.classify(EngineState.WAITING_WEB));
+    assertEquals(HomeStatePolicy.State.WAITING_WEB, HomeStatePolicy.classify(EngineState.URL_READY));
+    assertEquals(HomeStatePolicy.State.STOPPING, HomeStatePolicy.classify(EngineState.STOPPING));
+    assertEquals(HomeStatePolicy.State.FAILED, HomeStatePolicy.classify(EngineState.FAILED));
+    assertEquals(HomeStatePolicy.State.EXITED, HomeStatePolicy.classify(EngineState.EXITED));
     assertEquals(HomeStatePolicy.State.UNKNOWN, HomeStatePolicy.classify(null));
   }
 
   @Test public void controlsUseConservativeKnownStatePolicy() {
-    assertTrue(HomeStatePolicy.canStart("未启动"));
-    assertFalse(HomeStatePolicy.canStop("未启动"));
-    assertTrue(HomeStatePolicy.canStop("正在校验与安装本机运行时…"));
-    assertTrue(HomeStatePolicy.canStop("引擎已启动，等待官方 Web 服务…"));
-    assertFalse(HomeStatePolicy.canStart("正在停止…"));
-    assertTrue(HomeStatePolicy.canStart("启动失败：网络错误"));
-    assertTrue(HomeStatePolicy.canStart("引擎已退出（-1），可查看日志后重试"));
-    assertTrue(HomeStatePolicy.canStart("服务已断开"));
-    assertFalse(HomeStatePolicy.canStop("运行中（未知来源）"));
-    assertTrue(HomeStatePolicy.canStart("运行中（未知来源）"));
-    assertTrue(HomeStatePolicy.canRetry("未知状态"));
-    assertFalse(HomeStatePolicy.canRetry("正在校验与安装本机运行时…"));
+    assertTrue(HomeStatePolicy.canStart(HomeStatePolicy.State.NOT_STARTED));
+    assertFalse(HomeStatePolicy.canStop(HomeStatePolicy.State.NOT_STARTED));
+    assertTrue(HomeStatePolicy.canStop(HomeStatePolicy.State.INSTALLING));
+    assertTrue(HomeStatePolicy.canStop(HomeStatePolicy.State.WAITING_WEB));
+    assertFalse(HomeStatePolicy.canStart(HomeStatePolicy.State.STOPPING));
+    assertTrue(HomeStatePolicy.canStart(HomeStatePolicy.State.FAILED));
+    assertTrue(HomeStatePolicy.canStart(HomeStatePolicy.State.EXITED));
+    assertTrue(HomeStatePolicy.canStart(HomeStatePolicy.State.DISCONNECTED));
+    assertFalse(HomeStatePolicy.canStop(HomeStatePolicy.State.UNKNOWN));
+    assertTrue(HomeStatePolicy.canStart(HomeStatePolicy.State.UNKNOWN));
+    assertTrue(HomeStatePolicy.canRetry(HomeStatePolicy.State.UNKNOWN));
+    assertFalse(HomeStatePolicy.canRetry(HomeStatePolicy.State.INSTALLING));
+    assertFalse(HomeStatePolicy.canRetry(HomeStatePolicy.State.STOPPING));
   }
 }

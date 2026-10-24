@@ -1,0 +1,16 @@
+<resources>
+  <!-- 引擎状态显示文本：状态以 EngineState 类型传递，文案只在此处维护。 -->
+  <string name="engine_state_not_started">未启动</string>
+  <string name="engine_state_installing">正在校验与安装本机运行时…</string>
+  <string name="engine_state_waiting_web">引擎已启动，等待官方 Web 服务…</string>
+  <string name="engine_state_url_ready">本机 Web 服务已输出认证地址，等待连接验证…</string>
+  <string name="engine_state_stopping">正在停止…</string>
+  <string name="engine_state_stopped">已停止</string>
+  <string name="engine_state_failed">启动失败：%1$s</string>
+  <string name="engine_state_exited">引擎已退出（%1$s），可查看日志后重试</string>
+  <string name="engine_state_disconnected">本机服务已断开，可重新启动</string>
+  <string name="notification_channel">DSH 本机服务</string>
+  <string name="notification_title">DSH Android · 本机引擎</string>
+  <string name="notification_text">仅监听 127.0.0.1 · 开发测试版</string>
+  <string name="notification_stop_engine">停止引擎</string>
+</resources>

@@ -137,12 +137,12 @@ public final class MobileLayoutTest {
       try {
         Method apply = MainActivity.class.getDeclaredMethod("apply", DshService.Snapshot.class);
         apply.setAccessible(true);
-        apply.invoke(activity, new DshService.Snapshot("正在校验与安装本机运行时…", null, ""));
+        apply.invoke(activity, new DshService.Snapshot(EngineState.INSTALLING, null, null, ""));
         assertSame("snapshot must not rebuild scroll", scroll, content.getChildAt(0));
         assertFalse(findButton(scroll, "启动").isEnabled());
         assertTrue(findButton(scroll, "停止引擎").isEnabled());
         assertFalse(findButton(scroll, "重试").isEnabled());
-        apply.invoke(activity, new DshService.Snapshot("已停止", null, ""));
+        apply.invoke(activity, new DshService.Snapshot(EngineState.STOPPED, null, null, ""));
         assertSame(scroll, content.getChildAt(0));
         assertTrue(findButton(scroll, "启动").isEnabled());
         assertFalse(findButton(scroll, "停止引擎").isEnabled());

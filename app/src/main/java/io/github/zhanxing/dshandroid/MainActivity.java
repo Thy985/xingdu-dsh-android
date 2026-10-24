@@ -46,7 +46,9 @@ public final class MainActivity extends Activity {
   private Button homeStop;
   private Button homeRetry;
   private boolean homeBuilt;
-  private String homeSnapshotState = "未启动";
+  private EngineState homeEngineState = EngineState.NOT_STARTED;
+  private String homeStateDetail;
+  private boolean homeDisconnected;
   private String cachedRuntimeStatus;
   private DshService.LocalBinder binder;
   private boolean bound;
@@ -76,8 +78,8 @@ public final class MainActivity extends Activity {
       pageError = null;
       clearWeb();
       showIntroduction();
-      status.setText("本机服务已断开，可重新启动");
-      updateHome("本机服务已断开，可重新启动");
+      status.setText(getString(R.string.engine_state_disconnected));
+      updateHomeDisconnected();
     }
   };
 
@@ -105,7 +107,7 @@ public final class MainActivity extends Activity {
     TextView title = text("星渡", 18);
     title.setTypeface(null, android.graphics.Typeface.BOLD);
     bar.addView(title, new LinearLayout.LayoutParams(0, -1, 1));
-    status = text("未启动", 12);
+    status = text(getString(R.string.engine_state_not_started), 12);
     status.setSingleLine(true);
     status.setEllipsize(TextUtils.TruncateAt.END);
     status.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
@@ -147,7 +149,7 @@ public final class MainActivity extends Activity {
   private void showIntroduction() {
     if (web != null) return;
     if (homeBuilt) {
-      updateHome(homeSnapshotState);
+      updateHome(homeEngineState, homeStateDetail);
       return;
     }
     content.removeAllViews();
@@ -169,7 +171,7 @@ public final class MainActivity extends Activity {
 
     LinearLayout engine = card();
     addCardTitle(engine, "本机引擎", "服务状态与启停控制");
-    homeEngineStatus = cardText("未启动");
+    homeEngineStatus = cardText(getString(R.string.engine_state_not_started));
     engine.addView(homeEngineStatus);
     LinearLayout controls = new LinearLayout(this);
     controls.setGravity(Gravity.CENTER_VERTICAL);
@@ -242,7 +244,7 @@ public final class MainActivity extends Activity {
     scroll.addView(page, new ScrollView.LayoutParams(-1, -2));
     content.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
     homeBuilt = true;
-    updateHome(homeSnapshotState);
+    updateHome(homeEngineState, homeStateDetail);
   }
 
   private LinearLayout card() {
@@ -318,15 +320,46 @@ public final class MainActivity extends Activity {
     }
   }
 
-  private void updateHome(String state) {
-    String nextState = state == null ? "未启动" : state;
-    boolean stageChanged = !java.util.Objects.equals(homeSnapshotState, nextState);
-    homeSnapshotState = nextState;
+  /** Display text for a service snapshot state; state comes in typed, never parsed from text. */
+  private String engineLabel(EngineState state, String detail) {
+    switch (state) {
+      case INSTALLING: return getString(R.string.engine_state_installing);
+      case WAITING_WEB: return getString(R.string.engine_state_waiting_web);
+      case URL_READY: return getString(R.string.engine_state_url_ready);
+      case STOPPING: return getString(R.string.engine_state_stopping);
+      case STOPPED: return getString(R.string.engine_state_stopped);
+      case FAILED: return getString(R.string.engine_state_failed, String.valueOf(detail));
+      case EXITED: return getString(R.string.engine_state_exited, String.valueOf(detail));
+      case NOT_STARTED:
+      default: return getString(R.string.engine_state_not_started);
+    }
+  }
+
+  private void updateHome(EngineState state, String detail) {
+    EngineState next = state == null ? EngineState.NOT_STARTED : state;
+    boolean stageChanged = homeDisconnected || homeEngineState != next
+        || !java.util.Objects.equals(homeStateDetail, detail);
+    homeDisconnected = false;
+    homeEngineState = next;
+    homeStateDetail = detail;
+    refreshHomeCard(stageChanged);
+  }
+
+  private void updateHomeDisconnected() {
+    boolean stageChanged = !homeDisconnected;
+    homeDisconnected = true;
+    refreshHomeCard(stageChanged);
+  }
+
+  private void refreshHomeCard(boolean stageChanged) {
     if (!homeBuilt || homeEngineStatus == null) return;
-    homeEngineStatus.setText(homeSnapshotState);
-    homeStart.setEnabled(HomeStatePolicy.canStart(homeSnapshotState));
-    homeStop.setEnabled(HomeStatePolicy.canStop(homeSnapshotState));
-    homeRetry.setEnabled(HomeStatePolicy.canRetry(homeSnapshotState));
+    homeEngineStatus.setText(homeDisconnected ? getString(R.string.engine_state_disconnected)
+        : engineLabel(homeEngineState, homeStateDetail));
+    HomeStatePolicy.State policy = homeDisconnected
+        ? HomeStatePolicy.State.DISCONNECTED : HomeStatePolicy.classify(homeEngineState);
+    homeStart.setEnabled(HomeStatePolicy.canStart(policy));
+    homeStop.setEnabled(HomeStatePolicy.canStop(policy));
+    homeRetry.setEnabled(HomeStatePolicy.canRetry(policy));
     if (homeRuntimeStatus != null) {
       if (stageChanged) refreshRuntimeStatus();
       homeRuntimeStatus.setText(runtimeStatus());
@@ -334,7 +367,9 @@ public final class MainActivity extends Activity {
   }
 
   private void showDiagnostics() {
-    String service = bound && binder != null ? binder.snapshot().state : "服务绑定中";
+    String service = bound && binder != null
+        ? engineLabel(binder.snapshot().state, binder.snapshot().detail)
+        : "服务绑定中";
     new AlertDialog.Builder(this).setTitle("只读诊断")
         .setMessage("引擎：" + service + "\n运行时：" + runtimeStatus()
             + "\n地址策略：仅允许 127.0.0.1:3080\n凭证：不读取、不展示\n权限：不新增、不提升")
@@ -399,7 +434,7 @@ public final class MainActivity extends Activity {
     if (destroyed) return;
     boolean changed = !java.util.Objects.equals(desiredUrl, snapshot.url);
     desiredUrl = snapshot.url;
-    updateHome(snapshot.state);
+    updateHome(snapshot.state, snapshot.detail);
     if (changed) {
       connectionAttempt.invalidate();
       pageError = null;
@@ -409,23 +444,23 @@ public final class MainActivity extends Activity {
       loadedUrl = null;
       clearWeb();
       showIntroduction();
-      status.setText(snapshot.state);
-      updateHome(snapshot.state);
+      status.setText(engineLabel(snapshot.state, snapshot.detail));
+      updateHome(snapshot.state, snapshot.detail);
       return;
     }
     if (!UrlPolicy.allowed("http://127.0.0.1:3080/", desiredUrl)) {
       status.setText("拒绝非本机服务地址");
-      updateHome(snapshot.state);
+      updateHome(snapshot.state, snapshot.detail);
       return;
     }
     if (pageError != null) {
       status.setText(pageError);
-      updateHome(snapshot.state);
+      updateHome(snapshot.state, snapshot.detail);
       return;
     }
     if (desiredUrl.equals(loadedUrl)) {
       status.setText("本机页面已加载 · 127.0.0.1:3080");
-      updateHome(snapshot.state);
+      updateHome(snapshot.state, snapshot.detail);
       return;
     }
     if (!desiredUrl.equals(pendingUrl)) checkAndLoad(desiredUrl);
