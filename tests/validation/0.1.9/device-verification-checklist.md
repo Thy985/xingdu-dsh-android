@@ -25,8 +25,10 @@
 | 套件 | 数量 | 结论 | 证据文件 |
 | --- | --- | --- | --- |
 | `ScreenPrivacyTest` | 9 | 待执行 | 待填（HTML/XML 输出路径） |
-| `MobileLayoutTest` | 7 | 待执行 | 待填 |
+| `MobileLayoutTest` | 7 | 待执行（2026-10-24 首次尝试：仅执行 1/26 全套即中断，`imeResizeIsObservedAndRestored` 失败且应用进程崩溃，原因待诊断；详见下） | 首次尝试结果在本地 `app/build/outputs/androidTest-results/`（未归档） |
 | `SafTransferTest` | 10 | 待执行 | 待填 |
+
+**2026-10-24 首次真机尝试记录（未完成，不计入结论）：** 设备 Redmi 24117RK2CC（Android 17，arm64-v8a）。因原装 0.1.8 与本机构建 debug 签名不同，临时以 `applicationIdSuffix '.instrumented'` 并行安装执行。结果：仅 `MobileLayoutTest#imeResizeIsObservedAndRestored` 一项运行，判定失败（无失败消息）后进程崩溃，全套 26 项未完成；崩溃日志缓冲未见 Java FATAL，需下次复跑时同步抓取 logcat 诊断。事后两测试包已被 Gradle 清理；设备上原 `io.github.zhanxing.dshandroid`（0.1.8-dev）不在（待确认是否为手动卸载）；随后直接 `adb install` 被 MIUI `INSTALL_FAILED_USER_RESTRICTED` 拒绝，需在设备上放开「USB 安装」后复测。临时后缀已从 `build.gradle` 还原。
 
 ## B. 远程连通（需要用户自有主机与网络）
 

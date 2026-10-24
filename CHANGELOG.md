@@ -8,7 +8,8 @@
 
 - 新增本变更日志与 [ROADMAP.md](ROADMAP.md)（通往正式发布的版本路线），README 提供链接。
 - 建立 `tests/validation/0.1.9/device-verification-checklist.md` 真机补验清单骨架（仪器测试执行 + README 未验证项逐项补验）。
-- 新增 GitHub Actions CI：JVM 测试 + lint + 构建，从 GitHub Release 源码包按 SHA-256 恢复 `runtime.zip`；仪器测试以手动触发方式提供。
+- 新增 GitHub Actions CI：JVM 测试 + lint + 构建，从 GitHub Release 源码包按 SHA-256 恢复 `runtime.zip`；仪器测试以手动触发方式提供。首跑通过（Linux，JVM 测试全绿；修复 `setup-android` 默认安装已下架的 `tools` 包）。
+- 首次真机仪器测试尝试（Redmi，Android 17）：仅执行 1/26 即因 IME 用例失败与进程崩溃中断，不计入结论；MIUI「USB 安装」限制待放开后复测，记录见 [tests/validation/0.1.9/device-verification-checklist.md](tests/validation/0.1.9/device-verification-checklist.md)。
 - 重构：`DshService` 快照携带类型化引擎状态（`EngineState`），`HomeStatePolicy` 改按状态判定，不再匹配中文日志字符串；状态与通知相关文案迁入 `strings.xml`。行为不变。Windows 本机 JVM 测试 57/58 通过，唯一失败为依赖 POSIX FIFO 的既有用例（重构前同样失败，非本次回归）；Linux/CI 复跑须确认 58/58。
 
 ## 0.1.8-dev（versionCode 9，2026-10-23，`v0.1.8-dev-preview`）
