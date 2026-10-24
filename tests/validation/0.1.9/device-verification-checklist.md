@@ -24,11 +24,21 @@
 
 | 套件 | 数量 | 结论 | 证据文件 |
 | --- | --- | --- | --- |
-| `ScreenPrivacyTest` | 9 | 待执行 | 待填（HTML/XML 输出路径） |
-| `MobileLayoutTest` | 7 | 待执行（2026-10-24 首次尝试：仅执行 1/26 全套即中断，`imeResizeIsObservedAndRestored` 失败且应用进程崩溃，原因待诊断；详见下） | 首次尝试结果在本地 `app/build/outputs/androidTest-results/`（未归档） |
-| `SafTransferTest` | 10 | 待执行 | 待填 |
+| `ScreenPrivacyTest` | 9 | **无法在本设备完成**（见下方记录，待专用设备/CI 模拟器） | 无完成产物 |
+| `MobileLayoutTest` | 7 | 部分：1 通过、2 项因设备设置失败、其余未执行（见下方记录） | 首轮 XML（本地 `app/build/outputs/androidTest-results/`，未归档） |
+| `SafTransferTest` | 10 | **无法在本设备完成**（进程被系统杀死，见下方记录） | 无完成产物 |
 
-**2026-10-24 首次真机尝试记录（未完成，不计入结论）：** 设备 Redmi 24117RK2CC（Android 17，arm64-v8a）。因原装 0.1.8 与本机构建 debug 签名不同，临时以 `applicationIdSuffix '.instrumented'` 并行安装执行。结果：仅 `MobileLayoutTest#imeResizeIsObservedAndRestored` 一项运行，判定失败（无失败消息）后进程崩溃，全套 26 项未完成；崩溃日志缓冲未见 Java FATAL，需下次复跑时同步抓取 logcat 诊断。事后两测试包已被 Gradle 清理；设备上原 `io.github.zhanxing.dshandroid`（0.1.8-dev）不在（待确认是否为手动卸载）；随后直接 `adb install` 被 MIUI `INSTALL_FAILED_USER_RESTRICTED` 拒绝，需在设备上放开「USB 安装」后复测。临时后缀已从 `build.gradle` 还原。
+**2026-10-24 真机三轮尝试记录（Redmi 24117RK2CC，HyperOS / Android 17，arm64-v8a；用户日常机）：**
+
+- **第一轮**（`.instrumented` 后缀并行安装）：仅执行 `imeResizeIsObservedAndRestored` 1 项即"Process crashed"，全套中断。
+- **第二轮**（标准包名全新安装，Gradle `connectedDebugAndroidTest`）：执行至 MobileLayoutTest 第 4 项时手机从 USB 掉线（adb 失联），收到 4 项结果后中断。已得结论：
+  - `nativeChromeAndWelcomeScreenAreRealAndTouchable` **通过**（首页真实渲染、可触摸——应用在 Android 17 / targetSdk 28 下正常安装启动，兼容性数据点）。
+  - `imeResizeIsObservedAndRestored` **失败**：软键盘弹出后 WebView 未缩放（2088→2088）。设备默认输入法为讯飞输入法小米版（`com.iflytek.inputmethod.miui/.FlyIME`），`showSoftInput(SHOW_IMPLICIT)` 未触发窗口缩放；属设备/输入法行为，非应用缺陷判定，留待其他设备复测。
+  - `orientationChangeKeepsActivityWebViewAndDraft` **失败**：请求横屏后方向未变。设备 `accelerometer_rotation=0`（竖屏锁定开启）——设备设置约束，需关闭方向锁定后复测。
+  - `remoteManifestIsPrivateAndLocalHttpGateRemainsExact` 无结论（恰逢掉线）。
+- **第三轮**（仅补跑 ScreenPrivacy/SafTransfer/remoteManifest）：`ScreenPrivacyTest` 第 1 项在 `ActivityScenario.launch` 处无限挂起（约 45 分钟）。JDWP 取证：应用主线程空闲（`MessageQueue.nativePollOnce`）、Activity 已 RESUMED、instrumentation 线程处于无限条件等待——符合 androidx ActivityScenario 启动竞态（快设备上 Activity 在监听器注册前已达 RESUMED、等待无超时）特征，非应用代码阻塞。中止后以 `am instrument` 直跑 `SafTransferTest`：进程约 9 秒即被系统杀死（Binder 死亡，无 Java/原生崩溃、dropbox 无记录 → SIGKILL 类外部终止；当日日志可见 MIUI `SmartPower`/`SwipeUpClean` 清理行为）。后续 `pm uninstall` 测试包触发 MIUI 异常，连带主包一并移除（均为空测试安装，无用户数据）。
+
+**结论**：该日常机受 MIUI 省电/清理机制、输入法与方向锁定影响，不能作为仪器测试平台；上述两处"失败"均定性为设备环境约束。后续执行途径二选一：①专用测试设备（建议关闭该应用的省电限制与后台清理）；②CI 的 `workflow_dispatch` instrumented 任务（macOS x86_64 模拟器）。9 项 `ScreenPrivacyTest` 与 10 项 `SafTransferTest` 在真机执行完毕前保持"未验证"状态。
 
 ## B. 远程连通（需要用户自有主机与网络）
 
