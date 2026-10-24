@@ -6,7 +6,7 @@
 
 > **当前版本：`0.1.8-dev` · Debug 开发预览 · 非稳定版。** 不是 DeepSeek 官方安卓客户端。**已完成用户真机验收，用户反馈测试未发现问题。** 下面展示经授权公开的界面截图；该反馈不代表所有功能均已逐项确认，LAN / Tailscale 连通、SAF 文件夹导出及屏幕隐私的完整系统行为仍无单独验收结论。请先备份数据，仅用非敏感文件试用。
 
-[下载开发预览](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.1.8-dev-preview) · [真机截图](#真机界面) · [快速开始](#快速开始) · [验证状态](#验证状态) · [本地构建](#本地构建)
+[下载开发预览](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.1.8-dev-preview) · [真机截图](#真机界面) · [快速开始](#快速开始) · [验证状态](#验证状态) · [本地构建](#本地构建) · [路线图](ROADMAP.md) · [变更日志](CHANGELOG.md)
 
 ## 能做什么
 
@@ -185,3 +185,5 @@ Android 运行时组件检查脚本为 `tests/runtime-smoke.mjs`，必须在目�
 手机导航插件位于 `mobile-shell/`，使用官方公开的 `shell.overlay` / `settings.action` 插槽和布局服务，沿用同一 React 与官方组件，不复制编辑器、不搬动现有 DOM，也不是完整根布局替换。宽屏或关闭手机适配时回退官方呈现。
 
 上游来源及版本见 [UPSTREAM.json](UPSTREAM.json)；项目许可见 [LICENSE](LICENSE)，运行时与依赖许可见 [第三方声明](scripts/runtime/THIRD_PARTY_NOTICES.md) 及 [third_party/runtime/](third_party/runtime/)。本次文档与截图更新不更换上游、运行时或应用功能。
+
+后续版本计划（验证补全、发布架构迁移、功能补齐与正式发布）见 [ROADMAP.md](ROADMAP.md)，逐版本历史见 [CHANGELOG.md](CHANGELOG.md)。
