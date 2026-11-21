@@ -1,23 +1,46 @@
 {
   "version": "0.2.0-dev",
   "layers": {
-    "L0": {"status": "pass", "evidence": "local + ci (PR #1 build-and-test green, 2026-11-21)"},
-    "L1": {"status": "pass", "evidence": "81 tests: windows 70 pass + 1 documented POSIX FIFO env case; linux ci 58/58 green; 23 new tests all pass"},
-    "L2": {"status": "not-run", "evidence": ""},
-    "L3": {"status": "partial", "passed": 29, "failed": 2,
-            "environment_factors": ["androidx-lifecycle-emui (0.1.9 carried, did not reproduce this run)", "ime-windowresize", "webview-error-page-huawei"]},
-    "L4": {"status": "partial", "evidence": "device-verification-checklist.md B1/B1b/B2/B4/B5 pass at targetSdk 28"}
+    "L0": {
+      "status": "pass",
+      "evidence": "local + ci (PR #1 build-and-test green, 2026-11-21)"
+    },
+    "L1": {
+      "status": "pass",
+      "evidence": "81 tests: windows 70 pass + 1 documented POSIX FIFO env case; linux ci 58/58 green; 23 new tests all pass"
+    },
+    "L2": {
+      "status": "not-run",
+      "evidence": ""
+    },
+    "L3": {
+      "status": "partial",
+      "passed": 33,
+      "failed": 4,
+      "environment_factors": [
+        "androidx-lifecycle-emui (0.1.9 carried; variance across runs)",
+        "ime-windowresize",
+        "webview-error-page-huawei"
+      ]
+    },
+    "L4": {
+      "status": "partial",
+      "evidence": "device-verification-checklist.md B1/B1b/B2/B3/B4/B5/B7/B8(partial) pass"
+    }
   },
   "unverified": [
-    "b3-dlopen-from-data-targetsdk-36",
     "b6-legacy-to-split-overinstall",
-    "b7-wrapper-degradation",
-    "b8-targetsdk-36-notifications-fgs",
+    "b8-notification-statusbar-visibility-l4",
+    "b8-postnotifications-runtime-grant-l4",
     "tailscale",
     "system-screenshot-recents",
     "saf-revocation-edge",
     "large-system-font",
     "background-restore-oem-keepalive"
   ],
-  "user_acceptance": {"date": "", "scope": [], "note": ""}
+  "user_acceptance": {
+    "date": "",
+    "scope": [],
+    "note": ""
+  }
 }

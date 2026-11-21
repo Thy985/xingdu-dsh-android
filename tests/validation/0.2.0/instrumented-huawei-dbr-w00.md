@@ -35,3 +35,35 @@
 
 - B3（dlopen-from-data 判定）、B6（legacy→split 覆盖安装）、B7（wrapper 降级形态）、B8（targetSdk 36 系统行为）——待 36 切片
 - 0.1.9 回灌项（Tailscale、系统截图/录屏/最近任务、SAF 撤销边界、大字号、后台恢复、OEM 保活）——按闭环第 6 步进入 36 切片清单
+
+---
+
+# 第二轮：targetSdk 36 切片（2026-11-21 同日）
+
+- 被测构建：split 布局 + **targetSdk 36**（compileSdk 36，versionCode 11 / versionName 0.2.0-dev）
+- Manifest 变更：`DshService` 增加 `foregroundServiceType="specialUse"` + `PROPERTY_SPECIAL_USE_FGS_SUBTYPE`（dataSync 类型有 6h/24h 运行时限，长驻引擎不适用）；新增 `FOREGROUND_SERVICE_SPECIAL_USE`、`POST_NOTIFICATIONS` 权限
+- UI 变更：edge-to-edge 在 targetSdk 35+ 强制（36 不可 opt-out）——`MainActivity.applySystemBarInsets` 按 systemBars+cutout+IME 补 padding，RootActivity/RemoteActivity 同步
+- 结论：**37 项全部执行，33 通过 / 4 失败**；4 项失败全部为 0.1.9 已归档环境因素（签名逐字一致），零新增回归
+
+## TargetSdk36Test（B3/B7/B8 证据）
+
+| 用例 | 证明内容 |
+| --- | --- |
+| `b3_bashDlopensSonameChainFromDataDir` | **B3 判定**：targetSdk 36 的 untrusted_app 域仍允许数据目录 dlopen——bash 的 libreadline.so.8 / libncursesw.so.6 / libtinfo.so.6 SONAME 链全部从数据树加载成功 |
+| `b3_flockAddonDlopensFromDataDir` | 编译版 N-API addon system.node 从数据树 dlopen，tryLock 导出可用 |
+| `b3_spawnShimMapsFromDataDir` | libandroid-spawn.so（非 addon）在数据树映射成功——失败模式为 "did not self-register"（注册检查），而非 SELinux 拒绝 |
+| `b7_wrapperDirectExecIsDenied` | 直接 execve 数据目录 wrapper 在 36 被拒（IOException Permission denied）——记录为预期降级形态 |
+| `b7_wrapperRunsViaBash` | `bash bin/corepack --version` 全链路可用（bash 读脚本 → 脚本 exec bin/node 符号链接 → nativeLibraryDir）；附加记录：corepack 按需下载的 pnpm 二进制 exec 自数据缓存被拒（EACCES） |
+| `b8_foregroundServiceStartsWithNotification` | 真实 DshService 路径（startForegroundService + binder）下 specialUse FGS 启动、引擎到达 URL_READY——startForeground(42) 在 5s 死限内执行的间接证明（否则 Android 12 会杀进程） |
+
+## 调试发现（第二轮）
+
+1. **OPENSSL_CONF 修复在 36 上同样生效**（见第一轮发现 1）——引擎经真实服务路径启动即依赖它。
+2. **EMUI 过滤 `getActiveNotifications()`**：FGS 活跃期间该查询返回空列表（框架记录存在、引擎存活），通知状态栏可见性转 L4 人工项。
+3. **ScreenPrivacyTest 生命周期用例跨轮波动**：androidx ActivityScenario 在 EMUI 的不稳定（0.1.9 失败 → 28 轮通过 → 36 轮再失败），签名与 0.1.9 逐字一致，维持"环境因素"定性。
+
+## 仍待执行（L4 人工清单）
+
+- B6（0.1.9→0.2.0 真实覆盖安装，需真机 UI 首启流程；机制层已由 RuntimeCommit 事务 + 签名兼容 + 标记驱动重装覆盖）
+- B8 补充：状态栏通知可见性人工确认、POST_NOTIFICATIONS 运行时授予实操
+- 0.1.9 回灌项（Tailscale、系统截图/录屏/最近任务、SAF 撤销边界、大字号、后台恢复、OEM 保活）

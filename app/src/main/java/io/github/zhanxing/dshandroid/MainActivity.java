@@ -83,6 +83,32 @@ public final class MainActivity extends Activity {
     }
   };
 
+  /**
+   * targetSdk 35+ enforces edge-to-edge (the opt-out attribute is ignored at 36):
+   * pad the root by system bars + cutout + IME so the classic layout keeps its
+   * geometry. CONSUMED keeps the single root as the only insets consumer.
+   */
+  static void applySystemBarInsets(android.view.View root) {
+    if (android.os.Build.VERSION.SDK_INT < 30) return;
+    root.setOnApplyWindowInsetsListener((v, insets) -> {
+      android.graphics.Insets bars = insets.getInsets(
+          android.view.WindowInsets.Type.systemBars()
+              | android.view.WindowInsets.Type.displayCutout()
+              | android.view.WindowInsets.Type.ime());
+      v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+      return android.view.WindowInsets.CONSUMED;
+    });
+  }
+
+  /** API 33+ requires a runtime grant for the engine's foreground notification. */
+  private void requestNotificationPermissionIfNeeded() {
+    if (android.os.Build.VERSION.SDK_INT >= 33
+        && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+      requestPermissions(new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 401);
+    }
+  }
+
   @Override public void onCreate(Bundle saved) {
     super.onCreate(saved);
     screenPrivacy = new ScreenPrivacy(this);
@@ -98,6 +124,8 @@ public final class MainActivity extends Activity {
     root.setOrientation(LinearLayout.VERTICAL);
     root.setBackgroundColor(0xfff7f8fc);
     setContentView(root);
+    applySystemBarInsets(root);
+    requestNotificationPermissionIfNeeded();
 
     LinearLayout bar = new LinearLayout(this);
     bar.setGravity(Gravity.CENTER_VERTICAL);
