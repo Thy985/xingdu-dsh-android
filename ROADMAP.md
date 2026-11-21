@@ -86,4 +86,4 @@
 | --- | --- | --- |
 | 0.1.8-dev | 已发布（`v0.1.8-dev-preview`） | 屏幕隐私；用户真机整体验收完成 |
 | 0.1.9-dev | 已发布（`v0.1.9-dev-preview`） | CI 建立并全绿；仪器测试 26/26 真机执行（22 过，4 项失败定性为环境/测试框架因素）；用户人工验收覆盖 LAN 远程、SAF、覆盖安装、中文 IME、真实 API 会话；Tailscale、屏幕隐私系统实操、字号/后台恢复按"未执行"记录 |
-| 0.2.0 / 0.2.1 / 0.3.0 | 计划 | 下一步：0.2.0 发布架构迁移（jniLibs 重打包 + targetSdk 36） |
+| 0.2.0-dev | **已合并 main（9715df3），tag v0.2.0-dev-preview 已指发布提交** | release 资产（APK + 源码包）上传因网络中断待补：release 当前为 draft 且仅含旧 SHA256SUMS；补传后转正（draft=false）。CI 冷恢复依赖此 release，补传前注意 |

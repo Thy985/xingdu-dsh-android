@@ -121,7 +121,7 @@ PLAYWRIGHT_MODULE=/path/to/playwright python3 scripts/test-mobile-ui.py
 
 ## 环境备注（防止把已知差异当 bug"修"）
 
-- 开发机 Windows + Git Bash；JDK 17+、Android SDK 35、Python 3；
+- 开发机 Windows + Git Bash；JDK 17+、Android SDK 36（compileSdk/targetSdk 0.2.0 起为 36）、Python 3；
   `local.properties` 配置 `sdk.dir`。
 - **Windows 本地 JVM 单测 57/58 是已知状态**：差异为依赖 POSIX FIFO 的
   既有用例，CI（Linux）58/58。不要为让本地全绿而改该用例。
