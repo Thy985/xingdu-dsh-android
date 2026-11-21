@@ -53,8 +53,16 @@ jobs:
           RELEASE_TAG: v0.2.0-dev-preview
           ASSET: Xingdu-DSH-0.2.0-dev-source.zip
         run: |
-          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-            --pattern "$ASSET" --output /tmp/source.zip
+          # Draft releases are invisible to the by-tag endpoint; resolve via
+          # the releases list, then fetch the asset as an octet-stream.
+          RELEASE_ID=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
+            --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | .id" | head -1)
+          if [ -z "$RELEASE_ID" ]; then echo "release $RELEASE_TAG not found" >&2; exit 1; fi
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets" \
+            --jq ".[] | select(.name == \"$ASSET\") | .url" > /tmp/asset.url
+          curl -sL -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/octet-stream" "$(cat /tmp/asset.url)" \
+            -o /tmp/source.zip
           # Release source zips have carried different top-level prefixes
           # (dsh-android-native/, xingdu-dsh-android/); match by suffix instead.
           unzip -p /tmp/source.zip "*/app/src/main/assets/runtime.zip" \
@@ -144,8 +152,16 @@ jobs:
           RELEASE_TAG: v0.2.0-dev-preview
           ASSET: Xingdu-DSH-0.2.0-dev-source.zip
         run: |
-          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-            --pattern "$ASSET" --output /tmp/source.zip
+          # Draft releases are invisible to the by-tag endpoint; resolve via
+          # the releases list, then fetch the asset as an octet-stream.
+          RELEASE_ID=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
+            --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | .id" | head -1)
+          if [ -z "$RELEASE_ID" ]; then echo "release $RELEASE_TAG not found" >&2; exit 1; fi
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets" \
+            --jq ".[] | select(.name == \"$ASSET\") | .url" > /tmp/asset.url
+          curl -sL -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/octet-stream" "$(cat /tmp/asset.url)" \
+            -o /tmp/source.zip
           # Release source zips have carried different top-level prefixes
           # (dsh-android-native/, xingdu-dsh-android/); match by suffix instead.
           unzip -p /tmp/source.zip "*/app/src/main/assets/runtime.zip" \
