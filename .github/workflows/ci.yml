@@ -35,34 +35,56 @@ jobs:
       - name: Install SDK components and accept licenses
         run: |
           yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platforms;android-35" "build-tools;34.0.0" > /dev/null
+          sdkmanager "platforms;android-36" "build-tools;34.0.0" > /dev/null
 
-      - name: Restore runtime.zip from cache
+      - name: Restore split runtime assets from cache
         id: runtime-cache
         uses: actions/cache@v4
         with:
-          path: app/src/main/assets/runtime.zip
+          path: |
+            app/src/main/assets/runtime.zip
+            app/src/main/jniLibs
           key: runtime-${{ hashFiles('app/src/main/assets/runtime-manifest.json') }}
 
-      - name: Fetch runtime.zip from release source archive
+      - name: Fetch runtime assets from release source archive
         if: steps.runtime-cache.outputs.cache-hit != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v0.1.9-dev-preview
-          ASSET: Xingdu-DSH-0.1.9-dev-source.zip
+          RELEASE_TAG: v0.2.0-dev-preview
+          ASSET: Xingdu-DSH-0.2.0-dev-source.zip
         run: |
-          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-            --pattern "$ASSET" --output /tmp/source.zip
+          # Draft releases are invisible to the by-tag endpoint; resolve via
+          # the releases list, then fetch the asset as an octet-stream.
+          RELEASE_ID=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
+            --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | .id" | head -1)
+          if [ -z "$RELEASE_ID" ]; then echo "release $RELEASE_TAG not found" >&2; exit 1; fi
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets" \
+            --jq ".[] | select(.name == \"$ASSET\") | .url" > /tmp/asset.url
+          curl -sL -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/octet-stream" "$(cat /tmp/asset.url)" \
+            -o /tmp/source.zip
           # Release source zips have carried different top-level prefixes
           # (dsh-android-native/, xingdu-dsh-android/); match by suffix instead.
           unzip -p /tmp/source.zip "*/app/src/main/assets/runtime.zip" \
             > app/src/main/assets/runtime.zip
+          # Split layout: the five jniLibs components ride in the same archive.
+          unzip -o /tmp/source.zip "*/app/src/main/jniLibs/*" -d /tmp/jnilibs-extract \
+            > /dev/null 2>&1 || true
+          if [ -d /tmp/jnilibs-extract ]; then
+            mkdir -p app/src/main/jniLibs
+            cp -r /tmp/jnilibs-extract/*/app/src/main/jniLibs/* app/src/main/jniLibs/
+            rm -rf /tmp/jnilibs-extract
+          fi
           rm /tmp/source.zip
 
       - name: Verify runtime archive (static, never executes binaries)
         run: |
+          FLAG=""
+          if [ -f app/src/main/assets/runtime-native-manifest.json ]; then
+            FLAG="--layout split --jni-dir app/src/main/jniLibs/arm64-v8a"
+          fi
           python3 scripts/runtime/verify-runtime.py \
-            app/src/main/assets/runtime.zip --arch aarch64
+            app/src/main/assets/runtime.zip --arch aarch64 $FLAG
 
       - name: Build mobile shell addon assets
         run: python3 scripts/build-mobile-shell.py
@@ -127,11 +149,19 @@ jobs:
         if: steps.runtime-cache.outputs.cache-hit != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: v0.1.9-dev-preview
-          ASSET: Xingdu-DSH-0.1.9-dev-source.zip
+          RELEASE_TAG: v0.2.0-dev-preview
+          ASSET: Xingdu-DSH-0.2.0-dev-source.zip
         run: |
-          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-            --pattern "$ASSET" --output /tmp/source.zip
+          # Draft releases are invisible to the by-tag endpoint; resolve via
+          # the releases list, then fetch the asset as an octet-stream.
+          RELEASE_ID=$(gh api "repos/$GITHUB_REPOSITORY/releases" \
+            --jq ".[] | select(.tag_name == \"$RELEASE_TAG\") | .id" | head -1)
+          if [ -z "$RELEASE_ID" ]; then echo "release $RELEASE_TAG not found" >&2; exit 1; fi
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets" \
+            --jq ".[] | select(.name == \"$ASSET\") | .url" > /tmp/asset.url
+          curl -sL -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/octet-stream" "$(cat /tmp/asset.url)" \
+            -o /tmp/source.zip
           # Release source zips have carried different top-level prefixes
           # (dsh-android-native/, xingdu-dsh-android/); match by suffix instead.
           unzip -p /tmp/source.zip "*/app/src/main/assets/runtime.zip" \

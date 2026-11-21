@@ -165,6 +165,9 @@ public final class DshService extends Service {
       env.put("TMPDIR", getCacheDir().toString());
       env.put("SSL_CERT_FILE", runtime.resolve("etc/tls/cert.pem").toString());
       env.put("NODE_EXTRA_CA_CERTS", runtime.resolve("etc/tls/cert.pem").toString());
+      // Termux-built node bakes an OPENSSLDIR under com.termux's data dir, which
+      // this app can never read; point OpenSSL at the bundled config instead.
+      env.put("OPENSSL_CONF", paths.opensslConf);
       env.put("BASH", paths.bash);
       env.put("SHELL", paths.bash);
       if (paths.nativeDirEnv != null) env.put("DSH_ANDROID_NATIVE_DIR", paths.nativeDirEnv);

@@ -118,14 +118,18 @@ public final class RuntimeLayoutPolicy {
     public final String bash;
     public final String ldLibraryPath;
     public final String pathEnv;
+    /** App-readable OpenSSL config; the baked-in Termux OPENSSLDIR is unreachable. */
+    public final String opensslConf;
     /** Absolute nativeLibraryDir when split; null in data mode. */
     public final String nativeDirEnv;
 
-    EnginePaths(String node, String bash, String ldLibraryPath, String pathEnv, String nativeDirEnv) {
+    EnginePaths(String node, String bash, String ldLibraryPath, String pathEnv,
+        String opensslConf, String nativeDirEnv) {
       this.node = node;
       this.bash = bash;
       this.ldLibraryPath = ldLibraryPath;
       this.pathEnv = pathEnv;
+      this.opensslConf = opensslConf;
       this.nativeDirEnv = nativeDirEnv;
     }
   }
@@ -142,6 +146,7 @@ public final class RuntimeLayoutPolicy {
           runtimeDir + "/bin/bash",
           runtimeDir + "/lib",
           runtimeDir + "/bin:/system/bin",
+          runtimeDir + "/etc/tls/openssl.cnf",
           null);
     }
     if (LAYOUT_SPLIT.equals(layout.mode)) {
@@ -153,6 +158,7 @@ public final class RuntimeLayoutPolicy {
           nativeDir + "/" + LIB_BASH,
           nativeDir + ":" + runtimeDir + "/lib",
           nativeDir + ":" + runtimeDir + "/bin:/system/bin",
+          runtimeDir + "/etc/tls/openssl.cnf",
           nativeDir);
     }
     throw new IllegalStateException("未知运行时布局: " + layout.mode);

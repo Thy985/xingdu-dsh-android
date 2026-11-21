@@ -122,6 +122,7 @@ public final class RemoteActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(BG);
         setContentView(root);
+        MainActivity.applySystemBarInsets(root);
         root.setOnApplyWindowInsetsListener((v, insets) -> {
             if (Build.VERSION.SDK_INT >= 30) {
                 android.graphics.Insets x = insets.getInsets(WindowInsets.Type.systemBars()

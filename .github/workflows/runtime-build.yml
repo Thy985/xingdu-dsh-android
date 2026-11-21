@@ -1,0 +1,85 @@
+name: Runtime Build
+
+# 手动触发：产出 runtime.zip + jniLibs 本机组件 + 双 manifest（build-runtime.sh）。
+#
+# 产物上传为 workflow artifact（dist/ 下）：runtime-<arch>.zip、
+# runtime-manifest.json、runtime-native-manifest.json、jniLibs/<abi>/、
+# runtime-provenance/。取用规则：
+#   - 过渡期（0.2.0 发布准备前）：产物只进本地工作树（runtime.zip 与 jniLibs/
+#     是 gitignored 资产；两份 manifest 在工作树中使本地构建走 split 门禁，
+#     仓库内保持 legacy 提交状态，CI 不受影响）。
+#   - 0.2.0 发布准备提交：同时翻转两份 manifest（layout=split）+ 更新
+#     ci.yml 的 RELEASE_TAG 指向携带 split 资产的源码包，三件事必须同一个
+#     提交落地，缺一 CI 即红（构建门禁按设计拦截半更新状态）。
+#
+# 本地兜底（WSL）：apt 装 nodejs npm zip + 下载 Linux NDK 27.2.12479018 后
+# 执行同一条命令即可；ANDROID_NDK 指向 NDK 根目录。
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: '架构'
+        required: true
+        default: 'aarch64'
+        type: choice
+        options: [aarch64, x86_64]
+      layout:
+        description: '产出布局'
+        required: true
+        default: 'split'
+        type: choice
+        options: [split, data]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Accept licenses and install NDK 27.2.12479018
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "ndk;27.2.12479018" > /dev/null
+
+      - name: Build runtime (${{ inputs.arch }}, ${{ inputs.layout }})
+        run: |
+          ANDROID_NDK="$ANDROID_HOME/ndk/27.2.12479018"
+          test -d "$ANDROID_NDK" || { echo "NDK 未安装到位: $ANDROID_NDK" >&2; exit 1; }
+          FLAG=""
+          [ "${{ inputs.layout }}" = "split" ] && FLAG="--split-jni"
+          ANDROID_NDK="$ANDROID_NDK" bash scripts/runtime/build-runtime.sh $FLAG "dist/runtime-${{ inputs.arch }}.zip" "${{ inputs.arch }}"
+
+      - name: Verify artifacts (static, never executes binaries)
+        run: |
+          FLAG=""
+          [ "${{ inputs.layout }}" = "split" ] && FLAG="--layout split --jni-dir dist/jniLibs"
+          python3 scripts/runtime/verify-runtime.py \
+            "dist/runtime-${{ inputs.arch }}.zip" --arch "${{ inputs.arch }}" $FLAG
+          ls -la dist/ dist/jniLibs/*/ 2>/dev/null || true
+
+      - name: Upload runtime artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-${{ inputs.layout }}-${{ inputs.arch }}-${{ github.sha }}
+          path: |
+            dist/runtime-*.zip
+            dist/runtime-manifest.json
+            dist/runtime-native-manifest.json
+            dist/jniLibs/
+            dist/runtime-provenance/
+          if-no-files-found: error
+          retention-days: 90
