@@ -1,0 +1,42 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/agentPresets/list"
+  },
+  {
+    "method": "POST",
+    "path": "/api/credentials/describe"
+  },
+  {
+    "method": "POST",
+    "path": "/api/dynamicCordisRunner/inventory"
+  },
+  {
+    "method": "POST",
+    "path": "/api/dynamicCordisRunner/syncInspectManifest"
+  },
+  {
+    "method": "POST",
+    "path": "/api/permissionPresets/catalog"
+  },
+  {
+    "method": "POST",
+    "path": "/api/session/create"
+  },
+  {
+    "method": "POST",
+    "path": "/api/session/list"
+  },
+  {
+    "method": "POST",
+    "path": "/api/session/modelCatalog"
+  },
+  {
+    "method": "POST",
+    "path": "/api/settings/describe"
+  },
+  {
+    "method": "POST",
+    "path": "/api/workspace/initializeDefault"
+  }
+]

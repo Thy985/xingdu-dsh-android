@@ -1,0 +1,8 @@
+{
+  "type": "open",
+  "streamId": "<STREAM_UUID>",
+  "endpoint": "remoteAccess/follow",
+  "payload": {
+    "args": {}
+  }
+}

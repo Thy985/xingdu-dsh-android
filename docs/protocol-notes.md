@@ -6,9 +6,23 @@
 > 每条事实标注捕获来源；`DSH_PROTOCOL_TARGET` 标注适用版本。
 
 **DSH_PROTOCOL_TARGET: 0.2.1-rc.5（本轮探针对象）**
-> 注意：当前应用捆绑引擎为 **0.2.1-rc.2**（UPSTREAM.json）。rc.5 捕获用于
-> 结构认知与版本漂移观察；**进入 fixtures 的契约样本必须重新对 rc.2 抓取**
-> （M1 第一步）。rc.2 与 rc.5 的信封差异尚未 diff（待 rc.2 探针执行）。
+> 注意：当前应用捆绑引擎为 **0.2.1-rc.2**（UPSTREAM.json）。本文结构事实已
+> 同时对 rc.2 与 rc.5 双向探针验证；**fixtures 已钉 rc.2**
+> （protocol/fixtures/，manifest 标注 DSH_PROTOCOL_TARGET=0.2.1-rc.2，由
+> protocol/tools/make_fixtures.py 从捕获脱敏生成）。
+
+## 版本漂移 diff（rc.2 ↔ rc.5，2026-11-21）
+
+页面加载面（两实例同机对照，isolated DSH_HOME）：
+
+- 端点集：完全一致（`$events`、`remoteAccess/follow`、`account/watch`、
+  `workspace/follow`、`session/control`）。rc.5 多出的 `session/follow` 为
+  前端自动建会话后的跟随行为，非协议差异。
+- 流形态：rc.5 独有的 `emit`/`projection`/`snapshot` 均为会话生命周期效果；
+  rc.2 侧无任何独有形态。HTTP 面 rc.5 多 `commands/list`、`skills/list`
+  （同为会话存在后的前端行为）。
+- **结论：mux 信封与首屏端点在 0.2.1-rc.2 ↔ rc.5 间零漂移**——以 rc.2 建立的
+  契约对两者都成立。会话内消息流面（M1 真正的重量级部分）仍需交互捕获。
 
 捕获环境：Windows 原生 Node，`dsh web --no-open --host 127.0.0.1 --port 3085`，
 无模型配置、隔离 DSH_HOME；Playwright chromium 无头浏览器 + 请求/WS 监听。
@@ -67,8 +81,7 @@
 
 ## 六、待捕获（M1 探针清单）
 
-1. **rc.2 契约抓取**：对捆绑版本 0.2.1-rc.2 重跑同流程，diff rc.5 信封差异，
-   fixtures 钉 `DSH_PROTOCOL_TARGET=0.2.1-rc.2`（M1 第一步，阻塞客户端编码）。
+1. ~~rc.2 契约抓取~~ ✅ 已完成：fixtures 8 份 + manifest 钉 rc.2（见上）。
 2. 会话内消息流：发送 → 流式响应 → 工具调用事件 → 审批请求/响应（需配置模型
    或 mock provider；结构捕获可先从 UI 交互零模型尝试）。
 3. steering 注入信封（回复中途插话）。

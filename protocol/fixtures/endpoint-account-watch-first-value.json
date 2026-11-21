@@ -1,0 +1,8 @@
+{
+  "status": "signed-out",
+  "attempt": null,
+  "links": {
+    "usageUrl": "https://platform.deepseek.com/usage",
+    "topUpUrl": "https://platform.deepseek.com/top_up"
+  }
+}
