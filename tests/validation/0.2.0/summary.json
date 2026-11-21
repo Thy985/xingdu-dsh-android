@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0-dev",
+  "layers": {
+    "L0": {"status": "not-run", "evidence": ""},
+    "L1": {"status": "not-run", "evidence": ""},
+    "L2": {"status": "not-run", "evidence": ""},
+    "L3": {"status": "not-run", "evidence": ""},
+    "L4": {"status": "not-run", "evidence": "device-verification-checklist.md"}
+  },
+  "unverified": [
+    "split-install-and-native-exec",
+    "dlopen-from-data-targetsdk-36",
+    "ripgrep-via-symlink",
+    "pty-via-path",
+    "legacy-to-split-overinstall",
+    "wrapper-degradation",
+    "targetsdk-36-notifications-fgs",
+    "tailscale",
+    "system-screenshot-recents",
+    "saf-revocation-edge",
+    "large-system-font",
+    "background-restore-oem-keepalive"
+  ],
+  "user_acceptance": {"date": "", "scope": [], "note": ""}
+}

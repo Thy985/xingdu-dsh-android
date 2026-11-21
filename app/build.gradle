@@ -24,6 +24,7 @@ android {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20231013'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 }
@@ -49,6 +50,45 @@ def verifyRuntime = tasks.register('verifyBundledRuntime') {
     }
 }
 tasks.named('preBuild').configure { dependsOn verifyRuntime }
+
+// Split-layout gate (0.2.0): the five native components ship as jniLibs lib*.so
+// and land in nativeLibraryDir at install time. Their digests live in
+// runtime-native-manifest.json; both the asset and the jniLibs files are
+// build inputs distributed via the release source zip, never committed to git.
+// The gate is fail-closed on the targetSdk transition: a build targeting
+// API 29+ without the split runtime is refused, because exec-from-app-data
+// is exactly what API 29+ W^X enforcement prohibits.
+def verifyBundledNativeLibs = tasks.register('verifyBundledNativeLibs') {
+    doLast {
+        def manifestFile = file('src/main/assets/runtime-native-manifest.json')
+        if (!manifestFile.isFile()) {
+            if (android.defaultConfig.targetSdk >= 29) {
+                throw new GradleException('targetSdk 29+ 禁止 exec 应用数据目录：缺少 split 布局运行时' +
+                    '（runtime-native-manifest.json + app/src/main/jniLibs）。请先构建/恢复 split 布局资产。')
+            }
+            return // legacy data layout: everything ships inside runtime.zip
+        }
+        def meta = new groovy.json.JsonSlurper().parse(manifestFile)
+        def libs = meta.libs
+        if (!(libs instanceof List) || libs.isEmpty()) {
+            throw new GradleException('runtime-native-manifest.json 缺少 libs 条目')
+        }
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        libs.each { lib ->
+            def f = new File(file('src/main/jniLibs'), "${meta.abi}/${lib.name}")
+            if (!f.isFile()) throw new GradleException("缺失 jniLibs 本机组件: ${meta.abi}/${lib.name}")
+            digest.reset()
+            f.withInputStream { stream ->
+                byte[] buffer = new byte[65536]
+                int count
+                while ((count = stream.read(buffer)) != -1) digest.update(buffer, 0, count)
+            }
+            def actual = digest.digest().encodeHex().toString()
+            if (actual != lib.sha256) throw new GradleException("jniLibs SHA-256 不匹配: ${lib.name}")
+        }
+    }
+}
+tasks.named('preBuild').configure { dependsOn verifyBundledNativeLibs }
 
 // Our addon is separate from the immutable official runtime and shares its React instance.
 tasks.register('prepareMobileShell', Exec) {

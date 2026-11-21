@@ -1,11 +1,32 @@
 #!/usr/bin/env python3
-"""Static verifier for the Android runtime ZIP; never executes runtime binaries."""
+"""Static verifier for the Android runtime ZIP; never executes runtime binaries.
+
+Layouts (see RuntimeLayoutPolicy.java / build-runtime.sh --split-jni):
+  data  (legacy): binaries inside the zip, exec'd from app data.
+  split (0.2.0+): zip carries data only; the five native components live in a
+  jniLibs directory (pass --jni-dir) and land in nativeLibraryDir.
+--layout auto detects from zip contents.
+"""
 from __future__ import annotations
 import argparse, hashlib, os, re, shutil, subprocess, sys, tempfile, zipfile
 from pathlib import Path
 EXPECTED={'aarch64':183,'arm64':183,'x86_64':62,'x64':62}
 SYSTEM={'libc.so','libdl.so','libm.so','liblog.so','libz.so','libandroid.so','libjnigraphics.so','libgcc.so','libstdc++.so'}
 ELF_MAGIC=b'\x7fELF'
+SPLIT_REQUIRED=(
+  'lib/node_modules/@deepseek-ai/node-addon-system/lib/flock.js',
+  'lib/node_modules/@deepseek-ai/node-addon-system/lib/system.node',
+  'lib/libandroid-spawn.so',
+  'lib/node_modules/@deepseek-ai/dsh/lib/bin.js',
+  'etc/tls/cert.pem',
+  'usr/bin/.keep',
+)
+SPLIT_FORBIDDEN=(
+  'bin/node','bin/bash','bin/rg','bin/dsh_pty_exec',
+  'lib/node_modules/@vscode/ripgrep-android-arm64/bin/rg',
+)
+PRIVILEGE_HELPERS=('bin/su','bin/sudo','bin/doas','bin/tsu')
+JNI_REQUIRED=('libnode.so','libbash.so','librg.so','libdsh_pty_exec.so','libdsh_system_node.so')
 
 def fail(msg): print('FAIL:',msg); return 1
 def readelf(args):
@@ -20,6 +41,8 @@ def elf_info(p):
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('zip',type=Path); ap.add_argument('--arch',default='aarch64',choices=EXPECTED); ap.add_argument('--sha256'); ap.add_argument('--report')
+    ap.add_argument('--layout',choices=('data','split','auto'),default='data')
+    ap.add_argument('--jni-dir',type=Path,help='split layout: directory holding the lib*.so components')
     a=ap.parse_args(); z=a.zip
     if not z.is_file(): return fail(f'missing ZIP {z}')
     digest=hashlib.sha256(z.read_bytes()).hexdigest(); print('ZIP SHA256:',digest)
@@ -39,10 +62,20 @@ def main():
             target=f.read(i).decode('utf-8','surrogateescape')
             if not target or target.startswith('/') or '..' in Path(target).parts: errors.append(f'unsafe symlink {n} -> {target}')
         names=set(entries)
-        for required in ('bin/node','bin/bash','bin/rg'):
-          if required not in names: errors.append(f'missing {required}')
-        for forbidden in ('bin/su','bin/sudo','bin/doas','bin/tsu'):
+        layout=a.layout
+        if layout=='auto': layout='data' if 'bin/node' in names else 'split'
+        print(f'layout: {layout}')
+        for forbidden in PRIVILEGE_HELPERS:
           if forbidden in names: errors.append(f'forbidden privilege helper {forbidden}')
+        if layout=='data':
+          for required in ('bin/node','bin/bash','bin/rg'):
+            if required not in names: errors.append(f'missing {required}')
+        else:
+          if not a.jni_dir or not a.jni_dir.is_dir(): return fail('split layout requires --jni-dir with the lib*.so components')
+          for required in SPLIT_REQUIRED:
+            if required not in names: errors.append(f'missing {required}')
+          for forbidden in SPLIT_FORBIDDEN:
+            if forbidden in names: errors.append(f'split zip must not carry exec target {forbidden}')
         with tempfile.TemporaryDirectory() as td:
           root=Path(td); f.extractall(root)
           elfs=[]
@@ -61,9 +94,22 @@ def main():
             bundled.update(n for n in needed if n not in SYSTEM)
           # Resolve every non-system NEEDED name by exact basename or SONAME-equivalent path.
           available={p.name for p in (root/'lib').glob('*') if p.is_file()}
+          jni_names=set()
+          if layout=='split':
+            for name in JNI_REQUIRED:
+              p=a.jni_dir/name
+              if not p.is_file():
+                errors.append(f'missing jniLibs component {name}'); continue
+              info=elf_info(p)
+              if not info: errors.append(f'jniLibs component not an ELF: {name}'); continue
+              cls,machine,needed=info
+              if machine!=EXPECTED[a.arch] or cls!=2: errors.append(f'wrong ELF arch {name} class={cls} machine={machine}')
+              jni_names.add(name)
+              bundled.update(n for n in needed if n not in SYSTEM)
+            available|=jni_names
           for n in sorted(bundled):
             if n not in available: errors.append(f'missing bundled DT_NEEDED {n}')
-          print(f'ELF files: {len(elfs)}; bundled DT_NEEDED: {len(bundled)}; system allowlist: {sorted(SYSTEM)}')
+          print(f'ELF files: {len(elfs)} zip + {len(jni_names)} jniLibs; bundled DT_NEEDED: {len(bundled)}; system allowlist: {sorted(SYSTEM)}')
           for w in warnings: print('WARN:',w)
     except zipfile.BadZipFile as e: return fail(f'bad ZIP: {e}')
     if a.report: Path(a.report).write_text(('PASS\n' if not errors else 'FAIL\n')+'\n'.join(errors)+'\n')
