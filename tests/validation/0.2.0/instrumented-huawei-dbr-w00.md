@@ -67,3 +67,50 @@
 - B6（0.1.9→0.2.0 真实覆盖安装，需真机 UI 首启流程；机制层已由 RuntimeCommit 事务 + 签名兼容 + 标记驱动重装覆盖）
 - B8 补充：状态栏通知可见性人工确认、POST_NOTIFICATIONS 运行时授予实操
 - 0.1.9 回灌项（Tailscale、系统截图/录屏/最近任务、SAF 撤销边界、大字号、后台恢复、OEM 保活）
+
+---
+
+# 第三轮：B6 覆盖安装 + 运行中探针（2026-11-21 同日）
+
+- 方法：真实 0.1.9 APK（vc10）安装 → **UiAutomator 跨应用驱动真机 UI 首启**（点「启动」→ 处理「首次使用：开发测试版 / 理解并启动」弹窗 → 处理 EMUI 通知权限弹窗「允许」）→ `adb install -r` 覆盖安装 0.2.0（vc11，targetSdk 36）→ `B6OverInstallTest`（编排开关 `-e b6 true`，无数据守卫——既有数据即被测场景）
+- 重要更正：早期「L4 人工项」判断过宽——B6/后台恢复/大字号/通知证据均可程序化；仅 Tailscale（需用户 tailnet 基础设施）与状态栏肉眼确认保留人工
+
+## B6 判定：**通过**
+
+| 断言 | 结果 |
+| --- | --- |
+| 覆盖安装（vc10→vc11，targetSdk 28→36） | Success，数据目录保留 |
+| 安装标记 | legacy sha（2706569f…）→ 引擎启动后替换为 split sha（af7067ff…）——RuntimeCommit 事务重装成立 |
+| 数据保留 | home/、workspaces/ 保留；0.2.0 引擎首启后 home/.dsh 创建 |
+| bin/node | legacy 常规文件 → split 符号链接 |
+| 0.2.0 引擎 | 经真实 DshService 路径到达 URL_READY |
+
+## 重大发现：Termux 共存导致 0.1.x 引擎无法启动（0.2.0 已修）
+
+0.1.9 种子流程的引擎死于 exit 13——与 0.2.0 初次调试完全相同的 OpenSSL fatal：
+`fopen(/data/data/com.termux/files/usr/etc/tls/openssl.cnf) → Permission denied`。
+根因：**设备装有 Termux**（com.termux），其 cnf 文件存在但跨应用不可读（EACCES fatal）；
+0.1.9 十月验证时 Termux 不在设备上（ENOENT 被容忍），故未暴露。
+**含义**：装有 Termux 的 0.1.x 用户引擎无法启动；0.2.0 的 OPENSSL_CONF 注入恰好修复。
+→ 记入 0.2.0 发布说明（用户级 bug fix）。
+
+## 通知可见性（B8 补充证据，框架层）
+
+引擎运行窗口期（B6 测试显式 90s 证据窗口）dumpsys：
+- `ServiceRecord .DshService isForeground=true foregroundId=42 foregroundNoti=Notification(channel=dsh …)`
+- `NotificationRecord(pkg=io.github.zhanxing.dshandroid id=42 channel=dsh importance=2 seen=false)`
+- 结论：通知在框架层**已发布且服务真实前台化**；EMUI 仅过滤 `getActiveNotifications()` 查询（返回空）。
+  状态栏肉眼可见性 + LOW 重要性在 EMUI 的展示策略 → 保留极小人工项（证据文件 notification-evidence-dumpsys.txt）
+
+## 运行中探针
+
+| 项 | 方法 | 结果 |
+| --- | --- | --- |
+| 后台恢复 | 引擎运行 → HOME 后台 60s → 进程/web/FGS 检查 → 回前台 | **通过**：进程存活、web 401（鉴权质询=正常服务）、FGS 保持前台、恢复后正常 |
+| 大字号 1.3x | `settings put system font_scale 1.3` → 观察 | **部分通过**：应用稳定、WebView 渲染正常、引擎持续服务；home 卡片布局专项检查待做（应用当时停在 WebView 页） |
+| FLAG_SECURE 截图/录屏 | screencap 像素分析 | 未执行（需先经 UI 开启开关，转 L4） |
+
+## 方法论更正
+
+am instrument 结束会杀死目标应用进程（appDiedLocked）——任何「引擎长活」断言必须在测试窗口内完成，
+或改用真实 UI 启动（无 instrumentation 挂载）。本轮 B6 证据窗口（测试内 sleep 90s）即为此设计。

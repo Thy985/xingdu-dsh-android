@@ -4,6 +4,7 @@
 
 ## 未发布
 
+- 修复（用户级 bug）：设备同时装有 Termux 时引擎无法启动——Termux 构建的 node 在编译期烘焙 `OPENSSLDIR=/data/data/com.termux/...`，本应用读取该路径 EACCES fatal（exit 13）；0.1.x 依赖旧版 OpenSSL 对此的容忍，环境变化即暴露。0.2.0 注入 `OPENSSL_CONF` 指向应用自带的 `etc/tls/openssl.cnf`，真机复验通过（tests/validation/0.2.0/ 第三轮）。
 - 许可决策：项目代码由 MIT 转为 **GNU AGPL-3.0**（2026-11-21 维护者决定）。`LICENSE` 替换为官方 AGPL-3.0 全文，README 与 [AGENTS.md](AGENTS.md) 红线第 4 条、[docs/native-ui-plan.md](docs/native-ui-plan.md) 许可门同步更新。此决定同时授权阅读/复制 dsh-go（AGPL-3.0）源码作为实现参考；协议事实仍只从探针抓包进入 fixtures（红线第 5 条不变）。
 
 ## 0.1.9-dev（versionCode 10，2026-10-24，`v0.1.9-dev-preview`）
