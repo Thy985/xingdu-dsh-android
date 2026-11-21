@@ -79,11 +79,34 @@
   返回 401（与 Android 端 `DshService` 观察一致）。
 - token 出现在 URL query；捕获已脱敏。
 
+## 五·五、交互捕获（首轮，rc.5 @3086，配置模型后）
+
+> 模型调用本身失败（TRANSPORT → 550，6 次自动重试后 turn/end）——凭据已确认
+> 配置（credentials/describe: `configured:true, source:"file"`），失败为引擎到
+> provider 的传输问题，待与维护者核实其全局 dsh 当前是否可用。失败不影响
+> 以下协议事实的成立（均为捕获实证）。
+
+- **消息发送端点**：`POST /api/session/prompt`，body 为 RPC 信封
+  `{"type":"client-request","rpcId":"<uuid>","method":"session/prompt","payload":{"args":{"request":{…requestId…}}}}`
+- **HTTP RPC 信封（通用）**：请求 `{"type":"client-request","rpcId":…,"method":"<method>","payload":{"args":…}}`；
+  响应 `{"type":"server-response","rpcId":…,"result":{"ok":true,"value":…}}`（rpcId 关联）
+- **会话转录事件流**（session/follow 流上的 `value.type=event` 事件）：
+  `system/message`（含 skills 注入）、`user/message`（seq 递增、content 数组）、
+  `assistant/attempt`（turn/step + stream 数组）、`turn/end`（含 error reason）
+- **assistant-stream 帧**：`frame.type=start|chunk`，`attemptId="<sessionId>:<n>"`、
+  `revision`、`index`、chunk 类型 `finish`（reason.kind=error 时含 code
+  TRANSPORT/SERVER + status）
+- **自动重试梯子**：失败后 attemptId :1→:6，间隔递增（~2s→4s→6s→8s→15s），
+  每次尝试 revision 递增；最终 `emit api-session/error`（args=[sessionId, 消息]）+ `turn/end`
+- **凭据查询**：`POST /api/credentials/describe`，refs 数组（如
+  `["DEEPSEEK_API_KEY"]`），响应 per-ref `{configured, source:"file", writable}`
+
 ## 六、待捕获（M1 探针清单）
 
 1. ~~rc.2 契约抓取~~ ✅ 已完成：fixtures 8 份 + manifest 钉 rc.2（见上）。
-2. 会话内消息流：发送 → 流式响应 → 工具调用事件 → 审批请求/响应（需配置模型
-   或 mock provider；结构捕获可先从 UI 交互零模型尝试）。
+2. ~~会话内消息流~~ 首轮完成（发送/流式/事件分类学/重试梯子已捕获，见上）；
+   **待模型调用修复后补齐**：工具调用事件、审批请求/响应、steering 注入、正常
+   finish 的流完成形态。
 3. steering 注入信封（回复中途插话）。
 4. 会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换。
 5. 终端（`terminal` 类端点）与文件 API 形态。
