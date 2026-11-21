@@ -79,11 +79,96 @@
   返回 401（与 Android 端 `DshService` 观察一致）。
 - token 出现在 URL query；捕获已脱敏。
 
+## 五·五、交互捕获（首轮，rc.5 @3086，配置模型后）
+
+> 模型调用本身失败（TRANSPORT → 550，6 次自动重试后 turn/end）——凭据已确认
+> 配置（credentials/describe: `configured:true, source:"file"`），失败为引擎到
+> provider 的传输问题，待与维护者核实其全局 dsh 当前是否可用。失败不影响
+> 以下协议事实的成立（均为捕获实证）。
+
+- **消息发送端点**：`POST /api/session/prompt`，body 为 RPC 信封
+  `{"type":"client-request","rpcId":"<uuid>","method":"session/prompt","payload":{"args":{"request":{…requestId…}}}}`
+- **HTTP RPC 信封（通用）**：请求 `{"type":"client-request","rpcId":…,"method":"<method>","payload":{"args":…}}`；
+  响应 `{"type":"server-response","rpcId":…,"result":{"ok":true,"value":…}}`（rpcId 关联）
+- **会话转录事件流**（session/follow 流上的 `value.type=event` 事件）：
+  `system/message`（含 skills 注入）、`user/message`（seq 递增、content 数组）、
+  `assistant/attempt`（turn/step + stream 数组）、`turn/end`（含 error reason）
+- **assistant-stream 帧**：`frame.type=start|chunk`，`attemptId="<sessionId>:<n>"`、
+  `revision`、`index`、chunk 类型 `finish`（reason.kind=error 时含 code
+  TRANSPORT/SERVER + status）
+- **自动重试梯子**：失败后 attemptId :1→:6，间隔递增（~2s→4s→6s→8s→15s），
+  每次尝试 revision 递增；最终 `emit api-session/error`（args=[sessionId, 消息]）+ `turn/end`
+- **凭据查询**：`POST /api/credentials/describe`，refs 数组（如
+  `["DEEPSEEK_API_KEY"]`），响应 per-ref `{configured, source:"file", writable}`
+
+## 五·六、交互捕获第二轮（工作区内写入 + pwsh + 审批路径，rc.5 @3087）
+
+**完整 agent 循环解剖**（工作区内写入，自动执行无审批）：
+
+```
+POST /api/session/prompt
+→ event agent/inbox/spliced（target next-turn）
+→ projection inbox（next-turn 内容）
+→ event user/message（×3：用户消息 + runtime-context 快照 + skills 注入）
+→ event step/start（turn 1 step 1）
+→ event request/header（config:{provider:"agnes-local",model:"agnes1/agnes-3.0-flash"}, tools:[…全工具清单]）
+→ assistant-stream：start → block-start(blockType) → text-delta →
+   tool-call-delta(id,name,argumentsDelta) → block-end(block:{type:"tool-call",…}) →
+   usage(inputTokens…) → finish(reason:{kind:"tool-call"}) → end(outcome:{kind:"committed"})
+→ event assistant/message（tool-call content）→ event tool/call（callId,name,arguments）
+→ event job/registered（jobId "<tool>-<hash>", kind, owner=sessionId）
+→ event job/settled（~18ms 后）→ （工具结果进下一 attempt）
+→ assistant-stream attempt :2（带工具结果继续）→ event assistant/message（最终文本）
+→ event step/end → projection sessionStats（turns/steps/llmMs/toolMs/ttftMs）
+→ event turn/end（reason:{kind:"completed"}）
+```
+
+- **pwsh 工具**（Windows shell）：tool/call → job/registered → job/settled（18ms）→
+  结果回灌；**默认策略（workspace-write）下无审批卡**，直接执行。
+  本轮 pwsh 实际失败：桌面 harness 沙箱在 Windows 上设置工作区写 ACL 出错
+  （`SetName…`，README 已知桌面隔离限制）——模型如实报告失败。
+- **title 生成是独立 LLM 请求**：`session/title-llm-request`（titleProvider:
+  session-title-first-prompt-llm，独立 route）→ `session/title`（fallback → provider 两阶段）。
+- **projection 家族**（session/control 流）：inbox、turnOutline、title、
+  permissions（`{currentValue:"workspace-write"}`）、sessionStats、subagentTiming。
+
+**审批路径（工作区外写入）**：模型调用 **`ask_user_question` 工具**（questions JSON：
+id approve-external-write…）→ 服务端推**新帧类型 `waterfall`**：
+`{"type":"waterfall","event":"user-questions/request","eventId":…,"agentId":…,"request":{"questions":[…]}}`
+——确认流。回答信封（客户端 → 用户问题的响应）待下一轮捕获（在 UI 中点选项并抓帧）。
+
+## 五·七、审批闭环（rc.5 @3087，终局捕获）
+
+**沙箱提权审批**（工作区外写入 → 引擎请求 danger-full-access）：
+
+```
+event approval/asked（id, toolName pwsh, callId, reason "escalate sandbox to danger-full-access"）
+→ waterfall 帧（event:"approval/request"，eventId, toolName, callId, reason）
+→ [UI 审批卡：允许一次 / 拒绝]
+→ POST /api/$events/result：{"args":{"clientId":…,"eventId":<waterfall eventId>,
+     "outcome":{"kind":"result","value":"allowed-once"}}}
+→ event job/registered（pwsh 以 danger-full-access 重执行）→ rows 帧（jobs 表）
+→ event job/settled → event tool/result → attempt :3 流 → assistant/message
+  （"已创建文件 D:\Projects\Archivepproval-probe.txt"——工作区外落盘成功）
+→ stream end committed → event turn/end（reason:{kind:"completed"}）
+```
+
+**两种确认流的回答信封对比**（均走 `POST /api/$events/result`）：
+- ask_user_question：`outcome.value = {answers:[{id, selected:[…]}]}`（数组形态）
+- 沙箱提权审批：`outcome.value = "allowed-once"`（字符串形态）
+
+UI 审批卡文案：等待审批 / 允许本次操作使用 danger-full-access 权限 / 按钮
+[拒绝, 允许一次]。**端到端实证：审批 → 提权 → 工作区外文件创建成功**。
+
+> 注：本轮交互捕获在 rc.5 上完成；rc.2 交互面重跑（预期零漂移，首屏面已证）
+> 作为 M1 客户端编码前的最后一个确认项。
+
 ## 六、待捕获（M1 探针清单）
 
 1. ~~rc.2 契约抓取~~ ✅ 已完成：fixtures 8 份 + manifest 钉 rc.2（见上）。
-2. 会话内消息流：发送 → 流式响应 → 工具调用事件 → 审批请求/响应（需配置模型
-   或 mock provider；结构捕获可先从 UI 交互零模型尝试）。
+2. ~~会话内消息流~~ ✅ 三轮完成：工作区写入全链路、pwsh job 模式、waterfall
+   审批请求 + **回答信封（allowed-once）** + 提权重执行端到端实证。**剩余**：
+   steering 注入帧、rc.2 交互面重跑确认（预期零漂移）。
 3. steering 注入信封（回复中途插话）。
 4. 会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换。
 5. 终端（`terminal` 类端点）与文件 API 形态。
