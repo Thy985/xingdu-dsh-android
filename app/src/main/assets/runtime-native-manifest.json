@@ -1,0 +1,32 @@
+{
+  "layout": "split",
+  "abi": "arm64-v8a",
+  "dshVersion": "0.2.1-rc.2",
+  "libs": [
+    {
+      "name": "libbash.so",
+      "sha256": "0365ac23661e9b31a229d553eddbf7a9b68e6d1f0eef23aa7061b478acbce7df",
+      "bytes": 880416
+    },
+    {
+      "name": "libdsh_pty_exec.so",
+      "sha256": "91e397982becc70b58e2bdcdecc4f08073ea1283b4bb09b7d0bdb7f0efe02fe6",
+      "bytes": 13040
+    },
+    {
+      "name": "libdsh_system_node.so",
+      "sha256": "3fd1afc9e00700315f753a73685404b22b269385e80b84a976879559c940f64f",
+      "bytes": 11488
+    },
+    {
+      "name": "libnode.so",
+      "sha256": "fafd27f8eb01e56748bd3dda7a760f055b1ed55ceb438128f42ef8dfe8bf4763",
+      "bytes": 46268592
+    },
+    {
+      "name": "librg.so",
+      "sha256": "5adfd20e4c350aecd718bbef048a57a3fbabe0402c9c39a25eb40a28f1b19543",
+      "bytes": 4868920
+    }
+  ]
+}
