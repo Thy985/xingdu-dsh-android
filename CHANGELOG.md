@@ -2,6 +2,10 @@
 
 按版本记录功能与工程变更。验证证据以 [tests/validation/](tests/validation/) 各版本归档为准；"测试通过"仅指当轮实际执行的测试。0.1.7 之前的版本为本地交付，无发布日期归档，本节依据当版验证记录与 0.1.7 期 README 历史文档整理。
 
+## 未发布
+
+- 许可决策：项目代码由 MIT 转为 **GNU AGPL-3.0**（2026-11-21 维护者决定）。`LICENSE` 替换为官方 AGPL-3.0 全文，README 与 [AGENTS.md](AGENTS.md) 红线第 4 条、[docs/native-ui-plan.md](docs/native-ui-plan.md) 许可门同步更新。此决定同时授权阅读/复制 dsh-go（AGPL-3.0）源码作为实现参考；协议事实仍只从探针抓包进入 fixtures（红线第 5 条不变）。
+
 ## 0.1.9-dev（versionCode 10，2026-10-24，`v0.1.9-dev-preview`）
 
 工程与验证补全版：运行时与功能面与 0.1.8 相同，聚焦通往正式发布路线的 0.1.9 里程碑（验证补全、工程基础）。
