@@ -24,22 +24,25 @@
 
 | 套件 | 数量 | 结论 | 证据 |
 | --- | --- | --- | --- |
-| `SafTransferTest` | 10 | 未执行 | — |
-| `ScreenPrivacyTest` | 9 | 未执行 | — |
-| `MobileLayoutTest` | 7 | 未执行 | — |
+| `SplitRuntimeTest`（新增） | 5 | **5/5 通过**（split 布局 B1/B1b/B2/B4/B5，真引擎） | [instrumented-huawei-dbr-w00.md](instrumented-huawei-dbr-w00.md) |
+| `SafTransferTest` | 10 | **10/10 通过** | [instrumented-huawei-dbr-w00.md](instrumented-huawei-dbr-w00.md) |
+| `ScreenPrivacyTest` | 9 | **9/9 通过**（0.1.9 失败的 2 项 androidx 生命周期用例本轮未复现，按环境因素波动如实记录） | [instrumented-huawei-dbr-w00.md](instrumented-huawei-dbr-w00.md) |
+| `MobileLayoutTest` | 7 | **5/7**（2 项失败与 0.1.9 完全一致：EMUI IME 缩放、华为 WebView 错误呈现——已定性环境因素） | [instrumented-huawei-dbr-w00.md](instrumented-huawei-dbr-w00.md) |
+
+本轮：31/31 执行，29 通过 / 2 失败（均为已知环境因素）。split 布局对既有仪器测试**零回归**。
 
 ## B. split 布局关键验证（0.2.0 新增；B 线改造的核心未知项集中在这里）
 
 | # | 项 | 预期 | 结论 |
 | --- | --- | --- | --- |
-| B1 | split 运行时首启安装 | zip 流式校验通过；数据目录无内嵌二进制；`nativeLibraryDir` 五个组件哈希与 manifest 一致 | 未执行 |
-| B2 | 引擎启动（exec 走 nativeLibraryDir） | `libnode.so` 启动、web 页面加载、EngineState 就绪 | 未执行 |
-| B3 | **dlopen-from-data**（最大未知项） | bash 交互（SONAME 别名 libreadline.so.8 等经 LD_LIBRARY_PATH 从数据目录加载）、flock `system.node`、`libandroid-spawn.so` 均可 dlopen。**若 SELinux 在 targetSdk 36 禁止数据目录 dlopen，需追加这批组件进 jniLibs（机械改动），逐项记录 errno** | 未执行 |
-| B4 | ripgrep 经符号链接 | dsh grep 工具实际运行成功（`bin/rg` → `nativeLibraryDir/librg.so`） | 未执行 |
-| B5 | PTY 助手（数据树符号链接） | 终端面板可用：engine 沿历史路径解析 `runtime/bin/dsh_pty_exec`，该位置是指向 `nativeLibraryDir/libdsh_pty_exec.so` 的符号链接（PATH 前置 nativeLibraryDir 仅是兜底） | 未执行 |
-| B6 | legacy→split 覆盖安装升级 | 0.1.9 版本数据上覆盖安装 0.2.0：旧 runtime 重装、会话/设置保留、引擎可启动 | 未执行 |
-| B7 | wrapper 降级记录 | `npm`/`pnpm`/`curl` 直接调用在 split+36 下的实际失败形态记录在案；`bash <runtime>/bin/pnpm` 形态可用性记录 | 未执行 |
-| B8 | targetSdk 36 系统行为 | `POST_NOTIFICATIONS` 运行时权限、`foregroundServiceType` 声明生效、通知与前台服务正常 | 未执行 |
+| B1 | split 运行时首启安装 | zip 流式校验通过；数据目录无内嵌二进制；`nativeLibraryDir` 五个组件哈希与 manifest 一致 | **通过（targetSdk 28）**：`SplitRuntimeTest` b1/b1b，[仪器记录](instrumented-huawei-dbr-w00.md) |
+| B2 | 引擎启动（exec 走 nativeLibraryDir） | `libnode.so` 启动、web 页面加载、EngineState 就绪 | **通过（targetSdk 28）**：`SplitRuntimeTest` b2——真实引擎启动、127.0.0.1:3080 服务 web UI |
+| B3 | **dlopen-from-data**（最大未知项） | bash 交互（SONAME 别名 libreadline.so.8 等经 LD_LIBRARY_PATH 从数据目录加载）、flock `system.node`、`libandroid-spawn.so` 均可 dlopen。**若 SELinux 在 targetSdk 36 禁止数据目录 dlopen，需追加这批组件进 jniLibs（机械改动），逐项记录 errno** | 未执行（需 targetSdk 36 构建） |
+| B4 | ripgrep 经符号链接 | dsh grep 工具实际运行成功（`bin/rg` → `nativeLibraryDir/librg.so`） | **通过（targetSdk 28）**：`SplitRuntimeTest` b4 |
+| B5 | PTY 助手（数据树符号链接） | 终端面板可用：engine 沿历史路径解析 `runtime/bin/dsh_pty_exec`，该位置是指向 `nativeLibraryDir/libdsh_pty_exec.so` 的符号链接（PATH 前置 nativeLibraryDir 仅是兜底） | **通过（targetSdk 28）**：`SplitRuntimeTest` b5 |
+| B6 | legacy→split 覆盖安装升级 | 0.1.9 版本数据上覆盖安装 0.2.0：旧 runtime 重装、会话/设置保留、引擎可启动 | 未执行（需 targetSdk 36 构建） |
+| B7 | wrapper 降级记录 | `npm`/`pnpm`/`curl` 直接调用在 split+36 下的实际失败形态记录在案；`bash <runtime>/bin/pnpm` 形态可用性记录 | 未执行（需 targetSdk 36 构建） |
+| B8 | targetSdk 36 系统行为 | `POST_NOTIFICATIONS` 运行时权限、`foregroundServiceType` 声明生效、通知与前台服务正常 | 未执行（需 targetSdk 36 构建） |
 
 ## C. 0.1.9 未决项回灌（闭环第 6 步：failed / environment / unverified 逐条进入本版）
 

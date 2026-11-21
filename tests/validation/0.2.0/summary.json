@@ -1,20 +1,18 @@
 {
   "version": "0.2.0-dev",
   "layers": {
-    "L0": {"status": "not-run", "evidence": ""},
-    "L1": {"status": "not-run", "evidence": ""},
+    "L0": {"status": "pass", "evidence": "local + ci (PR #1 build-and-test green, 2026-11-21)"},
+    "L1": {"status": "pass", "evidence": "81 tests: windows 70 pass + 1 documented POSIX FIFO env case; linux ci 58/58 green; 23 new tests all pass"},
     "L2": {"status": "not-run", "evidence": ""},
-    "L3": {"status": "not-run", "evidence": ""},
-    "L4": {"status": "not-run", "evidence": "device-verification-checklist.md"}
+    "L3": {"status": "partial", "passed": 29, "failed": 2,
+            "environment_factors": ["androidx-lifecycle-emui (0.1.9 carried, did not reproduce this run)", "ime-windowresize", "webview-error-page-huawei"]},
+    "L4": {"status": "partial", "evidence": "device-verification-checklist.md B1/B1b/B2/B4/B5 pass at targetSdk 28"}
   },
   "unverified": [
-    "split-install-and-native-exec",
-    "dlopen-from-data-targetsdk-36",
-    "ripgrep-via-symlink",
-    "pty-via-path",
-    "legacy-to-split-overinstall",
-    "wrapper-degradation",
-    "targetsdk-36-notifications-fgs",
+    "b3-dlopen-from-data-targetsdk-36",
+    "b6-legacy-to-split-overinstall",
+    "b7-wrapper-degradation",
+    "b8-targetsdk-36-notifications-fgs",
     "tailscale",
     "system-screenshot-recents",
     "saf-revocation-edge",
