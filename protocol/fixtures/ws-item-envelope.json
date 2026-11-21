@@ -1,0 +1,8 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "baseline",
+    "owner": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "DSH_PROTOCOL_TARGET": "0.2.1-rc.2",
+  "source_capture": "rc2-page-load",
+  "fixtures": [
+    "ws-open-envelope",
+    "ws-item-envelope",
+    "endpoint-events-events-first-value",
+    "endpoint-account-watch-first-value",
+    "endpoint-remoteAccess-follow-first-value",
+    "endpoint-session-control-first-value",
+    "endpoint-workspace-follow-first-value",
+    "http-endpoint-inventory"
+  ]
+}
