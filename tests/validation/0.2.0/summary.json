@@ -25,18 +25,18 @@
     },
     "L4": {
       "status": "partial",
-      "evidence": "device-verification-checklist.md B1/B1b/B2/B3/B4/B5/B7/B8(partial) pass"
+      "evidence": "device-verification-checklist.md B1–B5/B7/B8 pass (B6 pass incl. Termux-bug discovery); running-window probes: background-resume pass, font-scale partial; remaining: notification status-bar visual, FLAG_SECURE screencap, OEM keep-alive, Tailscale (needs user infra)"
     }
   },
   "unverified": [
-    "b6-legacy-to-split-overinstall",
-    "b8-notification-statusbar-visibility-l4",
-    "b8-postnotifications-runtime-grant-l4",
-    "tailscale",
-    "system-screenshot-recents",
-    "saf-revocation-edge",
-    "large-system-font",
-    "background-restore-oem-keepalive"
+    "b6-note-seed-engine-exit13-termux (documented, 0.2.0 fixes)",
+    "b8-notification-statusbar-visual-l4",
+    "b8-postnotifications-other-devices-l4",
+    "font-scale-home-card-detail",
+    "flagsecure-screencap-recents",
+    "oem-keepalive-extended-watch",
+    "tailscale (needs user tailnet infra)",
+    "saf-revocation-edge (needs app-side release path)"
   ],
   "user_acceptance": {
     "date": "",

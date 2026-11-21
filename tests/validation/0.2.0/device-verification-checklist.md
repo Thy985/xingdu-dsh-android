@@ -43,9 +43,17 @@
 | B3 | **dlopen-from-data**（最大未知项） | bash 交互（SONAME 别名 libreadline.so.8 等经 LD_LIBRARY_PATH 从数据目录加载）、flock `system.node`、`libandroid-spawn.so` 均可 dlopen。**若 SELinux 在 targetSdk 36 禁止数据目录 dlopen，需追加这批组件进 jniLibs（机械改动），逐项记录 errno** | **通过（targetSdk 36）**：`TargetSdk36Test` b3×3——bash SONAME 链、flock addon（tryLock 可用）、spawn shim（映射成功语义）全部按预期。**数据目录 dlopen 无需迁移** |
 | B4 | ripgrep 经符号链接 | dsh grep 工具实际运行成功（`bin/rg` → `nativeLibraryDir/librg.so`） | **通过（targetSdk 28）**：`SplitRuntimeTest` b4 |
 | B5 | PTY 助手（数据树符号链接） | 终端面板可用：engine 沿历史路径解析 `runtime/bin/dsh_pty_exec`，该位置是指向 `nativeLibraryDir/libdsh_pty_exec.so` 的符号链接（PATH 前置 nativeLibraryDir 仅是兜底） | **通过（targetSdk 28）**：`SplitRuntimeTest` b5 |
-| B6 | legacy→split 覆盖安装升级 | 0.1.9 版本数据上覆盖安装 0.2.0：旧 runtime 重装、会话/设置保留、引擎可启动 | 未执行（需 targetSdk 36 构建） |
+| B6 | legacy→split 覆盖安装升级 | 0.1.9 版本数据上覆盖安装 0.2.0：旧 runtime 重装、会话/设置保留、引擎可启动 | **通过**：真实 0.1.9 APK（vc10）+ UiAutomator 真机 UI 首启种子 → `adb install -r` 覆盖 vc11 → `B6OverInstallTest`：数据保留（home/、workspaces/）+ RuntimeCommit 事务重装（legacy sha→split sha、常规文件→符号链接）+ 0.2.0 引擎 URL_READY。附带发现并修复 Termux 共存导致 0.1.x 引擎无法启动的用户级 bug（见仪器记录第三轮） |
 | B7 | wrapper 降级记录 | `npm`/`pnpm`/`curl` 直接调用在 split+36 下的实际失败形态记录在案；`bash <runtime>/bin/pnpm` 形态可用性记录 | **通过（targetSdk 36）**：`TargetSdk36Test` b7×2——直接 execve 被 SELinux 拒绝（IOException Permission denied，预期形态）；`bash bin/corepack --version` 全链路可用。附加记录：corepack 按需下载的 pnpm 二进制 exec 自数据缓存被拒（EACCES），属 W^X 预期行为，终端场景经 `bash <wrapper>` 调用 |
-| B8 | targetSdk 36 系统行为 | `POST_NOTIFICATIONS` 运行时权限、`foregroundServiceType` 声明生效、通知与前台服务正常 | **部分通过（targetSdk 36）**：`TargetSdk36Test` b8——specialUse FGS 经真实 DshService 路径启动、引擎到达 URL_READY（证明 startForeground(42) 在 5s 死限内执行，否则系统会杀进程）；状态栏通知可见性因 EMUI 过滤 `getActiveNotifications()`（返回空）无法程序化断言，转 L4 人工项；POST_NOTIFICATIONS 运行时授予路径待 L4 |
+| B8 | targetSdk 36 系统行为 | `POST_NOTIFICATIONS` 运行时权限、`foregroundServiceType` 声明生效、通知与前台服务正常 | **通过（targetSdk 36，含框架层证据）**：specialUse FGS 经真实 DshService 路径启动至 URL_READY；EMUI 通知权限弹窗实操授予「允许」；引擎运行窗口 dumpsys 实证 `isForeground=true foregroundId=42` + `NotificationRecord(id=42 channel=dsh seen=false)`（notification-evidence-dumpsys.txt）——通知框架层已发布；EMUI 仅过滤 `getActiveNotifications()` 查询，状态栏肉眼确认转 L4 极小项 |
+
+## B2s. 运行中探针（引擎真实运行窗口，第三轮）
+
+| 项 | 结果 |
+| --- | --- |
+| 后台恢复（HOME 60s → 进程/web/FGS → 回前台） | **通过**（引擎存活、401 正常服务、FGS 保持前台） |
+| 大字号 1.3x | **部分通过**（应用稳定 + WebView 渲染正常 + 引擎持续服务；home 卡片布局专项待做） |
+| Termux 共存 | **发现并修复**：0.1.x 引擎在装有 Termux 的设备上无法启动（OpenSSL EACCES fatal）；0.2.0 的 OPENSSL_CONF 注入已修——0.2.0 引擎在装有 Termux 的同一设备上正常启动（B6 流程实证） |
 
 ## C. 0.1.9 未决项回灌（闭环第 6 步：failed / environment / unverified 逐条进入本版）
 
