@@ -47,6 +47,7 @@ public class RuntimeLayoutPolicyTest {
     assertTrue(layout.nativeLibs.isEmpty());
     RuntimeLayoutPolicy.EnginePaths paths = RuntimeLayoutPolicy.enginePaths(layout, "/data/runtime", "/data/native");
     assertEquals("/data/runtime/bin/node", paths.node);
+    assertEquals("/data/runtime/etc/tls/openssl.cnf", paths.opensslConf);
     assertEquals("/data/runtime/bin/bash", paths.bash);
     assertEquals("/data/runtime/lib", paths.ldLibraryPath);
     assertEquals("/data/runtime/bin:/system/bin", paths.pathEnv);
@@ -64,6 +65,7 @@ public class RuntimeLayoutPolicyTest {
     assertEquals("/data/native:/data/runtime/lib", paths.ldLibraryPath);
     assertEquals("/data/native:/data/runtime/bin:/system/bin", paths.pathEnv);
     assertEquals("/data/native", paths.nativeDirEnv);
+    assertEquals("/data/runtime/etc/tls/openssl.cnf", paths.opensslConf);
   }
 
   @Test public void autoDetectedLayoutIsRejectedForLegacyZip() throws Exception {
