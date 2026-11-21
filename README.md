@@ -149,7 +149,7 @@ sha256sum -c SHA256SUMS.txt
 
 ```sh
 unzip -p ../Xingdu-DSH-0.1.9-dev-source.zip \
-  dsh-android-native/app/src/main/assets/runtime.zip \
+  "*/app/src/main/assets/runtime.zip" \
   > app/src/main/assets/runtime.zip
 python3 scripts/runtime/verify-runtime.py app/src/main/assets/runtime.zip --arch aarch64
 ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest

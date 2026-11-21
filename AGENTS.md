@@ -65,10 +65,13 @@
 
 ```sh
 unzip -p ../Xingdu-DSH-<版本>-dev-source.zip \
-  dsh-android-native/app/src/main/assets/runtime.zip \
+  "*/app/src/main/assets/runtime.zip" \
   > app/src/main/assets/runtime.zip
 python3 scripts/runtime/verify-runtime.py app/src/main/assets/runtime.zip --arch aarch64
 ```
+
+<!-- 注意：发布源码包的顶层前缀不固定（曾有 dsh-android-native/ 与
+     xingdu-dsh-android/ 两种），按后缀通配匹配，不要写死前缀。 -->
 
 一键本地快速验证（L0 + L1 + lint）：
 

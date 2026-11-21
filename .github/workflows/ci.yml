@@ -53,8 +53,9 @@ jobs:
         run: |
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
             --pattern "$ASSET" --output /tmp/source.zip
-          unzip -p /tmp/source.zip \
-            dsh-android-native/app/src/main/assets/runtime.zip \
+          # Release source zips have carried different top-level prefixes
+          # (dsh-android-native/, xingdu-dsh-android/); match by suffix instead.
+          unzip -p /tmp/source.zip "*/app/src/main/assets/runtime.zip" \
             > app/src/main/assets/runtime.zip
           rm /tmp/source.zip
 
@@ -131,8 +132,9 @@ jobs:
         run: |
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
             --pattern "$ASSET" --output /tmp/source.zip
-          unzip -p /tmp/source.zip \
-            dsh-android-native/app/src/main/assets/runtime.zip \
+          # Release source zips have carried different top-level prefixes
+          # (dsh-android-native/, xingdu-dsh-android/); match by suffix instead.
+          unzip -p /tmp/source.zip "*/app/src/main/assets/runtime.zip" \
             > app/src/main/assets/runtime.zip
           rm /tmp/source.zip
 
