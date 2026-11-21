@@ -62,7 +62,7 @@
 | 0.1.9 environment | androidx 生命周期机制在 EMUI 不可用（2 项） | 未执行 |
 | 0.1.9 environment | 真机软键盘不触发窗口缩放（IME） | 未执行 |
 | 0.1.9 待查 | 华为 WebView 错误呈现差异 | 未执行 |
-| 0.1.9 unverified | Tailscale 连通 | 未执行 |
+| 0.1.9 unverified | Tailscale 连通 | **暂缓（2026-11-21 维护者决策：本地优先）**——不作为 0.2.0 验收项，远程入口保持 LAN 现状 |
 | 0.1.9 unverified | 系统截图 / 录屏 / 最近任务完整行为 | 未执行 |
 | 0.1.9 unverified | SAF 授权撤销与限额边界 | 未执行 |
 | 0.1.9 unverified | 较大系统字号 | 未执行 |

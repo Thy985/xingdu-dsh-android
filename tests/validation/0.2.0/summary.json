@@ -35,12 +35,14 @@
     "font-scale-home-card-detail",
     "flagsecure-screencap-recents",
     "oem-keepalive-extended-watch",
-    "tailscale (needs user tailnet infra)",
     "saf-revocation-edge (needs app-side release path)"
   ],
   "user_acceptance": {
     "date": "",
     "scope": [],
     "note": ""
-  }
+  },
+  "deferred_by_decision": [
+    "tailscale (2026-11-21 maintainer decision: local-first; remote entry stays LAN-only)"
+  ]
 }
