@@ -2,10 +2,33 @@
 
 按版本记录功能与工程变更。验证证据以 [tests/validation/](tests/validation/) 各版本归档为准；"测试通过"仅指当轮实际执行的测试。0.1.7 之前的版本为本地交付，无发布日期归档，本节依据当版验证记录与 0.1.7 期 README 历史文档整理。
 
-## 未发布
+## 0.2.0-dev（versionCode 11，2026-11-21，`v0.2.0-dev-preview`）
 
-- 修复（用户级 bug）：设备同时装有 Termux 时引擎无法启动——Termux 构建的 node 在编译期烘焙 `OPENSSLDIR=/data/data/com.termux/...`，本应用读取该路径 EACCES fatal（exit 13）；0.1.x 依赖旧版 OpenSSL 对此的容忍，环境变化即暴露。0.2.0 注入 `OPENSSL_CONF` 指向应用自带的 `etc/tls/openssl.cnf`，真机复验通过（tests/validation/0.2.0/ 第三轮）。
+发布架构迁移版（[ROADMAP.md](ROADMAP.md) 0.2.0 里程碑）：运行时可执行文件迁出应用数据目录、targetSdk 36、真机全量验证。
+
+### 发布架构迁移（split 布局）
+
+- **运行时 split 布局**：可执行文件（node、bash、ripgrep、PTY 助手、flock N-API addon）以 `lib*.so` 经 jniLibs 落 `nativeLibraryDir`（API 29+ W^X 合法区），`runtime.zip` 只含 JS/脚本/数据；安装器对 PackageManager 解压产物做流式 SHA-256 校验，并在历史 exec 位置重建指向 `nativeLibraryDir` 的符号链接；数据目录内嵌可执行文件被 fail-closed 拒绝。
+- **targetSdk 28 → 36**（compileSdk 36）：前台服务改 `specialUse` 类型并声明 subtype（dataSync 有 6h/24h 时限，长驻引擎不适用）；`POST_NOTIFICATIONS` 运行时权限请求；edge-to-edge 强制下的 insets 处理（`MainActivity.applySystemBarInsets`）。
+- 构建门禁：`verifyBundledNativeLibs` 校验 jniLibs 五组件哈希 + 双 manifest 交叉一致性；`targetSdk 29+` 缺少 split 资产时拒绝构建。`build-runtime.sh --split-jni` 产出 split 布局；`verify-runtime.py` 布局感知（manifest 驱动）并校验 jniLibs ELF 架构与依赖闭包。
+
+### 修复
+
+- **（用户级 bug）设备装有 Termux 时引擎无法启动**：Termux 构建的 node 在编译期烘焙 `OPENSSLDIR=/data/data/com.termux/...`，本应用读取该路径 EACCES fatal（exit 13）；0.1.x 依赖旧版 OpenSSL 对此的容忍，环境变化即暴露。0.2.0 注入 `OPENSSL_CONF` 指向应用自带的 `etc/tls/openssl.cnf`，真机复验通过（同一台装有 Termux 的设备上 0.1.9 引擎死、0.2.0 引擎活）。
+
+### 验证（详见 [tests/validation/0.2.0/](tests/validation/0.2.0/)）
+
+- 真机三轮仪器测试（华为 DBR-W00，Android 12）37 项全部执行：33 通过 / 4 失败（均为 0.1.9 已归档 EMUI 环境因素，签名逐字一致，零新增回归）。新增 `SplitRuntimeTest`（真引擎 split 布局 5 例）与 `TargetSdk36Test`（targetSdk 36 判定 6 例）。
+- **B3 判定**：targetSdk 36 下数据目录 dlopen 依然可用（bash SONAME 链、flock addon、spawn shim），dlopen 依赖集无需迁移。
+- **B6 覆盖安装（0.1.9→0.2.0）通过**：真实 0.1.9 APK + UiAutomator 真机 UI 首启种子 → `adb install -r` 覆盖 → 数据保留 + RuntimeCommit 事务重装 + 0.2.0 引擎 URL_READY。
+- 运行中探针：后台恢复（HOME 60s 全活）、通知框架层证据（dumpsys `isForeground=true` + `NotificationRecord id=42`）、大字号 1.3x 部分通过。
+
+### 工程与决策
+
 - 许可决策：项目代码由 MIT 转为 **GNU AGPL-3.0**（2026-11-21 维护者决定）。`LICENSE` 替换为官方 AGPL-3.0 全文，README 与 [AGENTS.md](AGENTS.md) 红线第 4 条、[docs/native-ui-plan.md](docs/native-ui-plan.md) 许可门同步更新。此决定同时授权阅读/复制 dsh-go（AGPL-3.0）源码作为实现参考；协议事实仍只从探针抓包进入 fixtures（红线第 5 条不变）。
+- 立项原生 UI 路线：新增 [AGENTS.md](AGENTS.md)（工程守则与红线）、[docs/verification.md](docs/verification.md)（六层验证矩阵与闭环）、[docs/native-ui-plan.md](docs/native-ui-plan.md)（M0–M3 周计划）、`scripts/verify-local.sh` 一键本地快速层与 PR 模板。
+- **Tailscale 暂缓**（2026-11-21 维护者决策：本地优先）：远程入口保持 LAN 现状（0.1.9 已验收），Tailscale 不作为版本验收项；已落盘 [ROADMAP.md](ROADMAP.md) 与 native-ui-plan 收容所。
+- GitHub Actions：新增 `runtime-build.yml`（手动触发产出 split 运行时资产）；CI 恢复步骤支持 split 资产（runtime.zip + jniLibs）与 pre-release 解析；修复发布源码包顶层前缀不固定导致的冷缓存失败。
 
 ## 0.1.9-dev（versionCode 10，2026-10-24，`v0.1.9-dev-preview`）
 

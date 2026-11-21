@@ -4,9 +4,9 @@
 
 **本机运行，也能渡向远程。** 星渡是基于 DeepSeek Harness（DSH）的非官方 Android 工作台：在手机上运行本机引擎、使用对话与工具界面，也提供连接自有远程 DSH 主机的入口。
 
-> **当前版本：`0.1.9-dev` · Debug 开发预览 · 非稳定版。** 不是 DeepSeek 官方安卓客户端。**用户已完成真机验收并逐项确认：局域网远程连通、SAF 实操、覆盖安装、中文输入法、真实 API 会话未发现问题**；仪器测试已首次在真机全量执行（26 项中 22 项通过，其余 4 项为环境/测试框架因素，见[验证状态](#验证状态)）。Tailscale 连通与屏幕隐私完整系统行为仍无单独验收结论。请先备份数据，仅用非敏感文件试用。
+> **当前版本：`0.2.0-dev` · Debug 开发预览 · 非稳定版。** 不是 DeepSeek 官方安卓客户端。0.2.0 完成发布架构迁移：运行时可执行文件改经 jniLibs 打包（split 布局）、`targetSdk 36`、前台服务 `specialUse` 类型——不再依赖"应用数据目录可执行"这一已被现代 Android 禁止的旧行为，并修复设备装有 Termux 时引擎无法启动的问题。真机（华为 DBR-W00，Android 12）三轮仪器测试 37 项全部执行：33 通过 / 4 失败（均为 0.1.9 已归档的 EMUI 环境因素），覆盖安装升级（0.1.9→0.2.0）、split 布局引擎启动、数据目录 dlopen 判定、后台恢复等逐项结论见[验证状态](#验证状态)。Tailscale 连通已暂缓（2026-11-21 决策：本地优先，远程入口保持局域网现状）。请先备份数据，仅用非敏感文件试用。
 
-[下载开发预览](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.1.9-dev-preview) · [真机截图](#真机界面) · [快速开始](#快速开始) · [验证状态](#验证状态) · [本地构建](#本地构建) · [路线图](ROADMAP.md) · [变更日志](CHANGELOG.md)
+[下载开发预览](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.2.0-dev-preview) · [真机截图](#真机界面) · [快速开始](#快速开始) · [验证状态](#验证状态) · [本地构建](#本地构建) · [路线图](ROADMAP.md) · [变更日志](CHANGELOG.md)
 
 ## 能做什么
 
@@ -46,18 +46,19 @@
 
 ## 下载与设备要求
 
-从 [v0.1.9-dev-preview 发布页](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.1.9-dev-preview) 下载：
+从 [v0.2.0-dev-preview 发布页](https://github.com/Thy985/xingdu-dsh-android/releases/tag/v0.2.0-dev-preview) 下载：
 
 | 附件 | 用途 |
 | --- | --- |
-| `Xingdu-DSH-0.1.9-dev-arm64.apk` | ARM64 Debug 侧载安装包，不是正式签名的稳定发行版。 |
-| `Xingdu-DSH-0.1.9-dev-source.zip` | 包含完整内嵌运行时的源码工程，用于本地构建。 |
+| `Xingdu-DSH-0.2.0-dev-arm64.apk` | ARM64 Debug 侧载安装包（split 布局），不是正式签名的稳定发行版。 |
+| `Xingdu-DSH-0.2.0-dev-source.zip` | 包含完整内嵌运行时（数据 zip + jniLibs 组件 + 双 manifest）的源码工程，用于本地构建。 |
 | `SHA256SUMS.txt` | 上述两个附件的 SHA-256 校验值。 |
 
 - **本机模式：** 支持 `arm64-v8a` 的 Android 8.0+ 设备。
 - **远程模式：** Android 9+，用于独立 WebView 数据目录；Android 8 仅保留本机模式。
-- **存储空间：** 首次启动需校验并解包约 825 MB 运行时，建议至少预留 **2 GB**，供安装包、运行时、升级暂存和工作区使用。
-- **版本信息：** 应用 ID `io.github.zhanxing.dshandroid`，versionCode `10`，当前 `targetSdk 28`；这是侧载兼容性折中，不是现代应用商店发布方案（升级路径见[路线图](ROADMAP.md)）。
+- **存储空间：** 首次启动需校验并解包约 800 MB 运行时数据，建议至少预留 **2 GB**，供安装包、运行时、升级暂存和工作区使用。
+- **版本信息：** 应用 ID `io.github.zhanxing.dshandroid`，versionCode `11`，`targetSdk 36`（0.2.0 发布架构迁移完成：可执行文件经 jniLibs 落 `nativeLibraryDir`，不再依赖数据目录可执行）。
+- **与 Termux 共存：** 0.1.x 在装有 Termux 的设备上引擎无法启动（OpenSSL 配置路径冲突）；0.2.0 已修复，可与 Termux 并存。
 
 将两个附件和校验文件下载到同一目录后执行：
 
@@ -65,7 +66,7 @@
 sha256sum -c SHA256SUMS.txt
 ```
 
-**Git 仓库与 GitHub 自动生成的 Source code 归档不包含约 211 MiB 的 `runtime.zip`。** 需要完整可构建工程时，请选择本项目明确上传的 `Xingdu-DSH-0.1.9-dev-source.zip`，不要与自动源码归档混淆。
+**Git 仓库与 GitHub 自动生成的 Source code 归档不包含约 201 MiB 的 `runtime.zip` 与 jniLibs 本机组件。** 需要完整可构建工程时，请选择本项目明确上传的 `Xingdu-DSH-0.2.0-dev-source.zip`，不要与自动源码归档混淆。
 
 ## 快速开始
 
@@ -79,7 +80,7 @@ sha256sum -c SHA256SUMS.txt
 
 本机 WebView 仅导航到 `127.0.0.1:3080`。默认工作区为 App 私有 `files/workspaces/default`，配置与会话位于 `home/.dsh`。卸载、清除数据前请自行备份；不要把唯一的重要数据副本放在开发版里。
 
-### 远程模式（局域网已经用户真机验收；Tailscale 未验证）
+### 远程模式（局域网已经用户真机验收；Tailscale 暂缓——2026-11-21 决策：本地优先）
 
 1. 在自有电脑上按官方 DSH 要求启动服务，确保监听地址可达、可信主机配置正确。
 2. 先在 Android 系统中连入同一局域网，或自行建立 Tailscale / VPN 网络。
@@ -121,43 +122,55 @@ sha256sum -c SHA256SUMS.txt
 
 ## 验证状态
 
-**用户真机验收：已完成。** 2026-10-24 用户逐项确认并反馈未发现问题：**局域网远程连通、SAF 实操、覆盖安装升级、中文输入法、真实 API 会话**。此处按项目惯例记录用户人工验收，不折算为逐项自动化验证；更早的整体验收反馈与四张授权截图（首页、对话、内置插件、工具/终端）仍然有效。
+**0.2.0 验证（华为 DBR-W00，Android 12，三轮真机执行）以 [0.2.0 验证摘要](tests/validation/0.2.0/summary.json) 为准，逐字摘录如下。**
 
-| 证据 | 已确认的范围 | 不能据此推断 |
-| --- | --- | --- |
-| 用户真机人工验收（2026-10-24） | 局域网远程连通、SAF 系统选择器与导出实操、覆盖安装升级、中文 IME、配置自有 API 后的真实会话：用户报告未发现问题。 | 边界场景（授权撤销、限额触发、断线恢复）、Tailscale，以及任何自动化断言。 |
-| 仪器测试真机全量执行（华为 DBR-W00，Android 12） | 26 项全部执行，22 项通过：`SafTransferTest` 10/10；`ScreenPrivacyTest` 7/9（默认保护、启停切换、`provider` 私有性、多控制器同步、**`:remote` 跨进程 FLAG_SECURE 同步**）；`MobileLayoutTest` 5/7（含旋转保持与首页状态控制）。 | 4 项失败均已定性为环境/测试框架因素：2 项 androidx 生命周期机制在 EMUI 不可用、真机软键盘不触发窗口缩放、华为 WebView 错误呈现差异（待查）——对应应用行为仍记"未验证"，详见[仪器测试记录](tests/validation/0.1.9/instrumented-huawei-dbr-w00.md)。 |
-| 构建与自动化记录 | Debug 应用与 AndroidTest APK 构建成功；JVM 单测 58 项由 Linux CI 在发布提交上执行（本机 Windows 57/58，差异为依赖 POSIX FIFO 的既有用例）；移动适配回归 2 组通过；插件契约检查通过；APK v2 签名验证通过。 | 历史记录不因新版本自动延续；各版本以自身验证记录为准。 |
+| 层 | 结论 |
+| --- | --- |
+| L0 契约 | 通过（本地 + CI） |
+| L1 JVM 单测 | 81 项：Windows 70 通过 + 1 项已知 POSIX FIFO 环境用例；Linux CI 58/58 全绿；新增 23 项（协议布局策略 + split 安装逻辑）全过 |
+| L3 仪器测试 | **37 项全部执行，33 通过 / 4 失败**——4 项失败均为 0.1.9 已归档的 EMUI 环境因素（IME 缩放、华为 WebView 错误呈现、androidx 生命周期 2 项跨轮波动），签名逐字一致，零新增回归 |
+| L4 人工/真机清单 | B1–B5/B7/B8 通过（split 安装、nativeLibraryDir 哈希、符号链接、真引擎启动、rg/PTY、wrapper 降级、specialUse FGS）；后台恢复探针通过；大字号 1.3x 部分通过 |
 
-**仍无逐项验收结论：** Tailscale 连通，系统截图/录屏/最近任务完整行为（含两态切换实操），SAF 授权撤销与限额边界，较大系统字号，后台恢复，前台服务在厂商后台策略下的存活，真机软键盘窗口缩放（`adjustResize`），华为 WebView 主文档错误呈现。以上不据此推断已通过，也不影响用户已完成项目的验收记录。
+**B3 判定（本版最大未知项）：targetSdk 36 下数据目录 dlopen 依然可用**——bash SONAME 链、flock N-API addon、spawn shim 全部通过，dlopen 依赖集无需迁移 jniLibs。
 
-当前证据见 [0.1.9 验证摘要](tests/validation/0.1.9/summary.json)、[验证清单](tests/validation/0.1.9/device-verification-checklist.md)与[仪器测试记录](tests/validation/0.1.9/instrumented-huawei-dbr-w00.md)；旧版本记录保留在 [tests/validation/](tests/validation/) 和 [RELEASE_NOTES.md](RELEASE_NOTES.md)。这些文件描述各自构建或发布时的状态，不把历史未执行测试改记为通过。
+**B6 覆盖安装（0.1.9→0.2.0）：通过**——真实 0.1.9 APK 首启种子 → `adb install -r` 覆盖 → 数据保留（home/、workspaces/）+ RuntimeCommit 事务重装（legacy sha→split sha、常规文件→符号链接）+ 0.2.0 引擎 URL_READY。附带发现并修复：**设备装有 Termux 时 0.1.x 引擎无法启动**（OpenSSL 配置路径 EACCES fatal），0.2.0 已修（见[变更日志](CHANGELOG.md)）。
+
+**通知可见性（框架层证据）**：引擎运行窗口 dumpsys 实证 `isForeground=true foregroundId=42` + `NotificationRecord(id=42 channel=dsh)`（[notification-evidence-dumpsys.txt](tests/validation/0.2.0/notification-evidence-dumpsys.txt)）——通知已发布且服务真实前台化；EMUI 仅过滤 `getActiveNotifications()` 查询，状态栏肉眼确认待 L4。
+
+**仍无逐项验收结论 / 已暂缓：** Tailscale 连通（2026-11-21 决策暂缓：本地优先，不作为验收项），FLAG_SECURE 截图/录屏/最近任务肉眼确认，OEM 保活长时监控，大字号 home 卡片布局专项，SAF 授权撤销触发路径（授权存续已随覆盖安装验证）。以上不据此推断已通过。
+
+当前证据见 [0.2.0 验证摘要](tests/validation/0.2.0/summary.json)、[验证清单](tests/validation/0.2.0/device-verification-checklist.md)与[仪器测试记录](tests/validation/0.2.0/instrumented-huawei-dbr-w00.md)；0.1.9 记录保留在 [tests/validation/0.1.9/](tests/validation/0.1.9/)。这些文件描述各自构建或发布时的状态，不把历史未执行测试改记为通过。
 
 ## 安全与已知限制
 
 - **权限与执行：** 保留官方默认 `workspace-write` 和审批策略，不自动开启 `danger-full-access`。Android 缺少桌面 Landlock 等隔离能力，受限工具可能报告 `SANDBOX_UNAVAILABLE`；App 私有目录不等于插件之间的安全沙箱。
 - **页面与网络：** WebView 禁止文件 URL、任意 content URL、混合内容及 JavaScript 原生桥。远程主页面和被拦截的 HTTP(S) 资源要求同源；为支持私网 HTTP，平台明文配置放开、由应用策略限制。应用层拦截不是完整网络沙箱，不全面覆盖 WebSocket、service worker 或同 UID 命令的网络行为，不绕过 TLS、登录或审批。
 - **日志与凭证：** 本机认证地址通过同进程 Binder 传递，日志仅在内存保留并尝试脱敏；任意插件输出不保证完整脱敏。不要上传原始日志、启动 URL、模型密钥、凭证文件或含敏感内容的截图。
-- **安装与数据：** 运行时经散列校验后暂存并替换；首页安装标记匹配不等于每次都重新校验全部解包文件。部分硬链接发布改为 `COPYFILE_EXCL` 复制，复制不是原子发布，断电/强杀恢复没有完整保证。
+- **安装与数据：** 运行时经散列校验后暂存并替换（0.2.0 起 split 布局：数据 zip + jniLibs 组件分别校验，历史 exec 位置为指向 `nativeLibraryDir` 的符号链接）；首页安装标记匹配不等于每次都重新校验全部解包文件。部分硬链接发布改为 `COPYFILE_EXCL` 复制，复制不是原子发布，断电/强杀恢复没有完整保证。
+- **Termux 共存：** 0.1.x 在装有 Termux 的设备上引擎无法启动（Termux 构建的 node 烘焙的 OpenSSL 配置路径跨应用不可读）；0.2.0 已修复。
 - **进程与兼容：** 停止引擎会终止 Node 主进程，但脱离的插件子进程/整棵进程树回收无保证。相机、语音、附件、第三方插件与原生扩展未逐项移植；不承诺全部桌面能力。不同 Android、WebView 和厂商后台策略仍需测试。
 
 ## 本地构建
 
-需要 **JDK 17+、Android SDK 35、Python 3**，并允许 Gradle wrapper 访问依赖源。配置本机 `local.properties` 的 `sdk.dir`。
+需要 **JDK 17+、Android SDK 36、Python 3**，并允许 Gradle wrapper 访问依赖源。配置本机 `local.properties` 的 `sdk.dir`。
 
-完整发布源码 ZIP 已带运行时；若使用 Git checkout，先从校验通过的源码 ZIP 恢复缺失资产（仓库根目录执行，按实际位置调整 ZIP 路径）：
+完整发布源码 ZIP 已带运行时（数据 zip + jniLibs 组件 + 双 manifest）；若使用 Git checkout，先从校验通过的源码 ZIP 恢复缺失资产（仓库根目录执行，按实际位置调整 ZIP 路径）：
 
 ```sh
-unzip -p ../Xingdu-DSH-0.1.9-dev-source.zip \
+unzip -p ../Xingdu-DSH-0.2.0-dev-source.zip \
   "*/app/src/main/assets/runtime.zip" \
   > app/src/main/assets/runtime.zip
-python3 scripts/runtime/verify-runtime.py app/src/main/assets/runtime.zip --arch aarch64
+unzip -o ../Xingdu-DSH-0.2.0-dev-source.zip \
+  "*/app/src/main/jniLibs/*" -d /tmp/jnilibs-extract
+cp -r /tmp/jnilibs-extract/*/app/src/main/jniLibs/* app/src/main/jniLibs/ && rm -rf /tmp/jnilibs-extract
+python3 scripts/runtime/verify-runtime.py app/src/main/assets/runtime.zip --arch aarch64 \
+  --layout split --jni-dir app/src/main/jniLibs/arm64-v8a
 ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
 ```
 
-应用输出：`app/build/outputs/apk/debug/app-debug.apk`。Gradle 会校验运行时缺失和 SHA-256，不允许把缺少本机引擎的空壳当产品构建；手机插件资产由 `prepareMobileShell` 自动生成。
+应用输出：`app/build/outputs/apk/debug/app-debug.apk`。Gradle 会校验运行时缺失和 SHA-256（数据 zip 与 jniLibs 五组件分别校验，`targetSdk 29+` 缺少 split 布局资产时拒绝构建），不允许把缺少本机引擎的空壳当产品构建；手机插件资产由 `prepareMobileShell` 自动生成。
 
-重新制作运行时需 Linux、Node/npm、Android NDK `27.2.12479018`、dpkg-deb、apt、zip 和 Python，入口为 `scripts/runtime/build-runtime.sh <输出zip> aarch64`。解析锁见 [dsh-runtime-resolved-lock.json](scripts/runtime/dsh-runtime-resolved-lock.json)，它不是完整可重放的顶层 npm lock，重新解析依赖后必须重新验收。
+重新制作运行时需 Linux、Node/npm、Android NDK `27.2.12479018`、dpkg-deb、apt、zip 和 Python，入口为 `scripts/runtime/build-runtime.sh [--split-jni] <输出zip> aarch64`（0.2.0 起以 `--split-jni` 产出 split 布局：数据 zip + `jniLibs/` + 双 manifest；也可经 GitHub Actions `runtime-build.yml` 手动触发产出）。解析锁见 [dsh-runtime-resolved-lock.json](scripts/runtime/dsh-runtime-resolved-lock.json)，它不是完整可重放的顶层 npm lock，重新解析依赖后必须重新验收。
 
 ### 开发回归入口
 
