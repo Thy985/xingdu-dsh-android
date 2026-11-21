@@ -25,3 +25,6 @@ app/src/main/jniLibs/
 *.key
 screenshots/
 captures/
+
+# 协议探针原始捕获：含宿主路径等本机信息，只留本地；进入仓库的是脱敏 fixtures 与笔记
+protocol/captures/
