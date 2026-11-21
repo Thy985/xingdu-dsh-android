@@ -137,12 +137,38 @@ id approve-external-write…）→ 服务端推**新帧类型 `waterfall`**：
 `{"type":"waterfall","event":"user-questions/request","eventId":…,"agentId":…,"request":{"questions":[…]}}`
 ——确认流。回答信封（客户端 → 用户问题的响应）待下一轮捕获（在 UI 中点选项并抓帧）。
 
+## 五·七、审批闭环（rc.5 @3087，终局捕获）
+
+**沙箱提权审批**（工作区外写入 → 引擎请求 danger-full-access）：
+
+```
+event approval/asked（id, toolName pwsh, callId, reason "escalate sandbox to danger-full-access"）
+→ waterfall 帧（event:"approval/request"，eventId, toolName, callId, reason）
+→ [UI 审批卡：允许一次 / 拒绝]
+→ POST /api/$events/result：{"args":{"clientId":…,"eventId":<waterfall eventId>,
+     "outcome":{"kind":"result","value":"allowed-once"}}}
+→ event job/registered（pwsh 以 danger-full-access 重执行）→ rows 帧（jobs 表）
+→ event job/settled → event tool/result → attempt :3 流 → assistant/message
+  （"已创建文件 D:\Projects\Archivepproval-probe.txt"——工作区外落盘成功）
+→ stream end committed → event turn/end（reason:{kind:"completed"}）
+```
+
+**两种确认流的回答信封对比**（均走 `POST /api/$events/result`）：
+- ask_user_question：`outcome.value = {answers:[{id, selected:[…]}]}`（数组形态）
+- 沙箱提权审批：`outcome.value = "allowed-once"`（字符串形态）
+
+UI 审批卡文案：等待审批 / 允许本次操作使用 danger-full-access 权限 / 按钮
+[拒绝, 允许一次]。**端到端实证：审批 → 提权 → 工作区外文件创建成功**。
+
+> 注：本轮交互捕获在 rc.5 上完成；rc.2 交互面重跑（预期零漂移，首屏面已证）
+> 作为 M1 客户端编码前的最后一个确认项。
+
 ## 六、待捕获（M1 探针清单）
 
 1. ~~rc.2 契约抓取~~ ✅ 已完成：fixtures 8 份 + manifest 钉 rc.2（见上）。
-2. ~~会话内消息流~~ ✅ 两轮完成（工作区写入全链路 + pwsh job 模式 + waterfall
-   审批请求帧）；**剩余**：waterfall user-questions 的**回答信封**（UI 中点选项抓帧）、
-   steering 注入、正常 finish 形态。
+2. ~~会话内消息流~~ ✅ 三轮完成：工作区写入全链路、pwsh job 模式、waterfall
+   审批请求 + **回答信封（allowed-once）** + 提权重执行端到端实证。**剩余**：
+   steering 注入帧、rc.2 交互面重跑确认（预期零漂移）。
 3. steering 注入信封（回复中途插话）。
 4. 会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换。
 5. 终端（`terminal` 类端点）与文件 API 形态。
