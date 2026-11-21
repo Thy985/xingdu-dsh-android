@@ -8,8 +8,11 @@ __pycache__/
 *.keystore
 
 # Large artifacts are distributed as GitHub Release assets.
+# runtime-native-manifest.json (split 布局) 是小体积契约文件，产出后必须提交；
+# 仅 jniLibs 本机二进制本体走源码 zip 分发，不进 git。
 dist/
 app/src/main/assets/runtime.zip
+app/src/main/jniLibs/
 *.apk
 
 # Never publish local authentication state, captures, or private signing material.

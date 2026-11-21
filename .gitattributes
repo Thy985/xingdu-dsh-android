@@ -1,0 +1,12 @@
+# 仓库以 LF 存储（Windows 提交工具不得写 CRLF；2026-11-21 曾因 python write_text 在 Windows 写出 CRLF 污染 5 个文件）。
+*.java text eol=lf
+*.gradle text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.cjs text eol=lf
+*.mjs text eol=lf
+*.properties text eol=lf

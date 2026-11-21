@@ -132,7 +132,10 @@ public final class DshService extends Service {
 
   private void startInternal(long ownedGeneration) {
     try {
-      Path runtime = RuntimeInstaller.install(this, () -> cancelled(ownedGeneration));
+      RuntimeInstaller.Install installed = RuntimeInstaller.install(this, () -> cancelled(ownedGeneration));
+      Path runtime = installed.runtime;
+      RuntimeLayoutPolicy.EnginePaths paths = RuntimeLayoutPolicy.enginePaths(
+          installed.layout, runtime.toString(), installed.nativeDir);
       if (cancelled(ownedGeneration)) return;
       Path mobilePatch = null;
       try { mobilePatch = MobileShellInstaller.install(this); }
@@ -147,7 +150,7 @@ public final class DshService extends Service {
       instanceLock = lockChannel.tryLock();
       if (instanceLock == null) throw new IOException("已有本机引擎实例运行");
       List<String> command = new ArrayList<>(Arrays.asList(
-          runtime.resolve("bin/node").toString(), "--expose-internals",
+          paths.node, "--expose-internals",
           runtime.resolve("lib/node_modules/@deepseek-ai/dsh/lib/bin.js").toString(), "web"));
       if (mobilePatch != null) command.addAll(Arrays.asList("--patch", mobilePatch.toString()));
       command.addAll(Arrays.asList("--no-open", "--host", "127.0.0.1", "--port", "3080"));
@@ -157,13 +160,14 @@ public final class DshService extends Service {
       env.put("HOME", home.toString());
       env.put("DSH_HOME", home.resolve(".dsh").toString());
       env.put("PREFIX", runtime.toString());
-      env.put("LD_LIBRARY_PATH", runtime.resolve("lib").toString());
-      env.put("PATH", runtime.resolve("bin") + ":/system/bin");
+      env.put("LD_LIBRARY_PATH", paths.ldLibraryPath);
+      env.put("PATH", paths.pathEnv);
       env.put("TMPDIR", getCacheDir().toString());
       env.put("SSL_CERT_FILE", runtime.resolve("etc/tls/cert.pem").toString());
       env.put("NODE_EXTRA_CA_CERTS", runtime.resolve("etc/tls/cert.pem").toString());
-      env.put("BASH", runtime.resolve("bin/bash").toString());
-      env.put("SHELL", runtime.resolve("bin/bash").toString());
+      env.put("BASH", paths.bash);
+      env.put("SHELL", paths.bash);
+      if (paths.nativeDirEnv != null) env.put("DSH_ANDROID_NATIVE_DIR", paths.nativeDirEnv);
       env.put("TERM", "xterm-256color");
       // No permission override: official workspace-write/approval defaults remain in force.
       if (cancelled(ownedGeneration)) return;

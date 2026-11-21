@@ -17,7 +17,19 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 THIRD_PARTY="$PROJECT_ROOT/third_party/runtime"
 echo "[runtime] start $(date -u +%FT%TZ)"
 
-OUT_ZIP="${1:?用法: $0 <输出zip路径> [架构]}"
+# --split-jni（0.2.0）：产出 split 布局 —— runtime.zip 只含 JS/脚本/数据，
+# 五个本机组件（node/bash/rg/PTY 助手/flock N-API addon）改以 lib*.so 进
+# jniLibs（targetSdk 29+ 禁止 exec 应用数据目录）。缺省仍为 legacy data 布局。
+SPLIT_JNI=0
+RUNTIME_ARGS=()
+for arg in "$@"; do
+  case "$arg" in
+    --split-jni) SPLIT_JNI=1 ;;
+    *) RUNTIME_ARGS+=("$arg") ;;
+  esac
+done
+if [ "${#RUNTIME_ARGS[@]}" -gt 0 ]; then set -- "${RUNTIME_ARGS[@]}"; else set --; fi
+OUT_ZIP="${1:?用法: $0 [--split-jni] <输出zip路径> [架构]}"
 ARCH="${2:-aarch64}"
 case "$ARCH" in aarch64|x86_64) ;; *) echo "不支持的架构: $ARCH" >&2; exit 1;; esac
 # 提前转为绝对路径：后面子 shell 会 cd 进 WORK，相对路径会写错位置
@@ -820,21 +832,57 @@ if [ -n "$EXPECT_MACHINE" ] && [ "$NODE_MACHINE" != "$EXPECT_MACHINE" ]; then
 fi
 echo "架构校验通过：ARCH=$ARCH, bin/node e_machine=$NODE_MACHINE"
 
+# ---- 5a. split 布局：可执行组件暂存进 jniLibs 产物，再从数据树剥离 ----
+# 顺序不可颠倒：架构断言（5）读取的是 $ROOT/bin/node，剥离后无法复查；
+# 剥离后 zip 内不得再出现任何 execve 目标（安装期由 RuntimeInstaller 在
+# 历史 exec 位置创建指向 nativeLibraryDir 的符号链接，见 RuntimeLayoutPolicy）。
+# dlopen 目标（system.node、SONAME 别名、libandroid-spawn.so）保留在 zip 内。
+JNI_STASH="$WORK/jnilibs/$ABI"
+if [ "$SPLIT_JNI" = "1" ]; then
+  mkdir -p "$JNI_STASH"
+  cp "$ROOT/bin/node" "$JNI_STASH/libnode.so"
+  cp "$ROOT/bin/bash" "$JNI_STASH/libbash.so"
+  cp "$ROOT/bin/rg" "$JNI_STASH/librg.so"
+  cp "$ROOT/bin/dsh_pty_exec" "$JNI_STASH/libdsh_pty_exec.so"
+  cp "$NAS_DIR/system.node" "$JNI_STASH/libdsh_system_node.so"
+  chmod 0755 "$JNI_STASH/libnode.so" "$JNI_STASH/libbash.so" \
+             "$JNI_STASH/librg.so" "$JNI_STASH/libdsh_pty_exec.so"
+  rm -f "$ROOT/bin/node" "$ROOT/bin/bash" "$ROOT/bin/rg" "$ROOT/bin/dsh_pty_exec"
+  rm -f "$RGP/bin/rg"
+  for f in "$JNI_STASH"/*; do test -s "$f" || { echo "错误：split 暂存出现空文件 $f" >&2; exit 1; }; done
+  echo "split 布局：5 个本机组件已暂存 jniLibs（node/bash/rg/pty/flock-addon）"
+fi
+
 ( cd "$ROOT" && zip -qr "$OUT_ZIP" . )
 
 echo "runtime.zip 已生成: $OUT_ZIP ($(du -h "$OUT_ZIP" | cut -f1))"
 echo "SHA-256: $(sha256sum "$OUT_ZIP" | cut -d' ' -f1)"
 
 # Persist the ABI/hash manifest and provenance before the temporary build tree is removed.
-python3 - "$OUT_ZIP" "$ABI" "$DSH_VERSION" "$WORK" <<'PY'
+python3 - "$OUT_ZIP" "$ABI" "$DSH_VERSION" "$WORK" "$SPLIT_JNI" "$JNI_STASH" <<'PY'
 import hashlib, json, pathlib, shutil, sys
 archive, abi, version, work = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3], pathlib.Path(sys.argv[4])
+split_jni, jni_stash = sys.argv[5] == '1', pathlib.Path(sys.argv[6])
 metadata = {
     'version': '0.1.0-dev', 'dshVersion': version, 'abi': abi,
     'runtimeZip': archive.name, 'sha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
     'build': 'Termux Bionic + Android NDK; sideload developer runtime',
     'publicationLimit': 'COPYFILE_EXCL preserves source/no-clobber but is not atomic crash-safe publication'
 }
+if split_jni:
+    metadata['layout'] = 'split'
+    metadata['nativeManifest'] = 'runtime-native-manifest.json'
+    libs = []
+    for lib in sorted(jni_stash.iterdir()):
+        libs.append({'name': lib.name, 'sha256': hashlib.sha256(lib.read_bytes()).hexdigest(),
+                     'bytes': lib.stat().st_size})
+    required = {'libnode.so', 'libbash.so', 'librg.so', 'libdsh_pty_exec.so', 'libdsh_system_node.so'}
+    present = {lib['name'] for lib in libs}
+    if present != required:
+        raise SystemExit(f'split 布局本机组件不齐: 缺 {sorted(required - present)} 多 {sorted(present - required)}')
+    archive.with_name('runtime-native-manifest.json').write_text(json.dumps({
+        'layout': 'split', 'abi': abi, 'dshVersion': version, 'libs': libs,
+    }, ensure_ascii=False, indent=2) + '\n')
 archive.with_name('runtime-manifest.json').write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + '\n')
 provenance = archive.parent / 'runtime-provenance'
 provenance.mkdir(exist_ok=True)

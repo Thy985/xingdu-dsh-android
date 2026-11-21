@@ -20,10 +20,21 @@ android {
         release { minifyEnabled false }
     }
     androidResources { noCompress += ['zip'] }
+    packagingOptions {
+        // Split layout (0.2.0) requires the five lib*.so components to be
+        // EXTRACTED into nativeLibraryDir: RuntimeInstaller verifies them there
+        // and symlinks engine paths onto them. AGP 4.2+ defaults to
+        // useLegacyPackaging=false (extractNativeLibs=false, load-from-APK),
+        // under which nativeLibraryDir stays empty and every engine start
+        // would fail its manifest verification — so the legacy behaviour is
+        // pinned explicitly.
+        jniLibs { useLegacyPackaging = true }
+    }
 }
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20231013'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 }
@@ -45,10 +56,82 @@ def verifyRuntime = tasks.register('verifyBundledRuntime') {
             while ((count = stream.read(buffer)) != -1) digest.update(buffer, 0, count)
         }
         def actual = digest.digest().encodeHex().toString()
-        if (actual != metadata.sha256) throw new GradleException('Bundled runtime SHA-256 mismatch')
+        if (actual != metadata.sha256?.toLowerCase()) throw new GradleException('Bundled runtime SHA-256 mismatch')
+        // Split layout: the data zip must not smuggle exec targets; legacy must carry them.
+        def layout = (metadata.layout ?: 'data').toLowerCase()
+        new java.util.zip.ZipFile(zipFile).withCloseable { zip ->
+            def names = zip.entries().collect { it.name }
+            def forbidden = ['bin/su', 'bin/sudo', 'bin/doas', 'bin/tsu']
+            if (layout == 'split') {
+                forbidden += ['bin/node', 'bin/bash', 'bin/rg', 'bin/dsh_pty_exec']
+                // ripgrep platform copy is arch-dependent; any variant is forbidden in split.
+                names.each { n ->
+                    if (n.startsWith('lib/node_modules/@vscode/ripgrep-android-') && n.endsWith('/bin/rg')) forbidden += [n]
+                }
+            }
+            forbidden.each { f ->
+                if (names.contains(f)) throw new GradleException("layout=${layout} 不允许 zip 携带: ${f}")
+            }
+            if (layout == 'data' && !(names.contains('bin/node') && names.contains('bin/bash'))) {
+                throw new GradleException('layout=data 缺少 bin/node 或 bin/bash；与 manifest 不符')
+            }
+        }
     }
 }
 tasks.named('preBuild').configure { dependsOn verifyRuntime }
+
+// Split-layout gate (0.2.0): the five native components ship as jniLibs lib*.so
+// and land in nativeLibraryDir at install time. Their digests live in
+// runtime-native-manifest.json; both the asset and the jniLibs files are
+// build inputs distributed via the release source zip, never committed to git.
+// The gate is fail-closed on the targetSdk transition: a build targeting
+// API 29+ without the split runtime is refused, because exec-from-app-data
+// is exactly what API 29+ W^X enforcement prohibits.
+def verifyBundledNativeLibs = tasks.register('verifyBundledNativeLibs') {
+    doLast {
+        def manifestFile = file('src/main/assets/runtime-native-manifest.json')
+        if (!manifestFile.isFile()) {
+            if (android.defaultConfig.targetSdk >= 29) {
+                throw new GradleException('targetSdk 29+ 禁止 exec 应用数据目录：缺少 split 布局运行时' +
+                    '（runtime-native-manifest.json + app/src/main/jniLibs）。请先构建/恢复 split 布局资产。')
+            }
+            return // legacy data layout: everything ships inside runtime.zip
+        }
+        def meta = new groovy.json.JsonSlurper().parse(manifestFile)
+        def libs = meta.libs
+        if (!(libs instanceof List) || libs.isEmpty()) {
+            throw new GradleException('runtime-native-manifest.json 缺少 libs 条目')
+        }
+        // Cross-check against the data-side manifest: both must agree that this
+        // bundle is split and on its identity, so a half-updated asset pair
+        // cannot pass one gate with mismatched halves.
+        def dataManifestFile = file('src/main/assets/runtime-manifest.json')
+        if (!dataManifestFile.isFile()) {
+            throw new GradleException('存在 runtime-native-manifest.json 但缺少 runtime-manifest.json')
+        }
+        def dataMeta = new groovy.json.JsonSlurper().parse(dataManifestFile)
+        if ((dataMeta.layout ?: 'data')?.toLowerCase() != 'split') {
+            throw new GradleException('runtime-manifest.json layout 不是 split，与 native manifest 不一致')
+        }
+        if (dataMeta.dshVersion != meta.dshVersion || dataMeta.abi != meta.abi) {
+            throw new GradleException('两份 manifest 的 dshVersion/abi 不一致')
+        }
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        libs.each { lib ->
+            def f = new File(file('src/main/jniLibs'), "${meta.abi}/${lib.name}")
+            if (!f.isFile()) throw new GradleException("缺失 jniLibs 本机组件: ${meta.abi}/${lib.name}")
+            digest.reset()
+            f.withInputStream { stream ->
+                byte[] buffer = new byte[65536]
+                int count
+                while ((count = stream.read(buffer)) != -1) digest.update(buffer, 0, count)
+            }
+            def actual = digest.digest().encodeHex().toString()
+            if (actual != lib.sha256?.toLowerCase()) throw new GradleException("jniLibs SHA-256 不匹配: ${lib.name}")
+        }
+    }
+}
+tasks.named('preBuild').configure { dependsOn verifyBundledNativeLibs }
 
 // Our addon is separate from the immutable official runtime and shares its React instance.
 tasks.register('prepareMobileShell', Exec) {

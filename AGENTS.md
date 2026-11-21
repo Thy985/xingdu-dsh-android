@@ -22,9 +22,11 @@
    `tests/mobile-shell-contract.cjs` 强制此约束。
 3. **`app/src/main/assets/runtime.zip` 不进 git。** Gradle 对运行时缺失 /
    SHA-256 不匹配的构建失败是产品门禁，不许注释掉、跳过或降级为警告。
-4. **许可立场：【待定 —— 干净实现 / AGPL-3.0，决定后在此填写并同步
-   docs/native-ui-plan.md 第 1 周清单】。** 决定前禁止阅读或复制 dsh-go
-   及其 `dsh_client` 等源码；协议事实只允许来自探针抓包。
+4. **许可立场：AGPL-3.0（2026-11-21 维护者决定，LICENSE 已同步）。** 本项目
+   以 AGPL-3.0 发布；允许阅读/复制 dsh-go 及其 `dsh_client` 等源码作为实现
+   参考，引用处必须保留版权与许可声明。协议事实仍只允许从探针抓包进入
+   `docs/protocol-notes.md` 与 fixtures（与红线第 5 条一致）：第三方源码可作
+   实现参考，不得作为协议契约的来源。
 5. **协议锁定。** 客户端与 fixture 标注 `DSH_PROTOCOL_TARGET`；协议细节只从
    探针报文（`docs/protocol-notes.md`，M0 产出）进入代码，不从猜测、记忆或
    第三方代码进入。
@@ -63,10 +65,13 @@
 
 ```sh
 unzip -p ../Xingdu-DSH-<版本>-dev-source.zip \
-  dsh-android-native/app/src/main/assets/runtime.zip \
+  "*/app/src/main/assets/runtime.zip" \
   > app/src/main/assets/runtime.zip
 python3 scripts/runtime/verify-runtime.py app/src/main/assets/runtime.zip --arch aarch64
 ```
+
+<!-- 注意：发布源码包的顶层前缀不固定（曾有 dsh-android-native/ 与
+     xingdu-dsh-android/ 两种），按后缀通配匹配，不要写死前缀。 -->
 
 一键本地快速验证（L0 + L1 + lint）：
 

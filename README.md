@@ -149,7 +149,7 @@ sha256sum -c SHA256SUMS.txt
 
 ```sh
 unzip -p ../Xingdu-DSH-0.1.9-dev-source.zip \
-  dsh-android-native/app/src/main/assets/runtime.zip \
+  "*/app/src/main/assets/runtime.zip" \
   > app/src/main/assets/runtime.zip
 python3 scripts/runtime/verify-runtime.py app/src/main/assets/runtime.zip --arch aarch64
 ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest
@@ -180,6 +180,8 @@ Android 运行时组件检查脚本为 `tests/runtime-smoke.mjs`，必须在目�
 ## 项目与许可
 
 “星渡”寓意从手机本机工作台渡向自己的电脑。图标源文件位于 `branding/xingdu-icon.png`，可用 `python3 scripts/prepare-branding.py` 重新生成 Android 资源。名称与图标不改变应用 ID；实际覆盖升级仍需真机检查。
+
+本项目代码自 2026-11-21 起以 **GNU AGPL-3.0** 发布（此前为 MIT）；见 [LICENSE](LICENSE)。运行时与依赖许可见 [第三方声明](scripts/runtime/THIRD_PARTY_NOTICES.md) 及 [third_party/runtime/](third_party/runtime/)。
 
 手机导航插件位于 `mobile-shell/`，使用官方公开的 `shell.overlay` / `settings.action` 插槽和布局服务，沿用同一 React 与官方组件，不复制编辑器、不搬动现有 DOM，也不是完整根布局替换。宽屏或关闭手机适配时回退官方呈现。
 
