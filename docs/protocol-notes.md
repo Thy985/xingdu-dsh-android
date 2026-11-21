@@ -101,12 +101,48 @@
 - **凭据查询**：`POST /api/credentials/describe`，refs 数组（如
   `["DEEPSEEK_API_KEY"]`），响应 per-ref `{configured, source:"file", writable}`
 
+## 五·六、交互捕获第二轮（工作区内写入 + pwsh + 审批路径，rc.5 @3087）
+
+**完整 agent 循环解剖**（工作区内写入，自动执行无审批）：
+
+```
+POST /api/session/prompt
+→ event agent/inbox/spliced（target next-turn）
+→ projection inbox（next-turn 内容）
+→ event user/message（×3：用户消息 + runtime-context 快照 + skills 注入）
+→ event step/start（turn 1 step 1）
+→ event request/header（config:{provider:"agnes-local",model:"agnes1/agnes-3.0-flash"}, tools:[…全工具清单]）
+→ assistant-stream：start → block-start(blockType) → text-delta →
+   tool-call-delta(id,name,argumentsDelta) → block-end(block:{type:"tool-call",…}) →
+   usage(inputTokens…) → finish(reason:{kind:"tool-call"}) → end(outcome:{kind:"committed"})
+→ event assistant/message（tool-call content）→ event tool/call（callId,name,arguments）
+→ event job/registered（jobId "<tool>-<hash>", kind, owner=sessionId）
+→ event job/settled（~18ms 后）→ （工具结果进下一 attempt）
+→ assistant-stream attempt :2（带工具结果继续）→ event assistant/message（最终文本）
+→ event step/end → projection sessionStats（turns/steps/llmMs/toolMs/ttftMs）
+→ event turn/end（reason:{kind:"completed"}）
+```
+
+- **pwsh 工具**（Windows shell）：tool/call → job/registered → job/settled（18ms）→
+  结果回灌；**默认策略（workspace-write）下无审批卡**，直接执行。
+  本轮 pwsh 实际失败：桌面 harness 沙箱在 Windows 上设置工作区写 ACL 出错
+  （`SetName…`，README 已知桌面隔离限制）——模型如实报告失败。
+- **title 生成是独立 LLM 请求**：`session/title-llm-request`（titleProvider:
+  session-title-first-prompt-llm，独立 route）→ `session/title`（fallback → provider 两阶段）。
+- **projection 家族**（session/control 流）：inbox、turnOutline、title、
+  permissions（`{currentValue:"workspace-write"}`）、sessionStats、subagentTiming。
+
+**审批路径（工作区外写入）**：模型调用 **`ask_user_question` 工具**（questions JSON：
+id approve-external-write…）→ 服务端推**新帧类型 `waterfall`**：
+`{"type":"waterfall","event":"user-questions/request","eventId":…,"agentId":…,"request":{"questions":[…]}}`
+——确认流。回答信封（客户端 → 用户问题的响应）待下一轮捕获（在 UI 中点选项并抓帧）。
+
 ## 六、待捕获（M1 探针清单）
 
 1. ~~rc.2 契约抓取~~ ✅ 已完成：fixtures 8 份 + manifest 钉 rc.2（见上）。
-2. ~~会话内消息流~~ 首轮完成（发送/流式/事件分类学/重试梯子已捕获，见上）；
-   **待模型调用修复后补齐**：工具调用事件、审批请求/响应、steering 注入、正常
-   finish 的流完成形态。
+2. ~~会话内消息流~~ ✅ 两轮完成（工作区写入全链路 + pwsh job 模式 + waterfall
+   审批请求帧）；**剩余**：waterfall user-questions 的**回答信封**（UI 中点选项抓帧）、
+   steering 注入、正常 finish 形态。
 3. steering 注入信封（回复中途插话）。
 4. 会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换。
 5. 终端（`terminal` 类端点）与文件 API 形态。

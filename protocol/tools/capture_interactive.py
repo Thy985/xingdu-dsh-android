@@ -54,6 +54,18 @@ def main():
                     page.wait_for_timeout(1500)
             except Exception: pass
 
+        # select the probe model (default DeepSeek key is invalid in the probe home)
+        try:
+            page.get_by_text('DeepSeek-V4.1-Flash', exact=False).first.click(timeout=8000)
+            page.wait_for_timeout(1200)
+            page.get_by_text('模型', exact=True).first.click(timeout=6000)
+            page.wait_for_timeout(1200)
+            page.get_by_text('agnes-3.0-flash', exact=False).first.click(timeout=6000)
+            ui_dump_line(ui_f, ts, 'model-selected[agnes-3.0-flash]')
+            page.wait_for_timeout(1000)
+        except Exception as e:
+            ui_dump_line(ui_f, ts, f'model-select-failed:{e}')
+
         composer = page.locator('[contenteditable="true"]').first
         composer.wait_for(state='visible', timeout=15000)
         composer.fill(args.prompt)
