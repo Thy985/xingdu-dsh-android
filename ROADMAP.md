@@ -4,6 +4,12 @@
 
 本文件描述计划，不描述已完成的事实；任何"已验证"结论以对应版本的验证记录为准。
 
+## 关联文件（2026-11 增补）
+
+- **原生 UI 路线**（协议客户端 + Compose，M0–M3 按周计划）：[docs/native-ui-plan.md](docs/native-ui-plan.md)
+- **工程守则**（AI 代理与贡献者约束、红线、review 门）：[AGENTS.md](AGENTS.md)
+- **验证体系**（六层矩阵、闭环六步、协议闭环、summary.json schema）：[docs/verification.md](docs/verification.md)
+
 ## 总原则
 
 - 延续"已验证 / 未验证"文档纪律：每个版本留下 `tests/validation/<版本>/` 归档，不把计划或用户整体反馈记为逐项通过。
