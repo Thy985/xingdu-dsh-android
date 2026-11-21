@@ -858,6 +858,15 @@ fi
 echo "runtime.zip 已生成: $OUT_ZIP ($(du -h "$OUT_ZIP" | cut -f1))"
 echo "SHA-256: $(sha256sum "$OUT_ZIP" | cut -d' ' -f1)"
 
+# split 布局：jniLibs 组件必须持久化到输出目录（$WORK 是 mktemp 临时目录，
+# trap 在退出时整体删除——不落盘的产物等于没产出）。
+if [ "$SPLIT_JNI" = "1" ]; then
+  OUT_DIR="$(dirname "$OUT_ZIP")"
+  mkdir -p "$OUT_DIR/jniLibs/$ABI"
+  cp "$JNI_STASH"/*.so "$OUT_DIR/jniLibs/$ABI/"
+  echo "jniLibs 已输出: $OUT_DIR/jniLibs/$ABI ($(ls "$OUT_DIR/jniLibs/$ABI" | wc -l) 个组件)"
+fi
+
 # Persist the ABI/hash manifest and provenance before the temporary build tree is removed.
 python3 - "$OUT_ZIP" "$ABI" "$DSH_VERSION" "$WORK" "$SPLIT_JNI" "$JNI_STASH" <<'PY'
 import hashlib, json, pathlib, shutil, sys
