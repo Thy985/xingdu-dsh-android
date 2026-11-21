@@ -55,16 +55,24 @@ public final class RuntimeLayoutPolicy {
    * Data-tree exec sites that must reach nativeLibraryDir in split layout,
    * mapped to their native library. Keyed by zip-relative path; values are
    * names in {@link #REQUIRED_NATIVE_LIBS}. Duplicated values are intentional:
-   * the engine's ripgrep resolver hits the injected platform-package copy.
+   * the engine's ripgrep resolver hits the injected platform-package copy,
+   * whose directory is arch-dependent ({@code -arm64} vs {@code -x64}).
    */
-  public static Map<String, String> splitSymlinkSites() {
+  public static Map<String, String> splitSymlinkSites(String abi) {
     Map<String, String> sites = new LinkedHashMap<>();
     sites.put("bin/node", LIB_NODE);
     sites.put("bin/bash", LIB_BASH);
     sites.put("bin/rg", LIB_RG);
     sites.put("bin/dsh_pty_exec", LIB_PTY);
-    sites.put("lib/node_modules/@vscode/ripgrep-android-arm64/bin/rg", LIB_RG);
+    sites.put("lib/node_modules/@vscode/ripgrep-android-" + ripgrepNodeArch(abi) + "/bin/rg", LIB_RG);
     return Collections.unmodifiableMap(sites);
+  }
+
+  /** Node-arch suffix used by build-runtime.sh's ripgrep platform-package injection. */
+  public static String ripgrepNodeArch(String abi) {
+    if ("arm64-v8a".equals(abi)) return "arm64";
+    if ("x86_64".equals(abi)) return "x64";
+    throw new IllegalArgumentException("无对应 NODE_ARCH 的 abi: " + abi);
   }
 
   private RuntimeLayoutPolicy() {}
@@ -91,7 +99,7 @@ public final class RuntimeLayoutPolicy {
     }
   }
 
-  /** One jniLibs component with its expected digest. */
+  /** One jniLibs component with its expected digest and size. */
   public static final class NativeLib {
     public final String name;
     public final String sha256;

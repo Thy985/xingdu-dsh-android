@@ -98,7 +98,7 @@ public final class RuntimeInstaller {
       chmod(stage, cancelled);
       if (layout.isSplit()) {
         verifyNativeLibs(nativeDir, layout, cancelled);
-        linkSplitExecSites(stage, nativeDir, cancelled);
+        linkSplitExecSites(stage, layout.abi, nativeDir, cancelled);
       }
       if (cancelled.cancelled()) throw new InterruptedIOException("安装已取消");
       RuntimeCommit.commit(target, stage, marker, old, oldMarker, expected,
@@ -117,7 +117,7 @@ public final class RuntimeInstaller {
     if (layout.isSplit()) {
       verifyNativeLibs(nativeDir, layout, cancelled);
       // Recreate any symlink a prior install left partially behind.
-      linkSplitExecSites(target, nativeDir, cancelled);
+      linkSplitExecSites(target, layout.abi, nativeDir, cancelled);
     }
     return new Install(target, layout, nativeDir);
   }
@@ -130,8 +130,12 @@ public final class RuntimeInstaller {
     }
   }
 
-  private static boolean complete(Path r, RuntimeLayoutPolicy.Layout layout, String nativeDir)
+  static boolean complete(Path r, RuntimeLayoutPolicy.Layout layout, String nativeDir)
       throws IOException {
+    return complete(r, layout, layout.abi, nativeDir);
+  }
+  static boolean complete(Path r, RuntimeLayoutPolicy.Layout layout, String abi,
+      String nativeDir) throws IOException {
     if (RuntimeLayoutPolicy.LAYOUT_DATA.equals(layout.mode)) {
       return Files.isRegularFile(r.resolve("bin/node")) && Files.isRegularFile(r.resolve("bin/bash"))
           && Files.isRegularFile(r.resolve("bin/dsh_pty_exec"))
@@ -149,11 +153,11 @@ public final class RuntimeInstaller {
         && Files.isRegularFile(r.resolve("lib/node_modules/@deepseek-ai/dsh/lib/bin.js"))
         && Files.isRegularFile(r.resolve("etc/tls/cert.pem"))
         && Files.isRegularFile(r.resolve("usr/bin/.keep"));
-    return data && splitExecSitesConsistent(r, nativeDir);
+    return data && splitExecSitesConsistent(r, abi, nativeDir);
   }
 
-  private static boolean splitExecSitesConsistent(Path r, String nativeDir) throws IOException {
-    for (Map.Entry<String, String> site : RuntimeLayoutPolicy.splitSymlinkSites().entrySet()) {
+  static boolean splitExecSitesConsistent(Path r, String abi, String nativeDir) throws IOException {
+    for (Map.Entry<String, String> site : RuntimeLayoutPolicy.splitSymlinkSites(abi).entrySet()) {
       Path p = r.resolve(site.getKey());
       if (!Files.exists(p, LinkOption.NOFOLLOW_LINKS)) continue; // fresh staging: not linked yet
       if (!Files.isSymbolicLink(p)) return false;
@@ -162,8 +166,8 @@ public final class RuntimeInstaller {
     return true;
   }
 
-  /** Verifies PackageManager-extracted jniLibs against the native manifest (streamed SHA-256). */
-  private static void verifyNativeLibs(String nativeDir, RuntimeLayoutPolicy.Layout layout,
+  /** Verifies PackageManager-extracted jniLibs against the native manifest (size + streamed SHA-256). */
+  static void verifyNativeLibs(String nativeDir, RuntimeLayoutPolicy.Layout layout,
       CancelCheck cancelled) throws Exception {
     Path dir = Paths.get(nativeDir);
     for (RuntimeLayoutPolicy.NativeLib lib : layout.nativeLibs) {
@@ -171,6 +175,9 @@ public final class RuntimeInstaller {
       Path p = dir.resolve(lib.name);
       if (!Files.isRegularFile(p)) {
         throw new SecurityException("nativeLibraryDir 缺少本机组件: " + lib.name);
+      }
+      if (Files.size(p) != lib.bytes) {
+        throw new SecurityException("本机组件大小不符: " + lib.name);
       }
       MessageDigest md = MessageDigest.getInstance("SHA-256");
       try (InputStream in = new BufferedInputStream(Files.newInputStream(p))) {
@@ -192,9 +199,9 @@ public final class RuntimeInstaller {
    * helper) keeps working without patching the engine. Executing the symlink
    * resolves to the APK lib file, which SELinux permits.
    */
-  private static void linkSplitExecSites(Path root, String nativeDir, CancelCheck cancelled)
+  static void linkSplitExecSites(Path root, String abi, String nativeDir, CancelCheck cancelled)
       throws IOException {
-    for (Map.Entry<String, String> site : RuntimeLayoutPolicy.splitSymlinkSites().entrySet()) {
+    for (Map.Entry<String, String> site : RuntimeLayoutPolicy.splitSymlinkSites(abi).entrySet()) {
       if (cancelled.cancelled()) throw new InterruptedIOException("安装已取消");
       Path link = root.resolve(site.getKey());
       Path target = Paths.get(nativeDir, site.getValue());
