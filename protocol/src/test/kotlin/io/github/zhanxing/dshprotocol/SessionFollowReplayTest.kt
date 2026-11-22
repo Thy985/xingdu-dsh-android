@@ -145,6 +145,38 @@ class SessionFollowReplayTest {
     }
 
     @Test
+    fun synchronousSnapshotReplayIsAcceptedNotIgnored() {
+        lateinit var follow: SessionFollow
+        var replayed: FollowFrame? = null
+        var nextId = 0
+        val transport = object : MuxTransport {
+            override fun send(text: String) {
+                val open = Json.parseObject(text)
+                if (open.get("endpoint")?.asString != MuxFrames.SESSION_FOLLOW) return
+                val snapshot = Json.parseObject(
+                    Fixtures.read("ws-session-follow-history-snapshot"),
+                ).apply { addProperty("streamId", open.get("streamId").asString) }
+                replayed = follow.accept(Json.compact(snapshot))
+            }
+        }
+        follow = SessionFollow(transport, newStreamId = { "<STREAM_${++nextId}>" })
+
+        follow.start(historySessionId())
+
+        val frame = replayed
+        assertTrue("first snapshot was ignored", frame is FollowFrame.Snapshot)
+        assertEquals(32, (frame as FollowFrame.Snapshot).snapshot.records.size)
+        assertEquals(frame.snapshot, follow.snapshot)
+
+        replayed = null
+        follow.reconnect()
+        val reconnected = replayed
+        assertTrue("reconnect snapshot was ignored", reconnected is FollowFrame.Snapshot)
+        assertEquals(32, (reconnected as FollowFrame.Snapshot).snapshot.records.size)
+        assertEquals(reconnected.snapshot, follow.snapshot)
+    }
+
+    @Test
     fun reconnectBeforeStartFailsClosed() {
         try {
             follow(RecordingTransport()).reconnect()

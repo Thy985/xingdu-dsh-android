@@ -129,8 +129,10 @@ class SessionFollow(
         val id = newStreamId()
         this.sessionId = sessionId
         snapshot = null
-        transport.send(MuxFrames.sessionFollowOpen(id, sessionId, request))
+        // Set the active stream before sending: a synchronous or loopback transport
+        // may deliver the first snapshot from inside send(), and it must not be ignored.
         streamId = id
+        transport.send(MuxFrames.sessionFollowOpen(id, sessionId, request))
         return id
     }
 
@@ -142,8 +144,9 @@ class SessionFollow(
         val session = sessionId ?: throw ProtocolViolation("reconnect before start")
         val id = newStreamId()
         snapshot = null
-        transport.send(MuxFrames.sessionFollowOpen(id, session, request))
+        // Same ordering as start(): the first frame may arrive inside send().
         streamId = id
+        transport.send(MuxFrames.sessionFollowOpen(id, session, request))
         return id
     }
 
