@@ -44,7 +44,15 @@ sealed interface MuxValue {
         val seq: Long?,
     ) : MuxValue
 
-    data class Snapshot(val header: JsonObject?, val cursor: Long?) : MuxValue
+    data class Snapshot(
+        val header: JsonObject?,
+        val cursor: Long?,
+        /** `records[]`, each a captured `type:"event"` value (§8.3). */
+        val records: List<Event> = emptyList(),
+        val hasMore: Boolean? = null,
+        /** Whole snapshot object, for fields not yet modelled. */
+        val raw: JsonObject? = null,
+    ) : MuxValue
 
     data class Baseline(val owner: Boolean?, val value: JsonElement?) : MuxValue
 
@@ -113,6 +121,9 @@ fun parseMuxValue(value: JsonObject): MuxValue = when (val type = value.stringOr
     "snapshot" -> MuxValue.Snapshot(
         header = value.objectOrNull("header"),
         cursor = value.longOrNull("cursor"),
+        records = snapshotRecords(value),
+        hasMore = value.boolOrNull("hasMore"),
+        raw = value,
     )
 
     "baseline" -> MuxValue.Baseline(
@@ -133,3 +144,13 @@ fun parseMuxValue(value: JsonObject): MuxValue = when (val type = value.stringOr
 }
 
 private fun JsonArray?.orEmpty(): List<JsonElement> = this?.toList() ?: emptyList()
+
+private fun snapshotRecords(snapshot: JsonObject): List<MuxValue.Event> =
+    snapshot.arrayOrNull("records").orEmpty().map { element ->
+        val record = element.takeIf { it.isJsonObject }?.asJsonObject
+            ?: throw ProtocolViolation("snapshot record is not an object")
+        parseMuxValue(record) as? MuxValue.Event
+            ?: throw ProtocolViolation(
+                "snapshot record is not an event: ${record.stringOrNull("type")}",
+            )
+    }
