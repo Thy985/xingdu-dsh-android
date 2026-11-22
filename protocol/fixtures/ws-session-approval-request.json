@@ -1,0 +1,19 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "waterfall",
+    "event": "approval/request",
+    "eventId": "<UUID7>",
+    "agentId": "session-<UUID8>",
+    "request": {
+      "toolName": "pwsh",
+      "callId": "chatcmpl-tool-8fb69df8602fb231",
+      "reason": "escalate sandbox to danger-full-access: 沙箱在当前 Windows 环境无法为工作区授予写权限，这条只读命令需要完全访问模式",
+      "displayReason": {
+        "en": "Allow this operation with danger-full-access permissions: 沙箱在当前 Windows 环境无法为工作区授予写权限，这条只读命令需要完全访问模式",
+        "zh": "允许本次操作使用 danger-full-access 权限：沙箱在当前 Windows 环境无法为工作区授予写权限，这条只读命令需要完全访问模式"
+      }
+    }
+  }
+}

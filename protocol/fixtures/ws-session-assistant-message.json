@@ -1,0 +1,37 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "turn": 1,
+    "step": 1,
+    "message": {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "探针链路1就绪"
+        }
+      ],
+      "source": {
+        "kind": "model",
+        "provider": "qiniu",
+        "model": "qiniu/conatus-free",
+        "replayState": {
+          "response": {
+            "kind": "pi-ai",
+            "version": 2,
+            "api": "openai-completions",
+            "provider": "qiniu",
+            "model": "qiniu/conatus-free",
+            "stopReason": "stop"
+          },
+          "blocks": [
+            {
+              "type": "text"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

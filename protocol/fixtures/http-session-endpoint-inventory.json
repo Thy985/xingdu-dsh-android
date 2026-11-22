@@ -1,0 +1,66 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/agentPresets/list"
+  },
+  {
+    "method": "POST",
+    "path": "/api/commands/list"
+  },
+  {
+    "method": "POST",
+    "path": "/api/credentials/describe"
+  },
+  {
+    "method": "POST",
+    "path": "/api/dynamicCordisRunner/inventory"
+  },
+  {
+    "method": "POST",
+    "path": "/api/dynamicCordisRunner/syncInspectManifest"
+  },
+  {
+    "method": "POST",
+    "path": "/api/llm/listConfigurableProviders"
+  },
+  {
+    "method": "POST",
+    "path": "/api/llm/listProviders"
+  },
+  {
+    "method": "POST",
+    "path": "/api/permissionPresets/catalog"
+  },
+  {
+    "method": "POST",
+    "path": "/api/schedule/catalog"
+  },
+  {
+    "method": "POST",
+    "path": "/api/schedule/list"
+  },
+  {
+    "method": "POST",
+    "path": "/api/session/create"
+  },
+  {
+    "method": "POST",
+    "path": "/api/session/list"
+  },
+  {
+    "method": "POST",
+    "path": "/api/session/modelCatalog"
+  },
+  {
+    "method": "POST",
+    "path": "/api/session/prompt"
+  },
+  {
+    "method": "POST",
+    "path": "/api/settings/describe"
+  },
+  {
+    "method": "POST",
+    "path": "/api/skills/list"
+  }
+]

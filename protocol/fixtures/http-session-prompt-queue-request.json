@@ -1,0 +1,21 @@
+{
+  "type": "client-request",
+  "rpcId": "<UUID2>",
+  "method": "session/prompt",
+  "payload": {
+    "args": {
+      "request": {
+        "requestId": "<UUID3>",
+        "sessionId": "session-<UUID4>",
+        "mode": "queue",
+        "content": [
+          {
+            "type": "text",
+            "text": "请只回复这一句：探针链路1就绪"
+          }
+        ],
+        "clientTimeZone": "Asia/Shanghai"
+      }
+    }
+  }
+}

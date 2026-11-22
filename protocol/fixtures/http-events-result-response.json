@@ -1,0 +1,7 @@
+{
+  "type": "server-response",
+  "rpcId": "<UUID9>",
+  "result": {
+    "ok": true
+  }
+}

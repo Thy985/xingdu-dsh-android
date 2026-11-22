@@ -1,0 +1,38 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "tool/result",
+      "seq": 29,
+      "data": {
+        "turn": 1,
+        "step": 1,
+        "message": {
+          "role": "tool",
+          "source": {
+            "kind": "tool",
+            "callId": "chatcmpl-tool-8fb69df8602fb231"
+          },
+          "toolCallId": "chatcmpl-tool-8fb69df8602fb231",
+          "content": [
+            {
+              "type": "text",
+              "text": "probe-approval-ok\r\n"
+            }
+          ],
+          "isError": false,
+          "id": "<UUID11>"
+        },
+        "meta": {
+          "cwd": "<WORKSPACE>"
+        }
+      },
+      "sourceEventSeqs": [
+        24
+      ],
+      "surfaceOp": "append"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "step/start",
+      "seq": 26,
+      "data": {
+        "turn": 1,
+        "step": 2
+      }
+    }
+  }
+}

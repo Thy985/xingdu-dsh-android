@@ -1,0 +1,27 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "user/message",
+      "seq": 8,
+      "data": {
+        "content": [
+          {
+            "type": "text",
+            "text": "请只回复这一句：探针链路1就绪"
+          }
+        ],
+        "source": {
+          "kind": "user",
+          "rpcId": "<UUID3>",
+          "clientTimeZone": "Asia/Shanghai"
+        },
+        "role": "user",
+        "id": "<UUID5>"
+      },
+      "surfaceOp": "append"
+    }
+  }
+}

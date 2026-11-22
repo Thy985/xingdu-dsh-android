@@ -1,6 +1,11 @@
 {
   "DSH_PROTOCOL_TARGET": "0.2.1-rc.2",
-  "source_capture": "rc2-page-load",
+  "source_captures": [
+    "rc2-page-load",
+    "rc2-stream-message",
+    "rc2-tool-approval",
+    "rc2-steering"
+  ],
   "fixtures": [
     "ws-open-envelope",
     "ws-item-envelope",
@@ -9,6 +14,29 @@
     "endpoint-remoteAccess-follow-first-value",
     "endpoint-session-control-first-value",
     "endpoint-workspace-follow-first-value",
-    "http-endpoint-inventory"
+    "http-endpoint-inventory",
+    "http-session-prompt-queue-request",
+    "http-session-prompt-response",
+    "ws-session-user-message",
+    "ws-session-assistant-stream-start",
+    "ws-session-assistant-stream-text-delta",
+    "ws-session-assistant-stream-end",
+    "ws-session-assistant-message",
+    "ws-session-turn-end",
+    "ws-session-assistant-tool-call-message",
+    "ws-session-tool-call",
+    "ws-session-approval-asked",
+    "ws-session-approval-request",
+    "http-events-result-request",
+    "http-events-result-response",
+    "ws-session-approval-decided",
+    "ws-session-tool-result",
+    "http-session-prompt-steer-request",
+    "http-session-prompt-steer-response",
+    "ws-session-inbox-spliced",
+    "ws-session-step-start",
+    "ws-session-steer-user-message",
+    "ws-session-steer-turn-end",
+    "http-session-endpoint-inventory"
   ]
 }

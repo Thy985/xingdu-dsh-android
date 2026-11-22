@@ -1,0 +1,17 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "turn/end",
+      "seq": 30,
+      "data": {
+        "turn": 1,
+        "reason": {
+          "kind": "completed"
+        }
+      }
+    }
+  }
+}

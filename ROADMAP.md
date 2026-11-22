@@ -57,7 +57,15 @@
 1. **远程下载**：`RemoteActivity` 的 DownloadListener 落地为 SAF 另存，复用 `WorkspaceTransfers` 的限额与路径校验模式（`RemoteActivity.java` 中当前仅 toast 提示）。
 2. **运行时原子发布**：staging 目录 + 重命名提交；`runtime.staging-*` / `runtime.previous-*` 残留清理策略。
 3. **进程树回收**：引擎停止时对脱离的插件子进程做进程组回收（PTY helper 协作）。
-4. **上游评估**：DSH 上游发布 0.2.1 正式版或更新时，评估升级捆绑版本并重跑回归。
+4. **上游引擎升级不随本版进行**：升级是跨版本的 M1→M2 独立闸门（不晚于 2026-12-20 完成，M2 于 2026-12-21 开工），目标 DSH `0.2.2` 稳定版；基线探针打在当前捆绑的 `0.2.1-rc.2` 上。细则见下节与 [native-ui-plan.md](docs/native-ui-plan.md)。
+
+### 引擎升级闸门（跨版本，2026-12-20）
+
+DSH 引擎升级不绑定任何应用版本号，是 M1→M2 之间的独立关卡：基线探针打在
+捆绑的 `0.2.1-rc.2`，M1 验收后、M2 开工前一次升到 `0.2.2` 稳定版。日期由
+[周计划](docs/native-ui-plan.md) 的 M0 出口（2026-11-21 归档）反推，换算口径
+写在那边；执行按 [verification.md](docs/verification.md) 的协议闭环，允许对新
+版本留 drift 记录但不产出 fixture。未完成升级归档，M2 不开工。
 
 ### 0.3.0 — 正式发布
 

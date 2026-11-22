@@ -1,0 +1,17 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "approval/asked",
+      "seq": 25,
+      "data": {
+        "id": "<UUID6>",
+        "toolName": "pwsh",
+        "callId": "chatcmpl-tool-8fb69df8602fb231",
+        "reason": "escalate sandbox to danger-full-access: 沙箱在当前 Windows 环境无法为工作区授予写权限，这条只读命令需要完全访问模式"
+      }
+    }
+  }
+}
