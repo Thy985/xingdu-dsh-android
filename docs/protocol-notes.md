@@ -185,8 +185,8 @@ UI 审批卡文案：等待审批 / 允许本次操作使用 danger-full-access 
 > `rc2-tool-approval/`、`rc2-steering/`（token/key 已脱敏，目录不进 git）；
 > 脱敏 fixture：`protocol/fixtures/{http-session-*,ws-session-*,http-events-result-*}.json`
 > （manifest 标注 DSH_PROTOCOL_TARGET=0.2.1-rc.2）。fixture 为完整 WS/HTTP
-> 信封（含 `seq`、`usage`、`stream` 等字段），仅 UUID 与时间戳替换为占位符，
-> 不是裁剪快照。
+> 信封（含 `seq`、`usage`、`stream` 等字段），仅 UUID 替换为占位符并移除
+> `time` 键；`time0` 等键名不为 `time` 的时间字段保留原值。不是裁剪快照。
 
 捕获环境：
 
