@@ -37,8 +37,8 @@ PATH_MAP = [
     ("C:\\Users\\lenovo", "<HOST_HOME>"),
 ]
 
-WIN_PATH_RE = re.compile(r'(?i)(?<![A-Za-z0-9])[A-Z]:[\\/]{1,4}[^\s"\'<>|,;)\]}]+')
-WIN_PATH_ENCODED_RE = re.compile(r'(?i)(?<![A-Za-z0-9])[A-Z]%3A%5C[^\s"\'<>|,;)\]}]*')
+WIN_PATH_RE = re.compile(
+    r'(?i)(?<![A-Za-z0-9])(?:[A-Z]%3A|[A-Z]:)(?:[\\/]|%5C|%2F){1,4}[^\s"\'<>|,;)\]}]*')
 
 def _path_variants(raw):
     """Host paths appear raw, JSON-double-escaped, forward-slashed and URL-encoded."""
@@ -54,8 +54,8 @@ def scrub_paths(text):
     for raw, placeholder in PATH_MAP:
         for variant in _path_variants(raw):
             text = text.replace(variant, placeholder)
-    # Catch any remaining drive-absolute path, whatever its escaping/encoding.
-    text = WIN_PATH_ENCODED_RE.sub("<HOST_PATH>", text)
+    # Catch any remaining drive-absolute path by shape: raw `D:\` / `D:/`, or
+    # `%3A` for the colon and `%5C` / `%2F` for the separators, in any mix.
     return WIN_PATH_RE.sub("<HOST_PATH>", text)
 
 SKILL_ENTRY_PLACEHOLDER = "<SKILL_ENTRY_REDACTED>"

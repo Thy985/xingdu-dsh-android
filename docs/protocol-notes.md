@@ -299,7 +299,9 @@ body 为 `client-request` 信封（fixture `http-session-prompt-queue-request`�
 > `protocol/captures/rc2-session-{archive,workspace,history,errors,reconnect,idle,ui}/`
 > （token 已脱敏，目录不进 git）；脱敏 fixture 见 manifest。采集脚本为本地
 > 一次性探针，未入库；凭据未写入任何被跟踪文件。
-> fixture 脱敏：UUID → 占位符、本机路径 → 占位符、移除 `time` 键；history
+> fixture 脱敏：UUID → 占位符、本机路径 → 占位符（按形状覆盖任意盘符：原始
+> `D:\`、正斜杠 `D:/`、JSON 双反斜杠，以及 `%3A%5C`、`%3A%2F`、`D:%5C` 等
+> URL 编码与混合形态）、移除 `time` 键；history
 > snapshot 中宿主注入的技能目录正文替换为 `<SKILLS_CATALOG_REDACTED>`（与协议
 > 无关），其余 record 原样保留。
 >

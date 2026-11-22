@@ -9,11 +9,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FixtureCatalogTest {
-    /** Any drive-letter absolute path, raw or double-escaped (`D:\`, `D:\\`, `D:/`). */
-    private val drivePath = Regex("""(?i)(?<![A-Za-z0-9])[A-Z]:[\\/]{1,4}""")
-
-    /** URL-encoded drive path (`D%3A%5C…`), upper or lower percent escapes. */
-    private val encodedDrivePath = Regex("""(?i)(?<![A-Za-z0-9])[A-Z]%3A%5C""")
+    /**
+     * Any drive-letter absolute path by shape, not by example: colon raw (`D:`)
+     * or encoded (`D%3A`), separator raw (`\` / `/`) or encoded (`%5C` / `%2F`),
+     * in any mix and repetition (`D:\`, `D:\\\\`, `D:/`, `D%3A%5C`, `D%3A%2F`,
+     * `D:%5C`, `D:%2F`, `D%3A\\`).
+     */
+    private val drivePath = Regex(
+        """(?i)(?<![A-Za-z0-9])(?:[A-Z]%3A|[A-Z]:)(?:[\\/]|%5C|%2F){1,4}""",
+    )
 
     /** Host skill catalogs describe the maintainer's machine, never the protocol. */
     private val skillCatalogMarkers = listOf(
@@ -50,10 +54,6 @@ class FixtureCatalogTest {
             assertFalse(
                 "$name leaks a drive-absolute host path: ${firstMatch(drivePath, text)}",
                 drivePath.containsMatchIn(text),
-            )
-            assertFalse(
-                "$name leaks a URL-encoded host path: ${firstMatch(encodedDrivePath, text)}",
-                encodedDrivePath.containsMatchIn(text),
             )
             skillCatalogMarkers.forEach { marker ->
                 assertFalse("$name leaks a host skill catalog ($marker)", text.contains(marker))
