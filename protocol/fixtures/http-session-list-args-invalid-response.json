@@ -1,0 +1,14 @@
+{
+  "type": "server-response",
+  "rpcId": "<UUID38>",
+  "result": {
+    "ok": false,
+    "error": {
+      "code": "gateway/arguments-invalid",
+      "message": "typert gateway: session/list: args fields do not match the descriptor: missing \"_request\"; unexpected \"bogus\"",
+      "details": {
+        "endpoint": "session/list"
+      }
+    }
+  }
+}

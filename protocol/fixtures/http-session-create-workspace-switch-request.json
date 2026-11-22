@@ -1,0 +1,13 @@
+{
+  "type": "client-request",
+  "rpcId": "<UUID26>",
+  "method": "session/create",
+  "payload": {
+    "args": {
+      "request": {
+        "workspaceId": "<UUID27>",
+        "sessionId": "session-<UUID22>"
+      }
+    }
+  }
+}

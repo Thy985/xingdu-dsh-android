@@ -9,38 +9,98 @@ and repo-safe. Capture files keep two record shapes over time (`dir` is
 captures); both are normalized here.
 
 Usage: make_fixtures.py [capture_label ...]
-  default: rc2-page-load rc2-stream-message rc2-tool-approval rc2-steering
+  default: page-load + in-session + session-domain captures (see DEFAULT_CAPTURES)
 """
 import json, pathlib, re, sys
+from urllib.parse import quote
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 TARGET = "0.2.1-rc.2"
 SESSION_CAPTURES = ["rc2-stream-message", "rc2-tool-approval", "rc2-steering"]
-DEFAULT_CAPTURES = ["rc2-page-load"] + SESSION_CAPTURES
+SESSION_DOMAIN_CAPTURES = [
+    "rc2-session-archive",
+    "rc2-session-workspace",
+    "rc2-session-history",
+    "rc2-session-errors",
+    "rc2-session-reconnect",
+]
+DEFAULT_CAPTURES = ["rc2-page-load"] + SESSION_CAPTURES + SESSION_DOMAIN_CAPTURES
 
 UUID_RE = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
 PATH_MAP = [
+    ("D:\\Projects\\Archive\\dsh-host-preview\\rc2-crud2-home\\.dsh", "<PROBE_HOME>"),
+    ("D:\\Projects\\Archive\\dsh-host-preview\\rc2-cap-home\\.dsh", "<PROBE_HOME>"),
     ("D:\\Projects\\Archive\\dsh-host-preview\\probe-workspace", "<WORKSPACE>"),
+    ("D:\\Documents\\deepseek-harness\\default-workspace", "<WORKSPACE_DEFAULT>"),
+    ("D:\\Documents\\deepseek-harness\\second-workspace", "<WORKSPACE_SECOND>"),
     ("D:\\Projects\\Archive\\dsh-host-preview", "<PROBE_HOME>"),
     ("C:\\Users\\lenovo", "<HOST_HOME>"),
 ]
 
+WIN_PATH_RE = re.compile(
+    r'(?i)(?<![A-Za-z0-9])(?:[A-Z]%3A|[A-Z]:)(?:[\\/]|%5C|%2F){1,4}[^\s"\'<>|,;)\]}]*')
+
+def _path_variants(raw):
+    """Host paths appear raw, JSON-double-escaped, forward-slashed and URL-encoded."""
+    doubled = raw.replace('\\', '\\\\')
+    forward = raw.replace('\\', '/')
+    variants = {
+        raw, doubled, forward, doubled.replace('\\', '/'),
+        quote(raw, safe=''), quote(doubled, safe=''),
+    }
+    return sorted(variants, key=len, reverse=True)
+
 def scrub_paths(text):
     for raw, placeholder in PATH_MAP:
-        text = text.replace(raw, placeholder)
-    return text
+        for variant in _path_variants(raw):
+            text = text.replace(variant, placeholder)
+    # Catch any remaining drive-absolute path by shape: raw `D:\` / `D:/`, or
+    # `%3A` for the colon and `%5C` / `%2F` for the separators, in any mix.
+    return WIN_PATH_RE.sub("<HOST_PATH>", text)
+
+SKILL_ENTRY_PLACEHOLDER = "<SKILL_ENTRY_REDACTED>"
+
+def redact_skill_entries(entries, uuid_map):
+    """Skill catalogs carry a host-installed name+description list per entry."""
+    out = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            out.append(redact(entry, uuid_map))
+            continue
+        out.append({
+            k: (SKILL_ENTRY_PLACEHOLDER
+                if k in ('name', 'description') and isinstance(v, str)
+                else redact(v, uuid_map))
+            for k, v in entry.items() if k != 'time'
+        })
+    return out
 
 def redact(obj, uuid_map):
-    """Replace uuids with stable placeholders (u1, u2… in order of appearance)."""
+    """Replace uuids with stable placeholders (u1, u2… in order of appearance).
+
+    Host-injected skill catalogs are replaced wholesale: they describe the
+    maintainer's machine, not the protocol.
+    """
     if isinstance(obj, str):
+        if "A skill is a reusable set of task-specific instructions" in obj:
+            return "<SKILLS_CATALOG_REDACTED>"
         def sub(m):
             u = m.group(0)
+            if u == '00000000-0000-4000-8000-000000000000':
+                return '<GHOST_UUID>'
             if u not in uuid_map: uuid_map[u] = f"<UUID{len(uuid_map)+1}>"
             return uuid_map[u]
         return scrub_paths(UUID_RE.sub(sub, obj))
     if isinstance(obj, list): return [redact(x, uuid_map) for x in obj]
     if isinstance(obj, dict):
-        return {k: redact(v, uuid_map) for k, v in obj.items() if k != 'time'}
+        out = {}
+        for k, v in obj.items():
+            if k == 'time': continue
+            if k == 'entries' and isinstance(v, list):
+                out[k] = redact_skill_entries(v, uuid_map)
+            else:
+                out[k] = redact(v, uuid_map)
+        return out
     return obj
 
 def load_ws(cap):
@@ -226,11 +286,130 @@ def steering_fixtures(cap, uuid_map):
         {'method': m, 'path': '/api/' + p} for m, p in endpoints]
     return fixtures
 
+def http_calls(http, needle):
+    """All (request, response) pairs whose URL contains needle, in capture order."""
+    calls = []
+    for req in (r for r in http if r['dir'] == 'req' and needle in r.get('url', '')):
+        resp = next((r for r in http if r['dir'] == 'resp' and needle in r.get('url', '')
+                     and r['t'] >= req['t']), None)
+        calls.append((req, resp))
+    return calls
+
+def body_dict(row):
+    if not row: return None
+    try: return json.loads(row.get('post') or '{}')
+    except Exception: return row.get('post')
+
+def http_rpc_fixtures(fixtures, http, needle, base, uuid_map, index=0):
+    calls = http_calls(http, needle)
+    if len(calls) <= index: return
+    req, resp = calls[index]
+    fixtures[f'http-{base}-request'] = redact(body_dict(req), uuid_map)
+    if resp is not None:
+        fixtures[f'http-{base}-response'] = redact(body_dict(resp), uuid_map)
+
+def ws_open_fixture(ws, endpoint):
+    """Last open frame for an endpoint (the activation pair, not the page-load one)."""
+    found = None
+    for f in ws:
+        o = f.get('parsed')
+        if f.get('dir') == 'sent' and isinstance(o, dict) \
+                and o.get('type') == 'open' and o.get('endpoint') == endpoint:
+            found = o
+    return found
+
+def session_archive_fixtures(cap, uuid_map):
+    """HTTP archive call (rc2-session-archive)."""
+    fixtures = {}
+    http = normalize_http(cap)
+    http_rpc_fixtures(fixtures, http, '/workspace/archiveSession',
+                      'workspace-archive-session', uuid_map)
+    return fixtures
+
+def session_workspace_fixtures(cap, uuid_map):
+    """Session list/create and workspace unarchive; workspace switch emits no RPC."""
+    fixtures = {}
+    ws = load_ws(cap)
+    http = normalize_http(cap)
+    http_rpc_fixtures(fixtures, http, '/session/list', 'session-list', uuid_map)
+    http_rpc_fixtures(fixtures, http, '/session/create', 'session-create', uuid_map)
+    http_rpc_fixtures(fixtures, http, '/session/create',
+                      'session-create-workspace-switch', uuid_map, index=1)
+    http_rpc_fixtures(fixtures, http, '/workspace/unarchiveSession',
+                      'workspace-unarchive-session', uuid_map)
+    archived = item_by(ws, lambda v: v.get('type') == 'archived')
+    if archived:
+        fixtures['ws-workspace-follow-archived'] = envelope(archived['parsed']['value'], uuid_map)
+    return fixtures
+
+def session_history_fixtures(cap, uuid_map):
+    """Activation = open session/follow + job/list; history arrives as one snapshot."""
+    fixtures = {}
+    ws = load_ws(cap)
+    for endpoint, name in (('session/follow', 'ws-session-follow-open'),
+                           ('job/list', 'ws-job-list-open')):
+        o = ws_open_fixture(ws, endpoint)
+        if o:
+            fixtures[name] = redact({'type': 'open', 'streamId': '<STREAM_UUID>',
+                                     'endpoint': o['endpoint'],
+                                     'payload': o.get('payload', {})}, uuid_map)
+    cancel = next((f for f in ws if f.get('dir') == 'sent'
+                   and isinstance(f.get('parsed'), dict)
+                   and f['parsed'].get('type') == 'cancel'), None)
+    if cancel:
+        fixtures['ws-stream-cancel'] = {'type': 'cancel', 'streamId': '<STREAM_UUID>'}
+    snapshot = next((f for f in ws if f.get('dir') == 'recv'
+                     and isinstance(f.get('parsed'), dict)
+                     and isinstance(f['parsed'].get('value'), dict)
+                     and f['parsed']['value'].get('type') == 'snapshot'
+                     and len(f['parsed']['value'].get('records') or []) >= 30), None)
+    if snapshot:
+        fixtures['ws-session-follow-history-snapshot'] = envelope(
+            snapshot['parsed']['value'], uuid_map)
+    return fixtures
+
+def session_error_fixtures(cap, uuid_map):
+    """Error envelopes from ghost-id probes (HTTP 200 + result.ok=false)."""
+    fixtures = {}
+    http = normalize_http(cap)
+    http_rpc_fixtures(fixtures, http, '/session/list',
+                      'session-list-args-invalid', uuid_map, index=1)
+    http_rpc_fixtures(fixtures, http, '/session/create',
+                      'session-create-workspace-not-found', uuid_map, index=1)
+    http_rpc_fixtures(fixtures, http, '/workspace/archiveSession',
+                      'workspace-archive-session-not-found', uuid_map, index=0)
+    http_rpc_fixtures(fixtures, http, '/workspace/unarchiveSession',
+                      'workspace-unarchive-session-ghost', uuid_map, index=0)
+    return fixtures
+
+def session_reconnect_fixtures(cap, uuid_map):
+    """After a transport drop the frontend reopens every mux stream (no resume)."""
+    fixtures = {}
+    ws = load_ws(cap)
+    seen_close, reopened = False, []
+    for row in ws:
+        if row.get('event') == 'close':
+            seen_close = True
+            continue
+        p = row.get('parsed')
+        if seen_close and row.get('dir') == 'sent' and isinstance(p, dict) \
+                and p.get('type') == 'open':
+            reopened.append(redact({'endpoint': p.get('endpoint'),
+                                    'payload': p.get('payload', {})}, uuid_map))
+    if reopened:
+        fixtures['ws-session-reconnect-open-sequence'] = reopened
+    return fixtures
+
 BUILDERS = {
     'rc2-page-load': page_load_fixtures,
     'rc2-stream-message': stream_fixtures,
     'rc2-tool-approval': approval_fixtures,
     'rc2-steering': steering_fixtures,
+    'rc2-session-archive': session_archive_fixtures,
+    'rc2-session-workspace': session_workspace_fixtures,
+    'rc2-session-history': session_history_fixtures,
+    'rc2-session-errors': session_error_fixtures,
+    'rc2-session-reconnect': session_reconnect_fixtures,
 }
 
 def main(labels):

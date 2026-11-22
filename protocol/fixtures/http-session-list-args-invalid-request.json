@@ -1,0 +1,10 @@
+{
+  "type": "client-request",
+  "rpcId": "<UUID38>",
+  "method": "session/list",
+  "payload": {
+    "args": {
+      "bogus": 1
+    }
+  }
+}

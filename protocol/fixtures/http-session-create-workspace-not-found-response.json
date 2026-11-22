@@ -1,0 +1,14 @@
+{
+  "type": "server-response",
+  "rpcId": "<UUID39>",
+  "result": {
+    "ok": false,
+    "error": {
+      "code": "workspace/not-found",
+      "message": "workspace \"<GHOST_UUID>\" not found",
+      "details": {
+        "workspaceId": "<GHOST_UUID>"
+      }
+    }
+  }
+}

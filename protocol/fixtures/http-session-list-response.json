@@ -1,0 +1,381 @@
+{
+  "type": "server-response",
+  "rpcId": "<UUID20>",
+  "result": {
+    "ok": true,
+    "value": {
+      "items": [
+        {
+          "sessionId": "session-<UUID21>",
+          "updatedAt": 1795335744789,
+          "agentAvailable": true,
+          "formatStatus": "current",
+          "running": false,
+          "blank": true,
+          "cwd": "<WORKSPACE_SECOND>",
+          "projections": {
+            "kind": "sequenced",
+            "asOfSeq": 2,
+            "values": {
+              "title": null,
+              "goal": null,
+              "tokenUsage": {
+                "uncachedInputTokens": 0,
+                "outputTokens": 0,
+                "cacheReadTokens": 0,
+                "cacheWriteTokens": 0
+              },
+              "contextPressure": {},
+              "contextBreakdown": {
+                "systemTokens": 0,
+                "toolsTokens": 0,
+                "messageTokens": 0
+              },
+              "inbox": {
+                "next-turn": [],
+                "next-step": []
+              },
+              "sessionStats": {
+                "turns": 0,
+                "steps": 0,
+                "llmMs": 0,
+                "toolMs": 0,
+                "ttftMs": 0,
+                "ttftSteps": 0,
+                "decodeMs": 0,
+                "decodeTokens": 0
+              },
+              "turnOutline": [],
+              "agentPreset": "standard",
+              "userQuestions": {
+                "active": [],
+                "settled": []
+              },
+              "permissions": {
+                "currentValue": "workspace-write"
+              },
+              "workingDirectory": "<WORKSPACE_SECOND>",
+              "subagentCatalog": [],
+              "subagentTiming": {
+                "settledMs": 0
+              },
+              "subagent": null,
+              "todos": null,
+              "plan": {
+                "active": false,
+                "pending": false
+              },
+              "modelSelection": {
+                "lastUsed": null,
+                "next": null
+              },
+              "sessionListMetadata": {
+                "blank": true,
+                "lastPromptAt": null
+              },
+              "imageLimits": {
+                "maxImageBytes": 20971520,
+                "maxImagesPerMessage": 20,
+                "maxMessageImageBytes": 209715200,
+                "maxImagePixels": 64000000,
+                "maxImageDimension": 8192,
+                "mediaTypes": [
+                  "image/png",
+                  "image/jpeg",
+                  "image/webp",
+                  "image/gif"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "sessionId": "session-<UUID22>",
+          "updatedAt": 1795335315602,
+          "agentAvailable": false,
+          "formatStatus": "current",
+          "running": false,
+          "blank": true,
+          "cwd": "<WORKSPACE_DEFAULT>",
+          "projections": {
+            "kind": "cached",
+            "asOfSeq": 2,
+            "values": {
+              "title": null,
+              "goal": null,
+              "tokenUsage": {
+                "uncachedInputTokens": 0,
+                "outputTokens": 0,
+                "cacheReadTokens": 0,
+                "cacheWriteTokens": 0
+              },
+              "contextPressure": {},
+              "contextBreakdown": {
+                "systemTokens": 0,
+                "toolsTokens": 0,
+                "messageTokens": 0
+              },
+              "inbox": {
+                "next-turn": [],
+                "next-step": []
+              },
+              "sessionStats": {
+                "turns": 0,
+                "steps": 0,
+                "llmMs": 0,
+                "toolMs": 0,
+                "ttftMs": 0,
+                "ttftSteps": 0,
+                "decodeMs": 0,
+                "decodeTokens": 0
+              },
+              "turnOutline": [],
+              "agentPreset": "standard",
+              "userQuestions": {
+                "active": [],
+                "settled": []
+              },
+              "permissions": {
+                "currentValue": "workspace-write"
+              },
+              "workingDirectory": "<WORKSPACE_DEFAULT>",
+              "subagentCatalog": [],
+              "subagentTiming": {
+                "settledMs": 0
+              },
+              "subagent": null,
+              "todos": null,
+              "plan": {
+                "active": false,
+                "pending": false
+              },
+              "modelSelection": {
+                "lastUsed": null,
+                "next": null
+              },
+              "sessionListMetadata": {
+                "blank": true,
+                "lastPromptAt": null
+              },
+              "imageLimits": {
+                "maxImageBytes": 20971520,
+                "maxImagesPerMessage": 20,
+                "maxMessageImageBytes": 209715200,
+                "maxImagePixels": 64000000,
+                "maxImageDimension": 8192,
+                "mediaTypes": [
+                  "image/png",
+                  "image/jpeg",
+                  "image/webp",
+                  "image/gif"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "sessionId": "session-<UUID19>",
+          "updatedAt": 1795323226263,
+          "agentAvailable": false,
+          "formatStatus": "current",
+          "running": false,
+          "blank": false,
+          "cwd": "<WORKSPACE_DEFAULT>",
+          "projections": {
+            "kind": "cached",
+            "asOfSeq": 31,
+            "values": {
+              "title": "请只回复这一句：探针链路1就",
+              "goal": null,
+              "tokenUsage": {
+                "uncachedInputTokens": 1137,
+                "outputTokens": 6,
+                "cacheReadTokens": 7687,
+                "cacheWriteTokens": 0
+              },
+              "contextPressure": {
+                "pressureTokens": 8824,
+                "projectedTokens": 8834,
+                "contextWindow": 1000000
+              },
+              "contextBreakdown": {
+                "systemTokens": 1449,
+                "toolsTokens": 7205,
+                "messageTokens": 4705
+              },
+              "inbox": {
+                "next-turn": [],
+                "next-step": []
+              },
+              "sessionStats": {
+                "turns": 1,
+                "steps": 1,
+                "llmMs": 23001,
+                "toolMs": 0,
+                "ttftMs": 22177,
+                "ttftSteps": 1,
+                "decodeMs": 824,
+                "decodeTokens": 6
+              },
+              "turnOutline": [
+                {
+                  "turn": 1,
+                  "seq": 4,
+                  "prompt": "请只回复这一句：探针链路1就绪",
+                  "response": "探针链路1就绪"
+                }
+              ],
+              "agentPreset": "standard",
+              "userQuestions": {
+                "active": [],
+                "settled": []
+              },
+              "permissions": {
+                "currentValue": "workspace-write"
+              },
+              "workingDirectory": "<WORKSPACE_DEFAULT>",
+              "subagentCatalog": [],
+              "subagentTiming": {
+                "settledMs": 0
+              },
+              "subagent": null,
+              "todos": null,
+              "plan": {
+                "active": false,
+                "pending": false
+              },
+              "modelSelection": {
+                "lastUsed": {
+                  "provider": "qiniu",
+                  "model": "qiniu/conatus-free"
+                },
+                "next": {
+                  "provider": "qiniu",
+                  "model": "qiniu/conatus-free"
+                }
+              },
+              "sessionListMetadata": {
+                "blank": false,
+                "lastPromptAt": 1795323226263
+              },
+              "imageLimits": {
+                "maxImageBytes": 20971520,
+                "maxImagesPerMessage": 20,
+                "maxMessageImageBytes": 209715200,
+                "maxImagePixels": 64000000,
+                "maxImageDimension": 8192,
+                "mediaTypes": [
+                  "image/png",
+                  "image/jpeg",
+                  "image/webp",
+                  "image/gif"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "sessionId": "session-<UUID23>",
+          "updatedAt": 1795323157140,
+          "agentAvailable": false,
+          "formatStatus": "current",
+          "running": false,
+          "blank": false,
+          "cwd": "<WORKSPACE_DEFAULT>",
+          "projections": {
+            "kind": "cached",
+            "asOfSeq": 31,
+            "values": {
+              "title": "探针链路1就绪",
+              "goal": null,
+              "tokenUsage": {
+                "uncachedInputTokens": 8480,
+                "outputTokens": 6,
+                "cacheReadTokens": 344,
+                "cacheWriteTokens": 0
+              },
+              "contextPressure": {
+                "pressureTokens": 8824,
+                "projectedTokens": 8834,
+                "contextWindow": 1000000
+              },
+              "contextBreakdown": {
+                "systemTokens": 1449,
+                "toolsTokens": 7205,
+                "messageTokens": 4705
+              },
+              "inbox": {
+                "next-turn": [],
+                "next-step": []
+              },
+              "sessionStats": {
+                "turns": 1,
+                "steps": 1,
+                "llmMs": 31527,
+                "toolMs": 0,
+                "ttftMs": 31272,
+                "ttftSteps": 1,
+                "decodeMs": 255,
+                "decodeTokens": 6
+              },
+              "turnOutline": [
+                {
+                  "turn": 1,
+                  "seq": 4,
+                  "prompt": "请只回复这一句：探针链路1就绪",
+                  "response": "探针链路1就绪"
+                }
+              ],
+              "agentPreset": "standard",
+              "userQuestions": {
+                "active": [],
+                "settled": []
+              },
+              "permissions": {
+                "currentValue": "workspace-write"
+              },
+              "workingDirectory": "<WORKSPACE_DEFAULT>",
+              "subagentCatalog": [],
+              "subagentTiming": {
+                "settledMs": 0
+              },
+              "subagent": null,
+              "todos": null,
+              "plan": {
+                "active": false,
+                "pending": false
+              },
+              "modelSelection": {
+                "lastUsed": {
+                  "provider": "qiniu",
+                  "model": "qiniu/conatus-free"
+                },
+                "next": {
+                  "provider": "qiniu",
+                  "model": "qiniu/conatus-free"
+                }
+              },
+              "sessionListMetadata": {
+                "blank": false,
+                "lastPromptAt": 1795323157140
+              },
+              "imageLimits": {
+                "maxImageBytes": 20971520,
+                "maxImagesPerMessage": 20,
+                "maxMessageImageBytes": 209715200,
+                "maxImagePixels": 64000000,
+                "maxImageDimension": 8192,
+                "mediaTypes": [
+                  "image/png",
+                  "image/jpeg",
+                  "image/webp",
+                  "image/gif"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

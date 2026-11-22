@@ -1,0 +1,21 @@
+{
+  "type": "open",
+  "streamId": "<STREAM_UUID>",
+  "endpoint": "session/follow",
+  "payload": {
+    "args": {
+      "request": {
+        "address": {
+          "kind": "session",
+          "sessionId": "session-<UUID19>"
+        },
+        "assistantStream": true,
+        "maxMessages": 500,
+        "turnWindow": {
+          "minMessages": 50,
+          "minTurns": 2
+        }
+      }
+    }
+  }
+}
