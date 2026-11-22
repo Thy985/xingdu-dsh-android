@@ -71,10 +71,11 @@
 - 第 5 周：连接层——WebSocket + RPC 信封（mux、心跳、重连、鉴权传递复用
   现有同进程 Binder 方案）
 - 第 6 周：会话域——list/activate/create/delete、消息历史拉取
-  <!-- 事实注记（rc.2 探针，2026-11-22）：rc.2 无 session delete RPC——UI 无删除
-       入口，`session/delete` / `session/archive` / `workspace/deleteSession`
-       候选端点均返回 HTTP 404 纯文本；删除能力不存在。历史拉取不是独立 HTTP
-       端点，随 `session/follow` 首帧 snapshot 下发。详见 protocol-notes 第八节。 -->
+  <!-- 事实注记（rc.2 探针，2026-11-22）：session delete 未捕获 / 未路由——UI 无
+       删除入口，`session/delete` / `session/archive` / `workspace/deleteSession`
+       候选端点均返回 HTTP 404 纯文本；404 来自路由层，证据仅限“未路由”，不据此
+       断言删除能力不存在。历史拉取不是独立 HTTP 端点，随 `session/follow`
+       首帧 snapshot 下发。详见 protocol-notes 第八节。 -->
 - 第 7 周：消息流域——发送、流式事件、工具调用事件、审批响应、steering 注入
 - 第 8 周：收口——类型化错误、`DSH_PROTOCOL_TARGET` 版本常量、探针转
   fixture 自动化

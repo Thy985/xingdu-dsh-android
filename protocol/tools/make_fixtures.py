@@ -12,6 +12,7 @@ Usage: make_fixtures.py [capture_label ...]
   default: page-load + in-session + session-domain captures (see DEFAULT_CAPTURES)
 """
 import json, pathlib, re, sys
+from urllib.parse import quote
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 TARGET = "0.2.1-rc.2"
@@ -36,10 +37,43 @@ PATH_MAP = [
     ("C:\\Users\\lenovo", "<HOST_HOME>"),
 ]
 
+WIN_PATH_RE = re.compile(r'(?i)(?<![A-Za-z0-9])[A-Z]:[\\/]{1,4}[^\s"\'<>|,;)\]}]+')
+WIN_PATH_ENCODED_RE = re.compile(r'(?i)(?<![A-Za-z0-9])[A-Z]%3A%5C[^\s"\'<>|,;)\]}]*')
+
+def _path_variants(raw):
+    """Host paths appear raw, JSON-double-escaped, forward-slashed and URL-encoded."""
+    doubled = raw.replace('\\', '\\\\')
+    forward = raw.replace('\\', '/')
+    variants = {
+        raw, doubled, forward, doubled.replace('\\', '/'),
+        quote(raw, safe=''), quote(doubled, safe=''),
+    }
+    return sorted(variants, key=len, reverse=True)
+
 def scrub_paths(text):
     for raw, placeholder in PATH_MAP:
-        text = text.replace(raw, placeholder)
-    return text
+        for variant in _path_variants(raw):
+            text = text.replace(variant, placeholder)
+    # Catch any remaining drive-absolute path, whatever its escaping/encoding.
+    text = WIN_PATH_ENCODED_RE.sub("<HOST_PATH>", text)
+    return WIN_PATH_RE.sub("<HOST_PATH>", text)
+
+SKILL_ENTRY_PLACEHOLDER = "<SKILL_ENTRY_REDACTED>"
+
+def redact_skill_entries(entries, uuid_map):
+    """Skill catalogs carry a host-installed name+description list per entry."""
+    out = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            out.append(redact(entry, uuid_map))
+            continue
+        out.append({
+            k: (SKILL_ENTRY_PLACEHOLDER
+                if k in ('name', 'description') and isinstance(v, str)
+                else redact(v, uuid_map))
+            for k, v in entry.items() if k != 'time'
+        })
+    return out
 
 def redact(obj, uuid_map):
     """Replace uuids with stable placeholders (u1, u2… in order of appearance).
@@ -59,7 +93,14 @@ def redact(obj, uuid_map):
         return scrub_paths(UUID_RE.sub(sub, obj))
     if isinstance(obj, list): return [redact(x, uuid_map) for x in obj]
     if isinstance(obj, dict):
-        return {k: redact(v, uuid_map) for k, v in obj.items() if k != 'time'}
+        out = {}
+        for k, v in obj.items():
+            if k == 'time': continue
+            if k == 'entries' and isinstance(v, list):
+                out[k] = redact_skill_entries(v, uuid_map)
+            else:
+                out[k] = redact(v, uuid_map)
+        return out
     return obj
 
 def load_ws(cap):

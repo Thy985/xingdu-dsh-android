@@ -176,7 +176,8 @@ UI 审批卡文案：等待审批 / 允许本次操作使用 danger-full-access 
    allowed-once 回答信封 + 提权重执行），见第五·五–五·七节。
 3. ~~steering 注入信封（回复中途插话）~~ ✅ 已完成：见第七节 7.4。
 4. ~~会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换~~ ✅
-   已完成：见第八节。delete 在 rc.2 不存在（候选端点全 404），按“未捕获”记录。
+   已完成：见第八节。delete 未捕获：候选端点（`session/delete`、`session/archive`、
+   `workspace/deleteSession`）均 HTTP 404，证据仅限“未路由”，不能据此断言该能力不存在。
 5. 终端（`terminal` 类端点）与文件 API 形态。
 
 ## 七、会话内四链路（DSH_PROTOCOL_TARGET: 0.2.1-rc.2）
@@ -316,7 +317,7 @@ body 为 `client-request` 信封（fixture `http-session-prompt-queue-request`�
 | unarchive | HTTP RPC | `POST /api/workspace/unarchiveSession`，`method:"workspace/unarchiveSession"` | `{request:{sessionId}}` | `{archivedSessionIds:[]}` | `http-workspace-unarchive-session-request` / `-response` |
 | activate + 历史 | WS | `open endpoint:"session/follow"`（并发 `open endpoint:"job/list"`，并 `cancel` 上一个 follow） | 见 8.3 | 首帧 `snapshot` | `ws-session-follow-open`、`ws-session-follow-history-snapshot`、`ws-job-list-open`、`ws-stream-cancel` |
 | workspace 列表 | WS | `open endpoint:"workspace/follow"` | `{args:{}}` | `baseline` / `upsert` / `order` / `archived` | `endpoint-workspace-follow-first-value`、`ws-workspace-follow-archived` |
-| delete | — | **不存在** | — | — | 未捕获（见 8.6） |
+| delete | — | 未捕获 / 未路由（证据仅限 404） | — | — | 未捕获（见 8.6） |
 
 - `session/list` 的 `items[]` 字段（捕获实测）：`sessionId`、`updatedAt`、
   `agentAvailable`、`formatStatus`、`running`、`blank`、`cwd`、`projections`
@@ -424,8 +425,8 @@ body 为 `client-request` 信封（fixture `http-session-prompt-queue-request`�
 
 | 项 | 状态 |
 | --- | --- |
-| session delete | **不存在**：UI 默认/已归档菜单均无删除入口；`session/delete`、`session/archive`、`workspace/deleteSession` 候选探测均 HTTP 404 纯文本 `not found` |
-| delete 成功/失败行为 | 未捕获（无端点） |
+| session delete | 未捕获 / 未路由（证据仅限 404）：UI 默认/已归档菜单均无删除入口；`session/delete`、`session/archive`、`workspace/deleteSession` 候选探测均 HTTP 404 纯文本 `not found`。404 来自路由层（见 8.2），只能证明这三个名字未被路由，不能断言 rc.2 无删除能力 |
+| delete 成功/失败行为 | 未捕获（未路由，无可回放端点） |
 | `hasMore:true` 的历史分页 | 未捕获（本次 `maxMessages:500` 一次取全） |
 | 断连期间事件补发 | 未验证 |
 | 传输层 ping/pong 心跳 | 未验证（抓包不可见） |
