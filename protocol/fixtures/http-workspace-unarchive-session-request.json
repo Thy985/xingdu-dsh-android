@@ -1,0 +1,12 @@
+{
+  "type": "client-request",
+  "rpcId": "<UUID28>",
+  "method": "workspace/unarchiveSession",
+  "payload": {
+    "args": {
+      "request": {
+        "sessionId": "session-<UUID19>"
+      }
+    }
+  }
+}

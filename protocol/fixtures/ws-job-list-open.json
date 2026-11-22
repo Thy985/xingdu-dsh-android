@@ -1,0 +1,12 @@
+{
+  "type": "open",
+  "streamId": "<STREAM_UUID>",
+  "endpoint": "job/list",
+  "payload": {
+    "args": {
+      "request": {
+        "sessionId": "session-<UUID19>"
+      }
+    }
+  }
+}

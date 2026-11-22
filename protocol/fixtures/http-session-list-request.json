@@ -1,0 +1,10 @@
+{
+  "type": "client-request",
+  "rpcId": "<UUID20>",
+  "method": "session/list",
+  "payload": {
+    "args": {
+      "_request": {}
+    }
+  }
+}

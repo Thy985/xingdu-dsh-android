@@ -12,8 +12,8 @@
 > 同时对 rc.2 与 rc.5 双向探针验证；**fixtures 已钉 rc.2**
 > （protocol/fixtures/，manifest 标注 DSH_PROTOCOL_TARGET=0.2.1-rc.2，由
 > protocol/tools/make_fixtures.py 从捕获脱敏生成）。
-> 第七节（会话内四链路）为 **rc.2 单版本交互捕获**，未做 rc.5 对照，
-> 该节标注 `DSH_PROTOCOL_TARGET: 0.2.1-rc.2`。
+> 第七节（会话内四链路）与第八节（会话域）为 **rc.2 单版本交互捕获**，
+> 未做 rc.5 对照，各自标注 `DSH_PROTOCOL_TARGET: 0.2.1-rc.2`。
 
 ## 版本漂移 diff（rc.2 ↔ rc.5，2026-11-21）
 
@@ -175,7 +175,8 @@ UI 审批卡文案：等待审批 / 允许本次操作使用 danger-full-access 
    另有三轮 rc.5 交互实证（工作区写入全链路、pwsh job 模式、waterfall 审批 +
    allowed-once 回答信封 + 提权重执行），见第五·五–五·七节。
 3. ~~steering 注入信封（回复中途插话）~~ ✅ 已完成：见第七节 7.4。
-4. 会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换。
+4. ~~会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换~~ ✅
+   已完成：见第八节。delete 在 rc.2 不存在（候选端点全 404），按“未捕获”记录。
 5. 终端（`terminal` 类端点）与文件 API 形态。
 
 ## 七、会话内四链路（DSH_PROTOCOL_TARGET: 0.2.1-rc.2）
@@ -289,3 +290,144 @@ body 为 `client-request` 信封（fixture `http-session-prompt-queue-request`�
   等于 steer 请求的 `requestId`。
 - 繁忙态 Enter=queue、Ctrl+Enter=steer 是前端默认策略；协议层只区分
   `mode` 字段，服务端行为与按键无关。
+
+## 八、会话域（DSH_PROTOCOL_TARGET: 0.2.1-rc.2）
+
+> 本节事实来自 rc.2 会话域探针：官方 Web 前端 + Playwright 无头采集
+> （端口 3121 / 3122，独立 `DSH_HOME`；非 mock）。原始报文见
+> `protocol/captures/rc2-session-{archive,workspace,history,errors,reconnect,idle,ui}/`
+> （token 已脱敏，目录不进 git）；脱敏 fixture 见 manifest。采集脚本为本地
+> 一次性探针，未入库；凭据未写入任何被跟踪文件。
+> fixture 脱敏：UUID → 占位符、本机路径 → 占位符、移除 `time` 键；history
+> snapshot 中宿主注入的技能目录正文替换为 `<SKILLS_CATALOG_REDACTED>`（与协议
+> 无关），其余 record 原样保留。
+>
+> **结论先行**：会话域不是纯 HTTP RPC。`list` / `create` / `archive` /
+> `unarchive` 是 HTTP RPC；**activate 与消息历史都走 WS `session/follow`**；
+> workspace 切换**没有服务端 RPC**。
+
+### 8.1 端点总表
+
+| 操作 | 传输 | 端点 / 方法 | `args` | 成功 `value` | fixture |
+| --- | --- | --- | --- | --- | --- |
+| list | HTTP RPC | `POST /api/session/list`，`method:"session/list"` | `{_request:{}}` | `{items:[…]}` | `http-session-list-request` / `-response` |
+| create | HTTP RPC | `POST /api/session/create`，`method:"session/create"` | `{request:{workspaceId,sessionId}}` | `{sessionId,agentPreset}` | `http-session-create-request` / `-response` |
+| archive | HTTP RPC | `POST /api/workspace/archiveSession`，`method:"workspace/archiveSession"` | `{request:{sessionId}}` | `{archivedSessionIds:[…]}` | `http-workspace-archive-session-request` / `-response` |
+| unarchive | HTTP RPC | `POST /api/workspace/unarchiveSession`，`method:"workspace/unarchiveSession"` | `{request:{sessionId}}` | `{archivedSessionIds:[]}` | `http-workspace-unarchive-session-request` / `-response` |
+| activate + 历史 | WS | `open endpoint:"session/follow"`（并发 `open endpoint:"job/list"`，并 `cancel` 上一个 follow） | 见 8.3 | 首帧 `snapshot` | `ws-session-follow-open`、`ws-session-follow-history-snapshot`、`ws-job-list-open`、`ws-stream-cancel` |
+| workspace 列表 | WS | `open endpoint:"workspace/follow"` | `{args:{}}` | `baseline` / `upsert` / `order` / `archived` | `endpoint-workspace-follow-first-value`、`ws-workspace-follow-archived` |
+| delete | — | **不存在** | — | — | 未捕获（见 8.6） |
+
+- `session/list` 的 `items[]` 字段（捕获实测）：`sessionId`、`updatedAt`、
+  `agentAvailable`、`formatStatus`、`running`、`blank`、`cwd`、`projections`
+  （`{kind:"cached", asOfSeq, values:{…}}`，`values` 内含 title/tokenUsage/
+  sessionStats/permissions/turnOutline 等）。
+- `session/create` 的 `sessionId` 由前端生成（`session-<uuid>`），重复提交同一
+  `sessionId` 返回成功（工作区切换时观察到对已有会话再次 create，兼作
+  open/ensure）；`agentPreset` 实测为 `"standard"`。
+- 归档集合的唯一权威来源是 WS `workspace/follow` 的 `archived` 帧
+  （`{type:"archived", archivedSessionIds:[…]}`），HTTP 响应只是同一状态的
+  回执，不应各自维护。
+
+### 8.2 HTTP 信封与错误码
+
+请求/响应信封与第五·五节相同。业务失败仍返回 **HTTP 200**，失败信息在
+`result.ok=false` 的 `error` 里（`type:"server-response"` 不变）：
+
+```json
+{"type":"server-response","rpcId":"<uuid>","result":{"ok":false,
+ "error":{"code":"session/not-found","message":"…","details":{"sessionId":"…"}}}}
+```
+
+| `error.code` | 触发条件（探针实证） | `details` | fixture |
+| --- | --- | --- | --- |
+| `gateway/arguments-invalid` | `session/list` 缺少 `_request` 或多出未知字段；message 明示 `typert gateway: … args fields do not match the descriptor` | `{endpoint}` | `http-session-list-args-invalid-request` / `-response` |
+| `workspace/not-found` | `session/create` 的 `workspaceId` 不存在 | `{workspaceId}` | `http-session-create-workspace-not-found-request` / `-response` |
+| `session/not-found` | `workspace/archiveSession` 的 `sessionId` 不存在（message 提到 live sessions 与 session persistence 都没有） | `{sessionId}` | `http-workspace-archive-session-not-found-request` / `-response` |
+
+- `workspace/unarchiveSession` 对不存在的 `sessionId` 返回 **`ok:true`**
+  （不做存在性校验）；`archiveSession` 对同一输入返回 `session/not-found`。
+  （fixture `http-workspace-unarchive-session-ghost-response`）
+- 未知方法返回 **HTTP 404 纯文本 `not found`**（非 JSON 信封），说明 404 来自
+  路由层，RPC 层永远用 200 + `result.ok`。
+
+### 8.3 activate 与消息历史（同一路径）
+
+点击/恢复一个会话时，前端在**同一条 mux 连接**上：
+
+1. `{"type":"open","streamId":…,"endpoint":"session/follow","payload":{"args":{"request":{…}}}}`
+   请求体（fixture `ws-session-follow-open`）：
+
+   ```json
+   {"request":{"address":{"kind":"session","sessionId":"session-<uuid>"},
+    "assistantStream":true,"maxMessages":500,
+    "turnWindow":{"minMessages":50,"minTurns":2}}}
+   ```
+
+2. 并发 `{"type":"open", … ,"endpoint":"job/list","payload":{"args":{"request":{"sessionId":"…"}}}}`
+   （fixture `ws-job-list-open`），首帧 `value.type:"rows"`。
+3. 对上一个 `session/follow` 的 `streamId` 发 `{"type":"cancel","streamId":…}`
+   （fixture `ws-stream-cancel`）。
+
+`session/follow` 的首帧即 `value.type:"snapshot"`，结构
+（fixture `ws-session-follow-history-snapshot`，完整 32 条 records，未裁剪）：
+
+| 字段 | 语义（实测） |
+| --- | --- |
+| `header` | `{version:4, id, createdAt, cwd, isSeeded, delegationDepth, agentPreset}` |
+| `records[]` | 历史事件序列，每条 `{type:"event", event:{type, seq, time, data}}` |
+| `projections` | `{asOfSeq, values:{…}}`，与 `session/control` 的 projection 同形 |
+| `cursor` / `hasMore` | 本次捕获为 `31` / `false`（`maxMessages:500` 覆盖全部历史） |
+| `assistantStream` | `{revision:0}`；有在飞流时用于恢复流式状态 |
+
+`records[].event.type` 与第七节实时事件是**同一套词汇**：`permission/preset`、
+`sandbox/mode`、`approval/policy`、`agent/inbox/spliced`、`turn/start`、
+`step/start`、`system/message`、`user/message`、`request/header`、
+`session/title`、`session/title-llm-request`、`assistant/attempt`、
+`llm/retry`、`llm/retry-started`、`assistant/message`、`step/end`、`turn/end`、
+`session/end-seed`。
+
+> **结论**：消息历史与 follow/snapshot **同源**，不存在独立的 HTTP 历史拉取
+> 端点；客户端“打开会话”= 订阅 `session/follow` 并消费首帧 snapshot，之后
+> 在同一 streamId 上接收增量。`hasMore:true` 的分页/回补行为本轮未捕获。
+
+### 8.4 WS 生命周期、心跳、重连
+
+- **生命周期**：`open` → 首帧 `snapshot` → 后续 `item`（`value.type` 为
+  `event` / `projection` / `assistant-stream` 等）→ `cancel` 或连接关闭。
+  **没有订阅确认帧**，首帧就是 snapshot；也没有应用层 ack。
+- **心跳**：两段空闲窗口（75s 与 90s）内**零应用层帧**。WebSocket 协议层
+  ping/pong 控制帧不被 Playwright 暴露，**传输层心跳未验证**；客户端不应
+  依赖应用层心跳判活。
+- **重连**：浏览器网络断开 8s 后恢复，约 0.5s 内自动新建同一条
+  `/api/remote.mux`，按 `$events` → `session/control` → `remoteAccess/follow` →
+  `account/watch` → `workspace/follow` → `session/follow` 重放全部 `open`
+  （fixture `ws-session-reconnect-open-sequence`）；`session/follow` 重发**全量
+  snapshot**。
+- **无 resume/cursor 续传协议**；断连期间是否补发事件本轮未验证。客户端重连
+  必须自行重放 open，并把新 snapshot 当作全量重置，而不是追加。
+
+### 8.5 workspace 切换
+
+- 点击工作区菜单切换工作区：**0 条 HTTP、0 条 WS 帧**。切换是纯前端筛选，
+  选择状态驻留浏览器侧（重载后仍生效）。
+- 切换后前端会对目标工作区的会话发一次 `session/create`
+  （fixture `http-session-create-workspace-switch-request` / `-response`），
+  这才是服务端感知到的动作；`session/list` 一次返回所有会话（含 `cwd`），
+  由前端按工作区分组。
+- 工作区列表来自 WS `workspace/follow`（`baseline` + `upsert` + `order`）；
+  archive/unarchive 成功后该流推 `archived` 帧。
+- **未捕获**：添加工作区的真实 RPC（`directoryPicker/pick` 在无头环境无法完成
+  宿主目录选择，已知限制）；工作区删除/重命名。
+
+### 8.6 未捕获清单（明确标注）
+
+| 项 | 状态 |
+| --- | --- |
+| session delete | **不存在**：UI 默认/已归档菜单均无删除入口；`session/delete`、`session/archive`、`workspace/deleteSession` 候选探测均 HTTP 404 纯文本 `not found` |
+| delete 成功/失败行为 | 未捕获（无端点） |
+| `hasMore:true` 的历史分页 | 未捕获（本次 `maxMessages:500` 一次取全） |
+| 断连期间事件补发 | 未验证 |
+| 传输层 ping/pong 心跳 | 未验证（抓包不可见） |
+| 添加工作区 / 删除工作区 / 重命名工作区 | 未捕获 |
+

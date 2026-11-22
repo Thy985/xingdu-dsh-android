@@ -4,7 +4,12 @@
     "rc2-page-load",
     "rc2-stream-message",
     "rc2-tool-approval",
-    "rc2-steering"
+    "rc2-steering",
+    "rc2-session-archive",
+    "rc2-session-workspace",
+    "rc2-session-history",
+    "rc2-session-errors",
+    "rc2-session-reconnect"
   ],
   "fixtures": [
     "ws-open-envelope",
@@ -37,6 +42,30 @@
     "ws-session-step-start",
     "ws-session-steer-user-message",
     "ws-session-steer-turn-end",
-    "http-session-endpoint-inventory"
+    "http-session-endpoint-inventory",
+    "http-workspace-archive-session-request",
+    "http-workspace-archive-session-response",
+    "http-session-list-request",
+    "http-session-list-response",
+    "http-session-create-request",
+    "http-session-create-response",
+    "http-session-create-workspace-switch-request",
+    "http-session-create-workspace-switch-response",
+    "http-workspace-unarchive-session-request",
+    "http-workspace-unarchive-session-response",
+    "ws-workspace-follow-archived",
+    "ws-session-follow-open",
+    "ws-job-list-open",
+    "ws-stream-cancel",
+    "ws-session-follow-history-snapshot",
+    "http-session-list-args-invalid-request",
+    "http-session-list-args-invalid-response",
+    "http-session-create-workspace-not-found-request",
+    "http-session-create-workspace-not-found-response",
+    "http-workspace-archive-session-not-found-request",
+    "http-workspace-archive-session-not-found-response",
+    "http-workspace-unarchive-session-ghost-request",
+    "http-workspace-unarchive-session-ghost-response",
+    "ws-session-reconnect-open-sequence"
   ]
 }

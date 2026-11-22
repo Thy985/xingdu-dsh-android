@@ -1,0 +1,51 @@
+[
+  {
+    "endpoint": "$events",
+    "payload": {
+      "args": {}
+    }
+  },
+  {
+    "endpoint": "session/control",
+    "payload": {
+      "args": {}
+    }
+  },
+  {
+    "endpoint": "remoteAccess/follow",
+    "payload": {
+      "args": {}
+    }
+  },
+  {
+    "endpoint": "account/watch",
+    "payload": {
+      "args": {}
+    }
+  },
+  {
+    "endpoint": "workspace/follow",
+    "payload": {
+      "args": {}
+    }
+  },
+  {
+    "endpoint": "session/follow",
+    "payload": {
+      "args": {
+        "request": {
+          "address": {
+            "kind": "session",
+            "sessionId": "session-<UUID21>"
+          },
+          "assistantStream": true,
+          "maxMessages": 500,
+          "turnWindow": {
+            "minMessages": 50,
+            "minTurns": 2
+          }
+        }
+      }
+    }
+  }
+]

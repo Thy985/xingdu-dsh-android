@@ -1,0 +1,11 @@
+{
+  "type": "server-response",
+  "rpcId": "<UUID24>",
+  "result": {
+    "ok": true,
+    "value": {
+      "sessionId": "session-<UUID21>",
+      "agentPreset": "standard"
+    }
+  }
+}

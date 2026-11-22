@@ -1,0 +1,12 @@
+{
+  "type": "client-request",
+  "rpcId": "<UUID40>",
+  "method": "workspace/archiveSession",
+  "payload": {
+    "args": {
+      "request": {
+        "sessionId": "session-<GHOST_UUID>"
+      }
+    }
+  }
+}

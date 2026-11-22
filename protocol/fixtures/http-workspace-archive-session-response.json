@@ -1,0 +1,12 @@
+{
+  "type": "server-response",
+  "rpcId": "<UUID18>",
+  "result": {
+    "ok": true,
+    "value": {
+      "archivedSessionIds": [
+        "session-<UUID19>"
+      ]
+    }
+  }
+}
