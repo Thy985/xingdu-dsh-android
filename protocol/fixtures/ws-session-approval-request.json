@@ -4,8 +4,8 @@
   "value": {
     "type": "waterfall",
     "event": "approval/request",
-    "eventId": "<UUID7>",
-    "agentId": "session-<UUID8>",
+    "eventId": "<UUID9>",
+    "agentId": "session-<UUID10>",
     "request": {
       "toolName": "pwsh",
       "callId": "chatcmpl-tool-8fb69df8602fb231",

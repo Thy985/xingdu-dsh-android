@@ -81,30 +81,29 @@ class MuxReplayTest {
     }
 
     @Test
-    fun assistantMessageSnapshotFields() {
-        // ws-session-assistant-message is the trimmed snapshot of assistant/message.
-        val message = Fixtures.itemValue("ws-session-assistant-message")
-            .getAsJsonObject("message")
-        assertEquals("assistant", message.get("role").asString)
-        val source = message.getAsJsonObject("source")
-        assertEquals("model", source.get("kind").asString)
-        assertEquals("qiniu", source.get("provider").asString)
-        assertEquals("qiniu/conatus-free", source.get("model").asString)
-        val response = source.getAsJsonObject("replayState").getAsJsonObject("response")
-        assertEquals("openai-completions", response.get("api").asString)
-        assertEquals("stop", response.get("stopReason").asString)
+    fun assistantMessageEventParses() {
+        val message = event("ws-session-assistant-message").event
+        assertTrue(message is SessionEvent.AssistantMessage)
+        message as SessionEvent.AssistantMessage
+        assertEquals(16L, message.seq)
+        assertEquals(1, message.turn)
+        assertEquals(1, message.step)
+        assertTrue((message.content.single() as ContentBlock.Text).text.isNotBlank())
+        assertEquals("model", message.sourceKind)
+        assertEquals("qiniu", message.provider)
+        assertEquals("qiniu/conatus-free", message.model)
+        assertEquals("openai-completions", message.replayState!!.api)
+        assertEquals("stop", message.replayState!!.stopReason)
     }
 
     @Test
-    fun toolCallMessageSnapshotFields() {
-        // ws-session-assistant-tool-call-message is the trimmed snapshot of the
-        // assistant message that carried the tool call.
-        val content = Fixtures.itemValue("ws-session-assistant-tool-call-message")
-            .getAsJsonObject("message").getAsJsonArray("content")
-        val toolCall = content.single().asJsonObject
-        assertEquals("tool-call", toolCall.get("type").asString)
-        assertTrue(toolCall.get("name").asString.isNotBlank())
-        assertTrue(toolCall.get("arguments").asString.contains("probe-approval-ok"))
+    fun toolCallMessageEventParses() {
+        val message = event("ws-session-assistant-tool-call-message").event as SessionEvent.AssistantMessage
+        assertEquals(23L, message.seq)
+        val toolCall = message.content.single() as ContentBlock.ToolCall
+        assertEquals("pwsh", toolCall.name)
+        assertTrue(toolCall.arguments!!.contains("probe-approval-ok"))
+        assertEquals("toolUse", message.replayState!!.stopReason)
     }
 
     @Test

@@ -126,39 +126,6 @@ def http_pair(http, needle):
 def envelope(fixture_value, uuid_map):
     return redact({'type': 'item', 'streamId': '<STREAM_UUID>', 'value': fixture_value}, uuid_map)
 
-def trimmed_assistant_message(event):
-    data = event['data']
-    message = data['message']
-    source = message.get('source') or {}
-    replay = source.get('replayState') or {}
-    response = replay.get('response') or {}
-
-    def block(b):
-        if b.get('type') == 'text':
-            return {'type': 'text', 'text': b.get('text')}
-        if b.get('type') == 'tool-call':
-            return {'type': 'tool-call', 'name': b.get('name'), 'arguments': b.get('arguments')}
-        return {'type': b.get('type')}
-
-    return {
-        'turn': data.get('turn'), 'step': data.get('step'),
-        'message': {
-            'role': message.get('role'),
-            'content': [block(b) for b in message.get('content', [])],
-            'source': {
-                'kind': source.get('kind'),
-                'provider': source.get('provider'),
-                'model': source.get('model'),
-                'replayState': {
-                    'response': {k: response[k] for k in
-                                 ('kind', 'version', 'api', 'provider', 'model', 'stopReason')
-                                 if k in response},
-                    'blocks': replay.get('blocks'),
-                },
-            },
-        },
-    }
-
 def stream_fixtures(cap, uuid_map):
     fixtures = {}
     ws = load_ws(cap)
@@ -182,7 +149,7 @@ def stream_fixtures(cap, uuid_map):
     if end: fixtures['ws-session-assistant-stream-end'] = envelope(end['parsed']['value'], uuid_map)
 
     message = event_by_type(ws, 'assistant/message')
-    if message: fixtures['ws-session-assistant-message'] = envelope(trimmed_assistant_message(message['parsed']['value']['event']), uuid_map)
+    if message: fixtures['ws-session-assistant-message'] = envelope(message['parsed']['value'], uuid_map)
 
     turn_end = event_by_type(ws, 'turn/end')
     if turn_end: fixtures['ws-session-turn-end'] = envelope(turn_end['parsed']['value'], uuid_map)
@@ -194,7 +161,7 @@ def approval_fixtures(cap, uuid_map):
     http = normalize_http(cap)
 
     message = event_by_type(ws, 'assistant/message')
-    if message: fixtures['ws-session-assistant-tool-call-message'] = envelope(trimmed_assistant_message(message['parsed']['value']['event']), uuid_map)
+    if message: fixtures['ws-session-assistant-tool-call-message'] = envelope(message['parsed']['value'], uuid_map)
 
     call = event_by_type(ws, 'tool/call')
     if call: fixtures['ws-session-tool-call'] = envelope(call['parsed']['value'], uuid_map)

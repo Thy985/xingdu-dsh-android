@@ -1,12 +1,12 @@
 {
   "type": "client-request",
-  "rpcId": "<UUID12>",
+  "rpcId": "<UUID14>",
   "method": "session/prompt",
   "payload": {
     "args": {
       "request": {
-        "requestId": "<UUID13>",
-        "sessionId": "session-<UUID14>",
+        "requestId": "<UUID15>",
+        "sessionId": "session-<UUID16>",
         "mode": "steer",
         "content": [
           {

@@ -19,8 +19,4 @@ internal object Fixtures {
     }
 
     fun json(name: String): JsonObject = Json.parseObject(read(name))
-
-    fun itemValue(name: String): JsonObject = json(name).getAsJsonObject("value")
-
-    fun event(name: String): JsonObject = itemValue(name).getAsJsonObject("event")
 }

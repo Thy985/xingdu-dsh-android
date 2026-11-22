@@ -7,7 +7,7 @@
       "type": "approval/decided",
       "seq": 26,
       "data": {
-        "id": "<UUID6>",
+        "id": "<UUID8>",
         "outcome": "allowed-once"
       }
     }

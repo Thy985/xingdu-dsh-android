@@ -1,11 +1,11 @@
 {
   "type": "client-request",
-  "rpcId": "<UUID9>",
+  "rpcId": "<UUID11>",
   "method": "$events/result",
   "payload": {
     "args": {
-      "clientId": "<UUID10>",
-      "eventId": "<UUID7>",
+      "clientId": "<UUID12>",
+      "eventId": "<UUID9>",
       "outcome": {
         "kind": "result",
         "value": "allowed-once"

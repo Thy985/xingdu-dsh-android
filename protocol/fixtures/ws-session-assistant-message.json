@@ -2,36 +2,130 @@
   "type": "item",
   "streamId": "<STREAM_UUID>",
   "value": {
-    "turn": 1,
-    "step": 1,
-    "message": {
-      "role": "assistant",
-      "content": [
-        {
-          "type": "text",
-          "text": "探针链路1就绪"
-        }
-      ],
-      "source": {
-        "kind": "model",
-        "provider": "qiniu",
-        "model": "qiniu/conatus-free",
-        "replayState": {
-          "response": {
-            "kind": "pi-ai",
-            "version": 2,
-            "api": "openai-completions",
+    "type": "event",
+    "event": {
+      "type": "assistant/message",
+      "seq": 16,
+      "data": {
+        "turn": 1,
+        "step": 1,
+        "message": {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "探针链路1就绪"
+            }
+          ],
+          "source": {
+            "kind": "model",
             "provider": "qiniu",
             "model": "qiniu/conatus-free",
-            "stopReason": "stop"
-          },
-          "blocks": [
-            {
-              "type": "text"
+            "replayState": {
+              "response": {
+                "kind": "pi-ai",
+                "version": 2,
+                "api": "openai-completions",
+                "provider": "qiniu",
+                "model": "qiniu/conatus-free",
+                "responseId": "chatcmpl-f4f160de3b2648cda77b887dc2d26949",
+                "stopReason": "stop"
+              },
+              "blocks": [
+                {
+                  "type": "text"
+                }
+              ]
             }
-          ]
-        }
-      }
+          },
+          "id": "<UUID6>"
+        },
+        "usage": {
+          "inputTokens": 1142,
+          "outputTokens": 6,
+          "totalTokens": 8830,
+          "cacheReadTokens": 7682
+        },
+        "stream": [
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "block-start",
+              "index": 0,
+              "blockType": "text"
+            }
+          },
+          {
+            "type": "text-chunks",
+            "time0": 1795323924814,
+            "index": 0,
+            "dt": [
+              0,
+              1,
+              0,
+              108,
+              446
+            ],
+            "texts": [
+              "探",
+              "针",
+              "链路",
+              "1",
+              "就",
+              "绪"
+            ]
+          },
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "block-end",
+              "index": 0,
+              "block": {
+                "type": "text",
+                "text": "探针链路1就绪"
+              }
+            }
+          },
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "usage",
+              "usage": {
+                "inputTokens": 1142,
+                "outputTokens": 6,
+                "totalTokens": 8830,
+                "cacheReadTokens": 7682
+              }
+            }
+          },
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "finish",
+              "reason": {
+                "kind": "stop"
+              },
+              "replayState": {
+                "response": {
+                  "kind": "pi-ai",
+                  "version": 2,
+                  "api": "openai-completions",
+                  "provider": "qiniu",
+                  "model": "qiniu/conatus-free",
+                  "responseId": "chatcmpl-f4f160de3b2648cda77b887dc2d26949",
+                  "stopReason": "stop"
+                },
+                "blocks": [
+                  {
+                    "type": "text"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "surfaceOp": "append"
     }
   }
 }

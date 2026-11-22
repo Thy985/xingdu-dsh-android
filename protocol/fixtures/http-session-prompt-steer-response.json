@@ -1,6 +1,6 @@
 {
   "type": "server-response",
-  "rpcId": "<UUID12>",
+  "rpcId": "<UUID14>",
   "result": {
     "ok": true,
     "value": {

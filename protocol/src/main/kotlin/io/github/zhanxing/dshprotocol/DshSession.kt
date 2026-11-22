@@ -19,7 +19,7 @@ class DshSession(
     private val newRpcId: () -> String = { UUID.randomUUID().toString() },
     private val newRequestId: () -> String = { UUID.randomUUID().toString() },
 ) {
-    data class AcceptedPrompt(val requestId: String, val rpcId: String, val accepted: Boolean)
+    data class AcceptedPrompt(val requestId: String, val rpcId: String)
 
     /** Sends a queue (normal) or steer (mid-turn) prompt; §7.1 / §7.4. */
     fun sendPrompt(
@@ -40,9 +40,16 @@ class DshSession(
         val body = Json.compact(encodePromptRequest(rpcId, request))
         val response = ServerResponse.parse(transport.post("/api/session/prompt", body))
         requireRpcId(response, rpcId)
-        val accepted = response.ok &&
-            response.value?.takeIf { it.isJsonObject }?.asJsonObject?.boolOrNull("accepted") == true
-        return AcceptedPrompt(requestId = requestId, rpcId = rpcId, accepted = accepted)
+        if (!response.ok) {
+            val detail = (response.error ?: response.value)?.let { Json.compact(it) } ?: "no error detail"
+            throw ProtocolViolation("session/prompt rejected: $detail")
+        }
+        val value = response.value?.takeIf { it.isJsonObject }?.asJsonObject
+            ?: throw ProtocolViolation("session/prompt response missing result value")
+        if (value.boolOrNull("accepted") != true) {
+            throw ProtocolViolation("session/prompt not accepted")
+        }
+        return AcceptedPrompt(requestId = requestId, rpcId = rpcId)
     }
 
     /** Answers a waterfall approval request; §7.3. */

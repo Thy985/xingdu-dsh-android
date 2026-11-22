@@ -16,7 +16,6 @@ class SessionFlowReplayTest {
 
         val accepted = session.sendPrompt(request.sessionId, request.text)
 
-        assertTrue(accepted.accepted)
         assertEquals(request.requestId, accepted.requestId)
         assertEquals("/api/session/prompt", transport.calls.single().first)
         assertEquals(
@@ -34,11 +33,34 @@ class SessionFlowReplayTest {
 
         val accepted = session.sendPrompt(request.sessionId, request.text, PromptMode.STEER)
 
-        assertTrue(accepted.accepted)
         assertEquals(
             Fixtures.json("http-session-prompt-steer-request"),
             Json.parseObject(transport.calls.single().second),
         )
+    }
+
+    @Test(expected = ProtocolViolation::class)
+    fun rejectedPromptFailsClosed() {
+        val (rpcId, request) = parsePromptRequest(Fixtures.read("http-session-prompt-queue-request"))
+        val transport = FakeTransport(
+            mapOf(
+                "/api/session/prompt" to
+                    """{"type":"server-response","rpcId":"$rpcId","result":{"ok":false,"error":{"code":"rejected"}}}""",
+            ),
+        )
+        DshSession(transport, newRpcId = { rpcId }).sendPrompt(request.sessionId, request.text)
+    }
+
+    @Test(expected = ProtocolViolation::class)
+    fun promptWithAcceptedFalseFailsClosed() {
+        val (rpcId, request) = parsePromptRequest(Fixtures.read("http-session-prompt-queue-request"))
+        val transport = FakeTransport(
+            mapOf(
+                "/api/session/prompt" to
+                    """{"type":"server-response","rpcId":"$rpcId","result":{"ok":true,"value":{"accepted":false}}}""",
+            ),
+        )
+        DshSession(transport, newRpcId = { rpcId }).sendPrompt(request.sessionId, request.text)
     }
 
     @Test
