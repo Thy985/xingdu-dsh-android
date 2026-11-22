@@ -31,7 +31,7 @@ class SessionFlowReplayTest {
         val transport = steerResponse()
         val session = sessionWith(transport, fixtureRpcId, request.requestId, request.clientTimeZone)
 
-        val accepted = session.sendPrompt(request.sessionId, request.text, PromptMode.STEER)
+        session.sendPrompt(request.sessionId, request.text, PromptMode.STEER)
 
         assertEquals(
             Fixtures.json("http-session-prompt-steer-request"),
