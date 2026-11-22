@@ -1,0 +1,126 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "assistant/message",
+      "seq": 23,
+      "data": {
+        "turn": 1,
+        "step": 1,
+        "message": {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool-call",
+              "id": "chatcmpl-tool-8fb69df8602fb231",
+              "name": "pwsh",
+              "arguments": "{\"command\":\"Write-Output probe-approval-ok\",\"description\":\"Approval probe\",\"justification\":\"沙箱在当前 Windows 环境无法为工作区授予写权限，这条只读命令需要完全访问模式\",\"sandbox_permissions\":\"danger-full-access\"}"
+            }
+          ],
+          "source": {
+            "kind": "model",
+            "provider": "qiniu",
+            "model": "qiniu/conatus-free",
+            "replayState": {
+              "response": {
+                "kind": "pi-ai",
+                "version": 2,
+                "api": "openai-completions",
+                "provider": "qiniu",
+                "model": "qiniu/conatus-free",
+                "responseId": "chatcmpl-eaa6fe97a91b44c796bd96e8d2430cb2",
+                "stopReason": "toolUse"
+              },
+              "blocks": [
+                {
+                  "type": "tool-call"
+                }
+              ]
+            }
+          },
+          "id": "<UUID7>"
+        },
+        "usage": {
+          "inputTokens": 13220,
+          "outputTokens": 63,
+          "totalTokens": 13315,
+          "cacheReadTokens": 32
+        },
+        "stream": [
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "block-start",
+              "index": 0,
+              "blockType": "tool-call"
+            }
+          },
+          {
+            "type": "tool-call-chunks",
+            "time0": 1795325309062,
+            "index": 0,
+            "dt": [],
+            "id": "chatcmpl-tool-8fb69df8602fb231",
+            "name": "pwsh",
+            "args": [
+              "{\"command\": \"Write-Output probe-approval-ok\", \"description\": \"Approval probe\", \"justification\": \"沙箱在当前 Windows 环境无法为工作区授予写权限，这条只读命令需要完全访问模式\", \"sandbox_permissions\": \"danger-full-access\"}"
+            ]
+          },
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "block-end",
+              "index": 0,
+              "block": {
+                "type": "tool-call",
+                "id": "chatcmpl-tool-8fb69df8602fb231",
+                "name": "pwsh",
+                "arguments": "{\"command\":\"Write-Output probe-approval-ok\",\"description\":\"Approval probe\",\"justification\":\"沙箱在当前 Windows 环境无法为工作区授予写权限，这条只读命令需要完全访问模式\",\"sandbox_permissions\":\"danger-full-access\"}"
+              }
+            }
+          },
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "usage",
+              "usage": {
+                "inputTokens": 13220,
+                "outputTokens": 63,
+                "totalTokens": 13315,
+                "cacheReadTokens": 32
+              }
+            }
+          },
+          {
+            "type": "chunk",
+            "chunk": {
+              "type": "finish",
+              "reason": {
+                "kind": "tool-calls"
+              },
+              "replayState": {
+                "response": {
+                  "kind": "pi-ai",
+                  "version": 2,
+                  "api": "openai-completions",
+                  "provider": "qiniu",
+                  "model": "qiniu/conatus-free",
+                  "responseId": "chatcmpl-eaa6fe97a91b44c796bd96e8d2430cb2",
+                  "stopReason": "toolUse"
+                },
+                "blocks": [
+                  {
+                    "type": "tool-call"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "surfaceOp": "append"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "user/message",
+      "seq": 27,
+      "data": {
+        "content": [
+          {
+            "type": "text",
+            "text": "补充要求：请只保留前两点，其余省略。"
+          }
+        ],
+        "source": {
+          "kind": "user",
+          "rpcId": "<UUID15>",
+          "clientTimeZone": "Asia/Shanghai"
+        },
+        "role": "user",
+        "id": "<UUID17>"
+      },
+      "surfaceOp": "append"
+    }
+  }
+}

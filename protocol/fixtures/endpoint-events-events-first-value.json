@@ -2,6 +2,6 @@
   "type": "ready",
   "clientId": "<UUID1>",
   "host": {
-    "home": "C:\\Users\\lenovo"
+    "home": "<HOST_HOME>"
   }
 }

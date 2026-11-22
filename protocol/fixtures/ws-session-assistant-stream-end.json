@@ -1,0 +1,18 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "assistant-stream",
+    "frame": {
+      "type": "end",
+      "attemptId": "session-<UUID4>:1",
+      "revision": 12,
+      "index": 10,
+      "outcome": {
+        "kind": "committed",
+        "eventType": "assistant/message",
+        "seq": 16
+      }
+    }
+  }
+}

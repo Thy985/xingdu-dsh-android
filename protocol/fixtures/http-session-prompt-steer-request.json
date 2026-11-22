@@ -1,0 +1,21 @@
+{
+  "type": "client-request",
+  "rpcId": "<UUID14>",
+  "method": "session/prompt",
+  "payload": {
+    "args": {
+      "request": {
+        "requestId": "<UUID15>",
+        "sessionId": "session-<UUID16>",
+        "mode": "steer",
+        "content": [
+          {
+            "type": "text",
+            "text": "补充要求：请只保留前两点，其余省略。"
+          }
+        ],
+        "clientTimeZone": "Asia/Shanghai"
+      }
+    }
+  }
+}

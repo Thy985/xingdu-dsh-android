@@ -1,8 +1,10 @@
 # DSH Web 协议笔记（探针产出）
 
 > **契约来源声明（AGENTS.md 红线 5）**：本文全部协议事实来自本项目探针抓包
-> （`protocol/captures/`，由 `protocol/tools/capture_web.py` 采集），原始报文
-> 为唯一依据。不采信任何记忆、猜测或第三方客户端代码（含 dsh-go）。
+> （`protocol/captures/`，原始报文为唯一依据；抓包目录不入库）。页面加载面由
+> `protocol/tools/capture_web.py` 采集；第七节会话内四链路
+> 由 `protocol/tools/capture_interactive.py` 驱动官方前端采集（脚本入库，
+> 凭据只从环境变量读取，不写入脚本或抓包）。不采信任何记忆、猜测或第三方客户端代码（含 dsh-go）。
 > 每条事实标注捕获来源；`DSH_PROTOCOL_TARGET` 标注适用版本。
 
 **DSH_PROTOCOL_TARGET: 0.2.1-rc.5（本轮探针对象）**
@@ -10,6 +12,8 @@
 > 同时对 rc.2 与 rc.5 双向探针验证；**fixtures 已钉 rc.2**
 > （protocol/fixtures/，manifest 标注 DSH_PROTOCOL_TARGET=0.2.1-rc.2，由
 > protocol/tools/make_fixtures.py 从捕获脱敏生成）。
+> 第七节（会话内四链路）为 **rc.2 单版本交互捕获**，未做 rc.5 对照，
+> 该节标注 `DSH_PROTOCOL_TARGET: 0.2.1-rc.2`。
 
 ## 版本漂移 diff（rc.2 ↔ rc.5，2026-11-21）
 
@@ -166,9 +170,122 @@ UI 审批卡文案：等待审批 / 允许本次操作使用 danger-full-access 
 ## 六、待捕获（M1 探针清单）
 
 1. ~~rc.2 契约抓取~~ ✅ 已完成：fixtures 8 份 + manifest 钉 rc.2（见上）。
-2. ~~会话内消息流~~ ✅ 三轮完成：工作区写入全链路、pwsh job 模式、waterfall
-   审批请求 + **回答信封（allowed-once）** + 提权重执行端到端实证。**剩余**：
-   steering 注入帧、rc.2 交互面重跑确认（预期零漂移）。
-3. steering 注入信封（回复中途插话）。
+2. ~~会话内消息流：发送 → 流式响应 → 工具调用事件 → 审批请求/响应~~ ✅
+   已完成：见第七节 7.1–7.3（捆绑 rc.2 + OpenAI 兼容模型后端，官方 Web 前端驱动）。
+   另有三轮 rc.5 交互实证（工作区写入全链路、pwsh job 模式、waterfall 审批 +
+   allowed-once 回答信封 + 提权重执行），见第五·五–五·七节。
+3. ~~steering 注入信封（回复中途插话）~~ ✅ 已完成：见第七节 7.4。
 4. 会话 CRUD 全域（list/activate/delete/archive）与 workspace 切换。
 5. 终端（`terminal` 类端点）与文件 API 形态。
+
+## 七、会话内四链路（DSH_PROTOCOL_TARGET: 0.2.1-rc.2）
+
+> 本节全部事实来自捆绑引擎 **0.2.1-rc.2** 的交互抓包（官方 Web 前端驱动），
+> 未做 rc.5 对照。原始报文：`protocol/captures/rc2-stream-message/`、
+> `rc2-tool-approval/`、`rc2-steering/`（token/key 已脱敏，目录不进 git）；
+> 脱敏 fixture：`protocol/fixtures/{http-session-*,ws-session-*,http-events-result-*}.json`
+> （manifest 标注 DSH_PROTOCOL_TARGET=0.2.1-rc.2）。fixture 为完整 WS/HTTP
+> 信封（含 `seq`、`usage`、`stream` 等字段），仅 UUID 替换为占位符并移除
+> `time` 键；`time0` 等键名不为 `time` 的时间字段保留原值。不是裁剪快照。
+
+捕获环境：
+
+- Windows 原生 Node，`dsh web --no-open --host 127.0.0.1`（端口 3099 / 3103），
+  独立 `DSH_HOME`；Playwright 无头 Chromium 操作官方前端，非 mock。
+- 模型后端：OpenAI 兼容端点，由 `llm-pi-ai` 插件手工声明路由
+  （`api: "openai-completions"`、provider `qiniu`、model `qiniu/conatus-free`），
+  密钥仅从环境变量 `QINIU_API_KEY` 读取，**未写入任何被跟踪文件**。
+  引擎版本未改动；端点、鉴权、模型名均被接受，且实测支持 `tool_calls`。
+- 审批触发方式：本机 Windows 沙箱无法完成 ACL 授予
+  （`SetNamedSecurityInfoW … Win32 错误 5`），故由模型按指令在工具参数中携带
+  `sandbox_permissions: "danger-full-access"` + justification 触发升级审批。
+  审批信封与决策通路与普通审批完全一致，仅审批原因文案不同。
+- 观察：pi-ai 适配器在上游返回“completed response with no content”时会发
+  `llm/retry` → `llm/retry-started` 并重开 `assistant-stream`；审批与 steering
+  捕获中均出现过。协议外形不变，属模型/适配器层行为。
+
+### 7.1 发送消息（HTTP，链路一上段）
+
+前端 → 服务端：`POST /api/session/prompt`，`content-type: application/json`，
+body 为 `client-request` 信封（fixture `http-session-prompt-queue-request`）：
+
+```json
+{"type":"client-request","rpcId":"<uuid>","method":"session/prompt",
+ "payload":{"args":{"request":{"requestId":"<uuid>","sessionId":"session-<uuid>",
+ "mode":"queue","content":[{"type":"text","text":"…"}],"clientTimeZone":"Asia/Shanghai"}}}}
+```
+
+| 字段 | 语义 | 捕获参考 |
+| --- | --- | --- |
+| `method: "session/prompt"` | 唯一的发送方法名 | 7.1 请求 fixture |
+| `request.requestId` | 客户端生成；后续 `user/message.source.rpcId` 与之一致 | `ws-session-user-message` |
+| `mode: "queue"` | 普通发送（空闲态）；繁忙态 Ctrl+Enter 为 `"steer"` | 7.1 / 7.4 |
+| `clientTimeZone` | 前端时区，原样回显到 `user/message` | `ws-session-user-message` |
+| 响应 `result.value.accepted: true` | 仅表示已受理入队，**不代表模型已应答** | `http-session-prompt-response` |
+
+### 7.2 流式接收完毕（WS，链路一下段）
+
+最小事件序列（seq 为捕获中的会话事件序号，供对照）：
+
+| 形态 | 语义 | 捕获参考 |
+| --- | --- | --- |
+| `emit api-session/status` `args:[sessionId,true]` | 会话进入 busy | stream capture（emit 帧） |
+| `event turn/start` `{turn:1}` | 轮开始 | seq 4 |
+| `event step/start` `{turn:1,step:1}` | 步开始 | seq 6 |
+| `item assistant-stream` `frame.type=start` | 打开流式尝试：`attemptId="session-<sessionId>:<n>"`、`revision`、`turn/step`、`startedAfterSeq`（捕获为 13） | `ws-session-assistant-stream-start` |
+| `assistant-stream` `chunk` `block-start` | 文本块开始 `{index,blockType:"text"}` | stream capture |
+| `assistant-stream` `chunk` `text-delta` | 逐 token 增量 `{chunk:{type:"text-delta",index,text}}`，`revision` 递增 | `ws-session-assistant-stream-text-delta` |
+| `assistant-stream` `chunk` `block-end` | 整块完成 `{block:{type:"text",text}}` | stream capture |
+| `assistant-stream` `chunk` `usage` / `finish` | 用量与结束原因（`reason.kind:"stop"`、`replayState`） | stream capture |
+| `event assistant/message` | 提交的助手消息（`surfaceOp:"append"`），含 `usage` 与 `source.replayState.response`：`kind:"pi-ai"`、`version:2`、`api:"openai-completions"`、`provider`、`model`、`stopReason`；`blocks` 列块类型 | `ws-session-assistant-message`（seq 16） |
+| `item assistant-stream` `frame.type=end` | 尝试结束 `outcome:{kind:"committed",eventType:"assistant/message",seq}` | `ws-session-assistant-stream-end` |
+| `event step/end` → `event turn/end` | 步/轮结束，`turn/end.reason.kind="completed"` | `ws-session-turn-end`（seq 18） |
+| `emit api-session/status` `args:[sessionId,false]` | 会话回到空闲 | stream capture |
+
+伴随帧（非最小契约）：`session/title`、`session/title-llm-request`、
+`request/header`、`request/context`、`agent/inbox/spliced`、`api-session/activity`，
+以及 `projection`（`inbox`、`turnOutline`、`contextBreakdown` 等）。
+`attemptId` 的序号 `n` 含 retry 重开次数，正常单次为 `:1`。
+
+### 7.3 批准工具调用（链路二）
+
+| 步骤 | 形态 | 语义 | 捕获参考 |
+| --- | --- | --- | --- |
+| 1 | `assistant-stream` `chunk` `tool-call-delta` → `event assistant/message` | 助手消息 `content:[{type:"tool-call",id,name,arguments}]`，`arguments` 为 JSON 字符串，`stopReason:"toolUse"` | `ws-session-assistant-tool-call-message`（seq 23） |
+| 2 | `event tool/call` | `{turn,step,callId,name,arguments}`，`callId` 来自模型工具调用 id | `ws-session-tool-call`（seq 24） |
+| 3 | `event approval/asked` | `{id,toolName,callId,reason}`；UI 弹审批卡「拒绝 / 允许一次」 | `ws-session-approval-asked`（seq 25） |
+| 4 | WS `waterfall` `event:"approval/request"` | `{eventId,agentId,request:{toolName,callId,reason,displayReason:{en,zh}}}`；`eventId` 用于回执 | `ws-session-approval-request` |
+| 5 | HTTP `POST /api/$events/result` | `client-request`，`payload.args:{clientId,eventId,outcome:{kind:"result",value:"allowed-once"}}`；`clientId` 取自 `$events` ready 帧 | `http-events-result-request` / `-response` |
+| 6 | `event approval/decided` | `{id,outcome:"allowed-once"}` | `ws-session-approval-decided`（seq 26） |
+| 7 | `event job/registered` → `job/settled` | 工具作业登记与结算（`status:"completed"`） | approval capture（seq 27/28） |
+| 8 | `event tool/result` | 工具消息 `{role:"tool",toolCallId,content,isError:false}`，`meta.cwd`，`sourceEventSeqs:[24]`，`surfaceOp:"append"` | `ws-session-tool-result`（seq 29） |
+| 9 | 继续第 2 步 | 新的 `step/start` → 流式 → `assistant/message` → `step/end` → `turn/end` | approval capture（seq 31–34） |
+
+要点：
+
+- `approval/asked.id` 是审批记录 id；`$events/result` 用的是 waterfall 的
+  `eventId` + `clientId`，二者不可混用（fixture 中分别脱敏为两个占位符）。
+- 审批结果值观察到 `"allowed-once"`；UI 取消/拒绝通路本次未捕获。
+- 审批不新开 turn：批准后在同一 turn 内进入下一 step。
+
+### 7.4 中途插话 steering（链路三）
+
+| 步骤 | 形态 | 语义 | 捕获参考 |
+| --- | --- | --- | --- |
+| 1 | HTTP `POST /api/session/prompt` | 与 7.1 同信封，`mode:"steer"`、新的 `requestId`；立即返回 `accepted:true`，**不取消在飞 step** | `http-session-prompt-steer-request` / `-response` |
+| 2 | `event agent/inbox/spliced` | `{target:"next-step",start:0,inserted:[{role:"user",content,source:{kind:"user",rpcId:<requestId>,clientTimeZone},id}]}`；消息先暂存，未进会话记录 | `ws-session-inbox-spliced`（seq 22） |
+| 3 | 当前流式继续 | 在飞 step 正常提交 `assistant/message` → `step/end` | steering capture（seq 23/24） |
+| 4 | `event agent/inbox/spliced`（再次） | `{target:"next-step",start:0,removedCount:1,inserted:[]}`：在 step 边界把暂存消息取出 | steering capture（seq 25） |
+| 5 | `event step/start` `{turn:1,step:2}` | 新 step 开始 | `ws-session-step-start`（seq 26） |
+| 6 | `event user/message` | 同一 `id`/`rpcId` 正式落盘，`surfaceOp:"append"` | `ws-session-steer-user-message`（seq 27） |
+| 7 | `assistant-stream start` → 流式 → `assistant/message` → `step/end` | 新 step 的流式应答，`attemptId` 序号与 `revision` 继续递增 | steering capture（seq 28/29） |
+| 8 | `event turn/end` | 全轮**只有一个** `turn/end`（`reason.kind:"completed"`） | `ws-session-steer-turn-end`（seq 30） |
+
+要点：
+
+- 投递发生在 **step 边界**：steer 消息先 `spliced` 到 `next-step`，当前 step
+  完成后取出并作为新的 `user/message` 交付，再开 step 2。
+- 同一个 `turn` 内完成，`turn/end` 不重复；`user/message.source.rpcId`
+  等于 steer 请求的 `requestId`。
+- 繁忙态 Enter=queue、Ctrl+Enter=steer 是前端默认策略；协议层只区分
+  `mode` 字段，服务端行为与按键无关。

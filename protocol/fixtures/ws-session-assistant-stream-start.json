@@ -1,0 +1,15 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "assistant-stream",
+    "frame": {
+      "type": "start",
+      "attemptId": "session-<UUID4>:1",
+      "revision": 1,
+      "turn": 1,
+      "step": 1,
+      "startedAfterSeq": 13
+    }
+  }
+}

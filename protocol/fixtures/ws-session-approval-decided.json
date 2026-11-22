@@ -1,0 +1,15 @@
+{
+  "type": "item",
+  "streamId": "<STREAM_UUID>",
+  "value": {
+    "type": "event",
+    "event": {
+      "type": "approval/decided",
+      "seq": 26,
+      "data": {
+        "id": "<UUID8>",
+        "outcome": "allowed-once"
+      }
+    }
+  }
+}
