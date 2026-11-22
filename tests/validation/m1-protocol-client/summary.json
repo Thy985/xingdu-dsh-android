@@ -1,0 +1,44 @@
+{
+  "version": "m1-protocol-client",
+  "scope": "M1 第一切片（PR #8）：新增 protocol/ Kotlin 最小连接层与 31 项 fixture 回放测试；不改 app/ 行为、不改红线区。L3 为壳层冒烟，验证本次构建接入未破坏既有仪器测试。",
+  "layers": {
+    "L0": {
+      "status": "pass",
+      "evidence": "node tests/mobile-shell-contract.cjs：本机 pass（2026-11-22）；PR #8 CI build-and-test green"
+    },
+    "L1": {
+      "status": "pass",
+      "evidence": "protocol 回放 29/29（本机，FixtureCatalogTest 3 + HttpReplayTest 6 + MuxReplayTest 12 + SessionFlowReplayTest 8）；PR #8 CI :protocol:test green。app JVM/lint 同 PR CI green；本机未跑全量 testDebugUnitTest，Windows FIFO 已知差异不变"
+    },
+    "L2": {
+      "status": "not-run",
+      "evidence": "本切片无主机端 UI 变更"
+    },
+    "L3": {
+      "status": "partial",
+      "device": "HUAWEI DBR-W00, Android 12 (API 31), arm64-v8a, EMUI WebView（专用测试设备）",
+      "command": "./gradlew :app:connectedDebugAndroidTest",
+      "executed": 39,
+      "passed": 36,
+      "failed": 1,
+      "skipped": 2,
+      "failure": "MobileLayoutTest.mainFrameHttpErrorIsNotReportedConnectedAndRetryRecovers — java.lang.AssertionError: pageError presence must become true",
+      "skipped_tests": [
+        "B6OverInstallTest.b6_dataSurvivesAndRuntimeReinstalls",
+        "B6SeedTest.seedFirstRunAndStartEngine"
+      ],
+      "environment_factors": [
+        "webview-error-page-huawei（0.2.0 已定性为华为 WebView 错误页呈现差异；本次复现同一失败，未改写为通过）"
+      ]
+    },
+    "L4": {
+      "status": "not-run",
+      "evidence": "本切片无 UI/交互变更"
+    }
+  },
+  "unverified": [
+    "protocol 模块暂无仪器测试（L3 仅为壳层冒烟，不覆盖 protocol/ 代码路径）",
+    "IME 窗口缩放本次未复现失败（0.2.0 曾归档为环境因素，不据此改判）"
+  ],
+  "note": "L3 结果按原始输出归档：36 pass / 1 fail / 2 skipped。失败与跳过项均未转化为通过结论。"
+}

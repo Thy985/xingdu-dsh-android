@@ -39,4 +39,7 @@ else
   ./gradlew testDebugUnitTest lintDebug
 fi
 
+echo "==> [L1] protocol 回放单测"
+./gradlew :protocol:test
+
 echo "PASS: verify-local 全部通过（L0 + L1$( [ "$NO_LINT" -eq 0 ] && echo ' + lint' )）"

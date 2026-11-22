@@ -1,9 +1,10 @@
 # DSH Web 协议笔记（探针产出）
 
 > **契约来源声明（AGENTS.md 红线 5）**：本文全部协议事实来自本项目探针抓包
-> （`protocol/captures/`，原始报文为唯一依据；页面加载面由
-> `protocol/tools/capture_web.py` 采集，第七节会话内四链路由本地交互探针脚本
-> 驱动官方前端采集，该脚本不入库）。不采信任何记忆、猜测或第三方客户端代码（含 dsh-go）。
+> （`protocol/captures/`，原始报文为唯一依据；抓包目录不入库）。页面加载面由
+> `protocol/tools/capture_web.py` 采集；第七节会话内四链路
+> 由 `protocol/tools/capture_interactive.py` 驱动官方前端采集（脚本入库，
+> 凭据只从环境变量读取，不写入脚本或抓包）。不采信任何记忆、猜测或第三方客户端代码（含 dsh-go）。
 > 每条事实标注捕获来源；`DSH_PROTOCOL_TARGET` 标注适用版本。
 
 **DSH_PROTOCOL_TARGET: 0.2.1-rc.5（本轮探针对象）**
@@ -183,7 +184,9 @@ UI 审批卡文案：等待审批 / 允许本次操作使用 danger-full-access 
 > 未做 rc.5 对照。原始报文：`protocol/captures/rc2-stream-message/`、
 > `rc2-tool-approval/`、`rc2-steering/`（token/key 已脱敏，目录不进 git）；
 > 脱敏 fixture：`protocol/fixtures/{http-session-*,ws-session-*,http-events-result-*}.json`
-> （manifest 标注 DSH_PROTOCOL_TARGET=0.2.1-rc.2）。
+> （manifest 标注 DSH_PROTOCOL_TARGET=0.2.1-rc.2）。fixture 为完整 WS/HTTP
+> 信封（含 `seq`、`usage`、`stream` 等字段），仅 UUID 与时间戳替换为占位符，
+> 不是裁剪快照。
 
 捕获环境：
 

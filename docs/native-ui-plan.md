@@ -156,7 +156,7 @@ CI 无需模型配置。M1 验收：对 mock server 全链路绿 + 真机真实 
 | --- | --- | --- |
 | 许可立场 | **已决定：AGPL-3.0** | 2026-11-21 维护者决定；LICENSE、README 已同步 |
 | M0 | 计划 | A 线 = ROADMAP 0.2.0；B 线 = 许可 + 探针 |
-| M1 | 计划 | `protocol/` 模块 + fixtures |
-| M1→M2 升级闸门 | 计划：2026-12-20 | 基线 rc.2 四链路待补；目标 DSH 0.2.2 稳定版 |
+| M1 | **进行中（第一切片）** | `protocol/` 模块 + 31 项 fixture 回放（L1）；四链路捕获见 protocol-notes 第七节；L3 冒烟与证据见 `tests/validation/m1-protocol-client/` |
+| M1→M2 升级闸门 | 计划：2026-12-20 | 基线 rc.2 四链路已捕获（protocol-notes 第七节）；目标 DSH 0.2.2 稳定版 |
 | M2 | 计划 | Compose 四件事 |
 | M3 | 计划 | 日常自用补全，发布 0.3.0-dev |
