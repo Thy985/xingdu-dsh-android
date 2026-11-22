@@ -92,6 +92,9 @@ jobs:
       - name: JVM tests and lint
         run: ./gradlew testDebugUnitTest lintDebug --stacktrace
 
+      - name: Protocol replay tests
+        run: ./gradlew :protocol:test --stacktrace
+
       - name: Assemble app and AndroidTest APKs
         run: ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
 

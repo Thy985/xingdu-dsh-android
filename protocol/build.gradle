@@ -1,0 +1,29 @@
+// Pure JVM protocol module (M1). Zero Android dependencies so the fixture
+// replay tests run in the existing JVM CI layer (docs/native-ui-plan.md).
+plugins { id 'org.jetbrains.kotlin.jvm' }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.11.0'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+// The M0 captures' sanitized contract lives at protocol/fixtures/. Expose that
+// single copy to tests instead of duplicating fixtures under src/test.
+sourceSets {
+    test {
+        resources {
+            srcDir 'fixtures'
+        }
+    }
+}
