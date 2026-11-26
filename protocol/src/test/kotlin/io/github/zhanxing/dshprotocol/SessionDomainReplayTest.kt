@@ -277,6 +277,77 @@ class SessionDomainReplayTest {
         assertEquals(records, follow.snapshot!!.records)
     }
 
+    @Test
+    fun rpcIdMismatchFailsClosed() {
+        val transport = ReplayTransport(mapOf(SessionRpc.LIST_PATH to Fixtures.read("http-session-list-response")))
+        val domain = SessionDomain(transport, newRpcId = { "<OTHER_RPC>" })
+
+        try {
+            domain.list()
+            throw AssertionError("expected ProtocolViolation")
+        } catch (e: ProtocolViolation) {
+            assertTrue(e.message!!.contains("rpcId"))
+        }
+    }
+
+    @Test
+    fun archiveResponseWithoutArchivedIdsFailsClosed() {
+        val response =
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":true,"value":{}}}"""
+        val transport = ReplayTransport(mapOf(SessionRpc.ARCHIVE_PATH to response))
+
+        try {
+            SessionDomain(transport, newRpcId = { "<RPC>" }).archive("session-x")
+            throw AssertionError("expected ProtocolViolation")
+        } catch (e: ProtocolViolation) {
+            assertTrue(e.message!!.contains("archivedSessionIds"))
+        }
+    }
+
+    @Test
+    fun errorWithoutCodeFailsClosed() {
+        val response =
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":false,"error":{"message":"boom"}}}"""
+        val transport = ReplayTransport(mapOf(SessionRpc.LIST_PATH to response))
+
+        try {
+            SessionDomain(transport, newRpcId = { "<RPC>" }).list()
+            throw AssertionError("expected ProtocolViolation")
+        } catch (e: ProtocolViolation) {
+            assertTrue(e.message!!.contains("code"))
+        }
+    }
+
+    @Test
+    fun otherMalformedResponsesFailClosed() {
+        expectViolation("""{"type":"client-request","rpcId":"<RPC>","result":{"ok":true}}""") { it.list() }
+        expectViolation("""{"type":"server-response","rpcId":"<RPC>","value":{"ok":true}}""") { it.list() }
+        expectViolation(
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":"true","value":{"items":[]}}}""",
+        ) { it.list() }
+        expectViolation("""{"type":"server-response","rpcId":"<RPC>","result":{"ok":true}}""") { it.list() }
+        expectViolation(
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":true,"value":{}}}""",
+        ) { it.list() }
+        expectViolation(
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":true,"value":{"items":[1]}}}""",
+        ) { it.list() }
+        expectViolation(
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":true,"value":{"items":[{"sessionId":"s"}]}}}""",
+        ) { it.list() }
+        expectViolation(
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":false,"error":"boom"}}""",
+        ) { it.list() }
+        expectViolation(
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":true,"value":{"agentPreset":"standard"}}}""",
+            path = SessionRpc.CREATE_PATH,
+        ) { it.create("workspace-x", "session-x") }
+        expectViolation(
+            """{"type":"server-response","rpcId":"<RPC>","result":{"ok":true,"value":{"archivedSessionIds":[1]}}}""",
+            path = SessionRpc.ARCHIVE_PATH,
+        ) { it.archive("session-x") }
+    }
+
     private fun rpcId(name: String): String = Fixtures.json(name).get("rpcId").asString
 
     private fun args(name: String): JsonObject =
@@ -289,6 +360,21 @@ class SessionDomainReplayTest {
 
     private fun sessionId(name: String): String =
         args(name).getAsJsonObject("request").get("sessionId").asString
+
+    private fun expectViolation(
+        response: String,
+        path: String = SessionRpc.LIST_PATH,
+        block: (SessionDomain) -> Unit,
+    ) {
+        val transport = ReplayTransport(mapOf(path to response))
+        val domain = SessionDomain(transport, newRpcId = { "<RPC>" })
+        try {
+            block(domain)
+        } catch (e: ProtocolViolation) {
+            return
+        }
+        throw AssertionError("expected ProtocolViolation for $response")
+    }
 
     private fun expectRpcError(code: String, block: () -> Unit): RpcError {
         val error = try {
