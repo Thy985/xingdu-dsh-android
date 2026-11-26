@@ -199,6 +199,7 @@ private fun MuxValue.typeName(): String = when (this) {
     is MuxValue.Baseline -> "baseline"
     is MuxValue.Ready -> "ready"
     is MuxValue.Upsert -> "upsert"
+    is MuxValue.Archived -> "archived"
     is MuxValue.Order -> "order"
     is MuxValue.Other -> type
 }
