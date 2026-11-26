@@ -60,6 +60,9 @@ sealed interface MuxValue {
 
     data class Upsert(val workspace: JsonObject?) : MuxValue
 
+    /** `workspace/follow` archive set (§8.1): the authoritative archived-session list. */
+    data class Archived(val sessionIds: List<String>) : MuxValue
+
     data class Order(val raw: JsonObject) : MuxValue
 
     data class Other(val type: String, val raw: JsonObject) : MuxValue
@@ -137,6 +140,12 @@ fun parseMuxValue(value: JsonObject): MuxValue = when (val type = value.stringOr
     )
 
     "upsert" -> MuxValue.Upsert(value.objectOrNull("workspace"))
+
+    "archived" -> MuxValue.Archived(
+        value.arrayOrNull("archivedSessionIds").orEmpty()
+            .filter { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            .map { it.asString },
+    )
 
     "order" -> MuxValue.Order(value)
 
